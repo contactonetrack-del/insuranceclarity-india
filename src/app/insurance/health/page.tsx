@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, AlertTriangle, CheckCircle, Clock, Building2, Users, HeartPulse, User, TrendingUp, Pill, Eye, Smile, Syringe, Stethoscope, Calculator, Search } from 'lucide-react'
 import {

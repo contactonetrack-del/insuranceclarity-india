@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, Plane, AlertTriangle, Train, GraduationCap, User, Building2, Briefcase, XCircle, Clock, FileText, Siren, X, Search } from 'lucide-react'
 import {

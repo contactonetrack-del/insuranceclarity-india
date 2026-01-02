@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, AlertTriangle, Home as HomeIcon, Building, Sofa, Key, Flame, Droplets, Wind, Lock, Zap, Wrench, X, Search } from 'lucide-react'
 import {

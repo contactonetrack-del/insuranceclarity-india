@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, AlertTriangle, UserCheck, HeartOff, CircleOff, Activity, Building2, Pill, Siren, X, Search } from 'lucide-react'
 import {
