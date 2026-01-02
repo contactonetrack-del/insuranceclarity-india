@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import PageTransition from '@/components/PageTransition'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const inter = Inter({
     subsets: ['latin'],
@@ -51,6 +52,7 @@ export default function RootLayout({
                     </PageTransition>
                     <Footer />
                 </ThemeProvider>
+                <SpeedInsights />
             </body>
         </html>
     )
