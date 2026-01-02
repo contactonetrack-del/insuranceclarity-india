@@ -34,7 +34,7 @@ export async function GET(request: Request) {
         // Get stats
         const allFacts = getAllFacts()
         const criticalCount = allFacts.filter(f => f.severity === 'critical').length
-        const categories = [...new Set(allFacts.map(f => f.category))]
+        const categories = Array.from(new Set(allFacts.map(f => f.category)))
 
         return NextResponse.json({
             facts,
