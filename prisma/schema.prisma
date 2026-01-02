@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model HiddenFact {
+  id              String   @id @default(cuid())
+  category        String
+  title           String
+  severity        String   // critical, high, medium, low
+  description     String
+  affectedPolicies String[]
+  whatToCheck     String
+  realCase        String
+  example         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([category])
+  @@index([severity])
+}
+
+model ClaimCase {
+  id          String   @id @default(cuid())
+  category    String
+  title       String
+  status      String   // approved, rejected, partial
+  amount      Int
+  issue       String
+  details     String
+  outcome     String
+  lesson      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  savedFacts    String[]
+  savedCases    String[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Newsletter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

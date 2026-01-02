@@ -1,0 +1,698 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   DESIGN TOKENS - Premium UI System
+   ============================================ */
+
+:root {
+    /* ===== SPACING & RADIUS TOKENS ===== */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-full: 9999px;
+
+    /* ===== MOTION TOKENS ===== */
+    --motion-instant: 100ms;
+    --motion-fast: 200ms;
+    --motion-medium: 400ms;
+    --motion-slow: 800ms;
+    --motion-glacial: 1200ms;
+
+    /* Premium easing curves */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* ===== ICON SIZE TOKENS ===== */
+    --icon-xs: 14px;
+    --icon-sm: 16px;
+    --icon-md: 20px;
+    --icon-lg: 24px;
+    --icon-xl: 32px;
+    --icon-2xl: 48px;
+
+    /* ===== LIGHT THEME COLORS ===== */
+    --color-bg-primary: 255 255 255;
+    --color-bg-secondary: 250 250 250;
+    --color-bg-tertiary: 245 245 245;
+
+    --color-text-primary: 15 23 42;
+    --color-text-secondary: 71 85 105;
+    --color-text-muted: 148 163 184;
+
+    --color-card-bg: 255 255 255;
+    --card-opacity: 0.98;
+    --card-blur: 20px;
+
+    /* GREEN accent for Light Mode */
+    --color-accent: 76 175 80;
+    --color-accent-rgb: 76, 175, 80;
+    --color-accent-dark: 56 142 60;
+    --color-accent-light: 129 199 132;
+
+    /* Light mode gradients */
+    --gradient-accent: linear-gradient(135deg, #4CAF50 0%, #43A047 100%);
+    --gradient-bg: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+    --gradient-overlay: none;
+
+    /* Light mode shadows - tighter, brighter */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+
+    /* Light mode glows - tight, bright, minimal */
+    --glow-sm: 0 0 12px rgba(76, 175, 80, 0.2);
+    --glow-md: 0 0 20px rgba(76, 175, 80, 0.25);
+    --glow-lg: 0 0 32px rgba(76, 175, 80, 0.3);
+
+    /* Borders */
+    --border-default: rgba(0, 0, 0, 0.06);
+    --border-hover: rgba(76, 175, 80, 0.4);
+    --border-active: rgba(76, 175, 80, 0.6);
+}
+
+.dark {
+    /* ===== DARK THEME COLORS ===== */
+    --color-bg-primary: 10 15 26;
+    --color-bg-secondary: 15 23 42;
+    --color-bg-tertiary: 30 41 59;
+
+    --color-text-primary: 248 250 252;
+    --color-text-secondary: 203 213 225;
+    --color-text-muted: 148 163 184;
+
+    --color-card-bg: 30 41 59;
+    --card-opacity: 0.85;
+    --card-blur: 16px;
+
+    /* BLUE accent for Dark Mode */
+    --color-accent: 59 130 246;
+    --color-accent-rgb: 59, 130, 246;
+    --color-accent-dark: 37 99 235;
+    --color-accent-light: 96 165 250;
+
+    /* Dark mode gradients */
+    --gradient-accent: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    --gradient-bg: linear-gradient(135deg, #0a0f1a 0%, #0f172a 50%, #1e293b 100%);
+    --gradient-overlay: none;
+
+    /* Dark mode shadows - deeper */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
+
+    /* Dark mode glows - softer, wider, lower opacity */
+    --glow-sm: 0 0 16px rgba(59, 130, 246, 0.15);
+    --glow-md: 0 0 28px rgba(59, 130, 246, 0.2);
+    --glow-lg: 0 0 48px rgba(59, 130, 246, 0.25);
+
+    /* Borders */
+    --border-default: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(59, 130, 246, 0.4);
+    --border-active: rgba(59, 130, 246, 0.6);
+}
+
+/* ============================================
+   REDUCED MOTION - Accessibility First
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+body {
+    color: rgb(var(--color-text-primary));
+    background: var(--gradient-bg);
+    min-height: 100vh;
+    transition: background var(--motion-slow) var(--ease-out-expo),
+        color var(--motion-medium) var(--ease-out-expo);
+}
+
+/* ============================================
+   GLASSMORPHISM UTILITIES
+   ============================================ */
+@layer utilities {
+
+    /* === Glass Effects === */
+    .glass {
+        background: rgba(var(--color-card-bg), var(--card-opacity));
+        backdrop-filter: blur(var(--card-blur));
+        -webkit-backdrop-filter: blur(var(--card-blur));
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .glass-strong {
+        background: rgba(var(--color-card-bg), 0.98);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--border-default);
+        box-shadow: var(--shadow-md);
+    }
+
+    .glass-subtle {
+        background: rgba(var(--color-card-bg), 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid transparent;
+    }
+
+    /* === Motion Level 1: Micro Interactions === */
+    .hover-lift {
+        transition: transform var(--motion-fast) var(--ease-out-expo),
+            box-shadow var(--motion-fast) var(--ease-out-expo),
+            border-color var(--motion-fast) var(--ease-out-expo);
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .hover-lift-lg {
+        transition: transform var(--motion-medium) var(--ease-out-expo),
+            box-shadow var(--motion-medium) var(--ease-out-expo);
+    }
+
+    .hover-lift-lg:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .hover-scale {
+        transition: transform var(--motion-fast) var(--ease-spring);
+    }
+
+    .hover-scale:hover {
+        transform: scale(1.02);
+    }
+
+    .hover-glow {
+        transition: box-shadow var(--motion-medium) var(--ease-out-expo);
+    }
+
+    .hover-glow:hover {
+        box-shadow: var(--glow-md);
+    }
+
+    .active-press:active {
+        transform: scale(0.98);
+    }
+
+    /* === Motion Level 2: Section Entry (Scroll Reveal) === */
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity var(--motion-slow) var(--ease-out-expo),
+            transform var(--motion-slow) var(--ease-out-expo);
+    }
+
+    .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .reveal-left {
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: opacity var(--motion-slow) var(--ease-out-expo),
+            transform var(--motion-slow) var(--ease-out-expo);
+    }
+
+    .reveal-left.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .reveal-scale {
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity var(--motion-slow) var(--ease-out-expo),
+            transform var(--motion-slow) var(--ease-out-expo);
+    }
+
+    .reveal-scale.visible {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Stagger delays for children */
+    .stagger-1 {
+        transition-delay: 100ms;
+    }
+
+    .stagger-2 {
+        transition-delay: 200ms;
+    }
+
+    .stagger-3 {
+        transition-delay: 300ms;
+    }
+
+    .stagger-4 {
+        transition-delay: 400ms;
+    }
+
+    .stagger-5 {
+        transition-delay: 500ms;
+    }
+
+    .stagger-6 {
+        transition-delay: 600ms;
+    }
+
+    /* === Motion Level 3: Hero / Key CTAs === */
+    .hero-glow {
+        animation: hero-pulse 3s var(--ease-in-out) infinite;
+    }
+
+    @keyframes hero-pulse {
+
+        0%,
+        100% {
+            box-shadow: var(--glow-md);
+        }
+
+        50% {
+            box-shadow: var(--glow-lg);
+        }
+    }
+
+    .float {
+        animation: float 6s var(--ease-in-out) infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-12px);
+        }
+    }
+
+    /* === Gradient & Visual Effects === */
+    .bg-gradient-accent {
+        background: var(--gradient-accent);
+    }
+
+    .text-gradient {
+        background: var(--gradient-accent);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .text-accent {
+        color: rgb(var(--color-accent));
+    }
+
+    /* === Theme-aware Text === */
+    .text-theme-primary {
+        color: rgb(var(--color-text-primary));
+    }
+
+    .text-theme-secondary {
+        color: rgb(var(--color-text-secondary));
+    }
+
+    .text-theme-muted {
+        color: rgb(var(--color-text-muted));
+    }
+
+    /* === Theme-aware Backgrounds === */
+    .bg-theme-primary {
+        background-color: rgb(var(--color-bg-primary));
+    }
+
+    .bg-theme-secondary {
+        background-color: rgb(var(--color-bg-secondary));
+    }
+
+    .bg-accent-5 {
+        background-color: rgba(var(--color-accent), 0.05);
+    }
+
+    .bg-accent-10 {
+        background-color: rgba(var(--color-accent), 0.1);
+    }
+
+    .bg-accent-20 {
+        background-color: rgba(var(--color-accent), 0.2);
+    }
+
+    /* === Border Utilities === */
+    .border-default {
+        border-color: var(--border-default);
+    }
+
+    .border-hover {
+        border-color: var(--border-hover);
+    }
+
+    /* === Shadow Utilities === */
+    .shadow-glow-sm {
+        box-shadow: var(--glow-sm);
+    }
+
+    .shadow-glow {
+        box-shadow: var(--glow-md);
+    }
+
+    .shadow-glow-lg {
+        box-shadow: var(--glow-lg);
+    }
+
+    /* === Icon Containers === */
+    .icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--motion-fast) var(--ease-out-expo),
+            box-shadow var(--motion-fast) var(--ease-out-expo);
+    }
+
+    .icon-container:hover {
+        transform: scale(1.05);
+    }
+}
+
+/* ============================================
+   COMPONENT STYLES
+   ============================================ */
+@layer components {
+
+    /* Premium Button */
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 font-medium rounded-xl;
+        padding: 12px 24px;
+        background: var(--gradient-accent);
+        color: white;
+        box-shadow: var(--shadow-md);
+        transition: transform var(--motion-fast) var(--ease-out-expo),
+            box-shadow var(--motion-medium) var(--ease-out-expo);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--glow-md), var(--shadow-lg);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    /* Secondary Button */
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 font-medium rounded-xl glass;
+        padding: 12px 24px;
+        color: rgb(var(--color-text-primary));
+        transition: transform var(--motion-fast) var(--ease-out-expo),
+            border-color var(--motion-fast) var(--ease-out-expo),
+            box-shadow var(--motion-fast) var(--ease-out-expo);
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        border-color: var(--border-hover);
+    }
+
+    .btn-secondary:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    /* Premium Card */
+    .card {
+        @apply glass rounded-2xl;
+        padding: 24px;
+        transition: transform var(--motion-medium) var(--ease-out-expo),
+            box-shadow var(--motion-medium) var(--ease-out-expo),
+            border-color var(--motion-medium) var(--ease-out-expo);
+    }
+
+    .card-interactive {
+        @apply card cursor-pointer;
+    }
+
+    .card-interactive:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--border-hover);
+    }
+
+    /* Badge */
+    .badge {
+        @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium;
+        background-color: rgba(var(--color-accent), 0.1);
+        color: rgb(var(--color-accent));
+        transition: background-color var(--motion-fast) var(--ease-out-expo);
+    }
+
+    .badge-success {
+        @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400;
+    }
+
+    .badge-warning {
+        @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400;
+    }
+
+    .badge-danger {
+        @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-red-500/10 text-red-600 dark:text-red-400;
+    }
+
+    /* Nav Link */
+    .nav-link {
+        @apply relative px-4 py-2 font-medium rounded-lg;
+        color: rgb(var(--color-text-secondary));
+        transition: color var(--motion-fast) var(--ease-out-expo),
+            background-color var(--motion-fast) var(--ease-out-expo);
+    }
+
+    .nav-link:hover {
+        color: rgb(var(--color-accent));
+        background-color: rgba(var(--color-accent), 0.08);
+    }
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: var(--gradient-accent);
+        transition: width var(--motion-fast) var(--ease-out-expo),
+            left var(--motion-fast) var(--ease-out-expo);
+    }
+
+    .nav-link:hover::after {
+        width: 60%;
+        left: 20%;
+    }
+
+    /* Input Fields */
+    .input {
+        @apply w-full px-4 py-3 rounded-xl;
+        background: rgba(var(--color-card-bg), 0.8);
+        border: 1px solid var(--border-default);
+        color: rgb(var(--color-text-primary));
+        transition: border-color var(--motion-fast) var(--ease-out-expo),
+            box-shadow var(--motion-fast) var(--ease-out-expo);
+    }
+
+    .input:focus {
+        outline: none;
+        border-color: rgb(var(--color-accent));
+        box-shadow: 0 0 0 3px rgba(var(--color-accent), 0.1);
+    }
+
+    .input::placeholder {
+        color: rgb(var(--color-text-muted));
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in var(--motion-medium) var(--ease-out-expo);
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up var(--motion-medium) var(--ease-out-expo);
+}
+
+.animate-slide-in {
+    animation: slide-in-right var(--motion-medium) var(--ease-out-expo);
+}
+
+.animate-scale-in {
+    animation: scale-in var(--motion-medium) var(--ease-out-expo);
+}
+
+/* Skeleton Loader */
+.skeleton {
+    background: linear-gradient(90deg,
+            rgba(var(--color-text-muted), 0.1) 0%,
+            rgba(var(--color-text-muted), 0.2) 50%,
+            rgba(var(--color-text-muted), 0.1) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(var(--color-bg-tertiary), 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(var(--color-accent), 0.3);
+    border-radius: 4px;
+    transition: background var(--motion-fast) var(--ease-out-expo);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--color-accent), 0.5);
+}
+
+/* ============================================
+   SELECTION
+   ============================================ */
+::selection {
+    background: rgba(var(--color-accent), 0.2);
+    color: rgb(var(--color-text-primary));
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS (Intent-Based)
+   ============================================ */
+*,
+*::before,
+*::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: var(--motion-fast);
+    transition-timing-function: var(--ease-out-expo);
+}
+
+/* Disable transitions on page load */
+.no-transitions * {
+    transition: none !important;
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+select option {
+    background: rgb(var(--color-bg-secondary));
+    color: rgb(var(--color-text-primary));
+}
+
+/* ============================================
+   INFINITE MARQUEE - Seamless Loop Animation
+   Based on Ryan Mulligan's pattern
+   ============================================ */
+.marquee {
+    display: flex;
+    gap: var(--marquee-gap);
+}
+
+.marquee__content {
+    flex-shrink: 0;
+    justify-content: space-around;
+    min-width: 100%;
+}
+
+@keyframes marquee-scroll {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(calc(-100% - var(--marquee-gap)));
+    }
+}

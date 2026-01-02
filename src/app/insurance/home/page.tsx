@@ -1,0 +1,176 @@
+import Link from 'next/link'
+import { ArrowRight, AlertTriangle, Home as HomeIcon, Building, Sofa, Key, Flame, Droplets, Wind, Lock, Zap, Wrench, X, Search } from 'lucide-react'
+import {
+    RevealOnScroll,
+    StaggerContainer,
+    StaggerItem,
+    TiltCard,
+    GlassCard,
+    MagicButton,
+    AnimatedHeading,
+    IconContainer
+} from '@/components/premium'
+
+const homeTypes = [
+    { id: 'building', title: 'Building Insurance', icon: Building, desc: 'Structure, walls, permanent fixtures', color: 'from-amber-500 to-orange-600' },
+    { id: 'contents', title: 'Contents Insurance', icon: Sofa, desc: 'Furniture, electronics, valuables', color: 'from-blue-500 to-indigo-600' },
+    { id: 'comprehensive', title: 'Comprehensive', icon: HomeIcon, desc: 'Building + Contents combined', color: 'from-emerald-500 to-teal-600' },
+    { id: 'landlord', title: 'Landlord Insurance', icon: Key, desc: 'Rental property protection', color: 'from-purple-500 to-violet-600' },
+]
+
+const coverage = [
+    { icon: Flame, title: 'Fire', desc: 'Fire and lightning', color: 'from-red-500 to-orange-600' },
+    { icon: Droplets, title: 'Flood', desc: 'With add-on cover', color: 'from-blue-500 to-cyan-600' },
+    { icon: Wind, title: 'Storm', desc: 'Natural disasters', color: 'from-slate-500 to-gray-600' },
+    { icon: Lock, title: 'Theft', desc: 'Burglary with force', color: 'from-purple-500 to-violet-600' },
+    { icon: Zap, title: 'Explosion', desc: 'Gas and other', color: 'from-amber-500 to-yellow-600' },
+    { icon: Wrench, title: 'Water Damage', desc: 'Pipe burst', color: 'from-teal-500 to-cyan-600' },
+]
+
+const exclusions = [
+    'Normal wear and tear',
+    'Earthquake (without add-on)',
+    'Flood (without add-on)',
+    'Theft without forced entry',
+    'Tenant damage',
+    'Property unoccupied 30+ days',
+]
+
+export default function HomeInsurancePage() {
+    return (
+        <div className="min-h-screen pt-20">
+            <section className="py-16 px-6 overflow-hidden">
+                <div className="max-w-7xl mx-auto">
+                    <RevealOnScroll direction="down" delay={0.1}>
+                        <div className="flex items-center gap-2 text-sm text-theme-secondary mb-8">
+                            <Link href="/" className="hover:text-accent transition-colors">Home</Link>
+                            <span>/</span>
+                            <span className="text-theme-primary font-medium">Home Insurance</span>
+                        </div>
+                    </RevealOnScroll>
+
+                    <div className="flex flex-col md:flex-row items-start gap-8">
+                        <RevealOnScroll direction="right" delay={0.2}>
+                            <IconContainer
+                                icon={HomeIcon}
+                                size="xl"
+                                variant="gradient"
+                                gradientFrom="from-amber-500"
+                                gradientTo="to-orange-600"
+                                className="w-24 h-24 rounded-2xl shadow-xl"
+                            />
+                        </RevealOnScroll>
+
+                        <div className="flex-1">
+                            <RevealOnScroll direction="up" delay={0.3}>
+                                <span className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full mb-4 text-amber-600 dark:text-amber-400 text-sm font-medium">
+                                    <HomeIcon className="w-4 h-4" />
+                                    HOME INSURANCE
+                                </span>
+                            </RevealOnScroll>
+
+                            <RevealOnScroll direction="up" delay={0.4}>
+                                <h1 className="font-display font-bold text-4xl md:text-5xl text-theme-primary mb-6 leading-tight">
+                                    <AnimatedHeading
+                                        text="Home Insurance in India"
+                                        animation="letterByLetter"
+                                    />
+                                </h1>
+                            </RevealOnScroll>
+
+                            <RevealOnScroll direction="up" delay={0.5}>
+                                <p className="text-theme-secondary text-lg max-w-2xl leading-relaxed">
+                                    Protect your home and belongings from fire, theft, and natural disasters.
+                                </p>
+                            </RevealOnScroll>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-16 px-6">
+                <div className="max-w-7xl mx-auto">
+                    <RevealOnScroll>
+                        <h2 className="font-display font-bold text-2xl text-theme-primary mb-8">Types of Home Insurance</h2>
+                    </RevealOnScroll>
+
+                    <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-6" staggerDelay={0.1}>
+                        {homeTypes.map((type) => {
+                            const IconComponent = type.icon
+                            return (
+                                <StaggerItem key={type.id} className="h-full">
+                                    <TiltCard containerClassName="h-full">
+                                        <GlassCard hover className="text-center h-full flex flex-col items-center justify-center" padding="lg">
+                                            <div className={`w-14 h-14 mb-4 rounded-2xl bg-gradient-to-br ${type.color} flex items-center justify-center shadow-lg`}>
+                                                <IconComponent className="w-7 h-7 text-white" strokeWidth={2} />
+                                            </div>
+                                            <h3 className="font-display font-semibold text-lg text-theme-primary mb-2">{type.title}</h3>
+                                            <p className="text-theme-secondary text-sm leading-relaxed">{type.desc}</p>
+                                        </GlassCard>
+                                    </TiltCard>
+                                </StaggerItem>
+                            )
+                        })}
+                    </StaggerContainer>
+                </div>
+            </section>
+
+            <section className="py-16 px-6 glass-subtle">
+                <div className="max-w-7xl mx-auto">
+                    <RevealOnScroll>
+                        <h2 className="font-display font-bold text-2xl text-theme-primary mb-8">What's Covered</h2>
+                    </RevealOnScroll>
+
+                    <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" staggerDelay={0.05}>
+                        {coverage.map((item, i) => {
+                            const IconComponent = item.icon
+                            return (
+                                <StaggerItem key={i}>
+                                    <GlassCard className="text-center h-full hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors" padding="md">
+                                        <div className={`w-10 h-10 mx-auto mb-3 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center shadow-sm`}>
+                                            <IconComponent className="w-5 h-5 text-white" strokeWidth={2} />
+                                        </div>
+                                        <h4 className="font-medium text-theme-primary text-sm mb-1">{item.title}</h4>
+                                        <p className="text-theme-muted text-xs leading-snug">{item.desc}</p>
+                                    </GlassCard>
+                                </StaggerItem>
+                            )
+                        })}
+                    </StaggerContainer>
+                </div>
+            </section>
+
+            <section className="py-16 px-6">
+                <div className="max-w-7xl mx-auto">
+                    <RevealOnScroll direction="scale">
+                        <GlassCard className="border-red-500/30 bg-red-500/5" padding="lg">
+                            <h3 className="flex items-center gap-2 text-red-600 dark:text-red-400 font-display font-bold text-xl mb-6">
+                                <AlertTriangle className="w-6 h-6" /> Common Exclusions
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+                                {exclusions.map((ex, i) => (
+                                    <div key={i} className="flex items-start gap-3 text-theme-secondary text-base">
+                                        <X className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                        <span>{ex}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </GlassCard>
+                    </RevealOnScroll>
+                </div>
+            </section>
+
+            <section className="py-16 px-6">
+                <div className="max-w-4xl mx-auto text-center">
+                    <RevealOnScroll direction="up">
+                        <Link href="/tools/hidden-facts">
+                            <MagicButton variant="secondary" icon={Search} size="lg">
+                                View Home Insurance Facts
+                            </MagicButton>
+                        </Link>
+                    </RevealOnScroll>
+                </div>
+            </section>
+        </div>
+    )
+}
