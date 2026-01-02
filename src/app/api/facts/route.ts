@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getAllFacts, type HiddenFact } from '@/data/hidden-facts'
 
 export async function GET(request: Request) {
     try {
@@ -8,47 +8,40 @@ export async function GET(request: Request) {
         const severity = searchParams.get('severity')
         const search = searchParams.get('search')
 
-        const where: any = {}
+        let facts = getAllFacts()
 
+        // Filter by category
         if (category && category !== 'all') {
-            where.category = category
+            facts = facts.filter(f => f.category === category)
         }
 
+        // Filter by severity
         if (severity) {
-            where.severity = severity
+            facts = facts.filter(f => f.severity === severity)
         }
 
+        // Filter by search term
         if (search) {
-            where.OR = [
-                { title: { contains: search, mode: 'insensitive' } },
-                { description: { contains: search, mode: 'insensitive' } },
-                { whatToCheck: { contains: search, mode: 'insensitive' } },
-                { realCase: { contains: search, mode: 'insensitive' } },
-            ]
+            const searchLower = search.toLowerCase()
+            facts = facts.filter(f =>
+                f.title.toLowerCase().includes(searchLower) ||
+                f.description.toLowerCase().includes(searchLower) ||
+                f.whatToCheck.toLowerCase().includes(searchLower) ||
+                f.realCase.toLowerCase().includes(searchLower)
+            )
         }
 
-        const facts = await prisma.hiddenFact.findMany({
-            where,
-            orderBy: [
-                { severity: 'asc' },
-                { createdAt: 'desc' }
-            ]
-        })
-
-        // Get counts for stats
-        const totalCount = await prisma.hiddenFact.count()
-        const criticalCount = await prisma.hiddenFact.count({ where: { severity: 'critical' } })
-        const categoryCount = await prisma.hiddenFact.groupBy({
-            by: ['category'],
-            _count: true
-        })
+        // Get stats
+        const allFacts = getAllFacts()
+        const criticalCount = allFacts.filter(f => f.severity === 'critical').length
+        const categories = [...new Set(allFacts.map(f => f.category))]
 
         return NextResponse.json({
             facts,
             stats: {
-                total: totalCount,
+                total: allFacts.length,
                 critical: criticalCount,
-                categories: categoryCount.length,
+                categories: categories.length,
                 filtered: facts.length
             }
         })
