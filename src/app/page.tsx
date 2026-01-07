@@ -71,7 +71,7 @@ export default function HomePage() {
 
                     <RevealOnScroll direction="up" delay={0.1}>
                         <p className="text-theme-secondary text-lg mb-4">
-                            Smart Protection for your <TextRoll texts={['Health', 'Life', 'Vehicle', 'Home', 'Family']} />
+                            Smart Protection for your <TextRoll words={['Health', 'Life', 'Vehicle', 'Home', 'Family']} />
                         </p>
                     </RevealOnScroll>
 
