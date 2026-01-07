@@ -43,7 +43,9 @@ export default function Header() {
     return (
         <header
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-300
-        ${isScrolled ? 'glass-strong shadow-md' : 'glass-subtle'}`}
+        ${isScrolled
+                    ? 'bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-md border-b border-slate-200 dark:border-slate-800'
+                    : 'bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm'}`}
         >
             <div className="max-w-7xl mx-auto px-6">
                 <div className="flex items-center justify-between h-20">

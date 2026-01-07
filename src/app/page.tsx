@@ -58,66 +58,74 @@ export default function HomePage() {
 
     return (
         <div className="min-h-screen">
-            {/* Hero Section */}
-            <section className="relative pt-32 pb-20 px-6 overflow-hidden">
-                <div className="absolute inset-0 bg-accent/5 -skew-y-3 transform origin-top-left scale-110" />
-
+            {/* Hero Section - Original Design */}
+            <section className="relative pt-32 pb-16 px-6 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
                 <div className="max-w-7xl mx-auto text-center relative z-10">
                     <RevealOnScroll direction="down">
-                        <span className="inline-flex items-center gap-2 px-4 py-2 glass-strong rounded-full 
-                             text-accent-dark dark:text-accent-light text-sm mb-8 font-medium shadow-glow-sm hover:scale-105 transition-transform duration-300 cursor-default">
-                            <Shield className="w-4 h-4" />
-                            India's First Brutally Honest Insurance Portal
+                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-full 
+                             text-emerald-700 dark:text-emerald-400 text-sm mb-6 font-medium">
+                            <Sparkles className="w-4 h-4" />
+                            India's Most Transparent Insurance Platform
                         </span>
                     </RevealOnScroll>
 
                     <RevealOnScroll direction="up" delay={0.1}>
-                        <h1 className="font-display font-bold text-5xl md:text-7xl mb-8 leading-tight tracking-tight">
-                            Stop Buying <br />
-                            <span className="text-gradient relative inline-block">
-                                Hidden Clauses
-                                <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-accent opacity-50 blur-sm rounded-full"></span>
-                            </span>
-                        </h1>
+                        <p className="text-theme-secondary text-lg mb-4">
+                            Smart Protection for your <TextRoll texts={['Health', 'Life', 'Vehicle', 'Home', 'Family']} />
+                        </p>
                     </RevealOnScroll>
 
                     <RevealOnScroll direction="up" delay={0.2}>
-                        <p className="text-theme-secondary text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-                            We decode the fine print, expose rejection clauses, and calculate your <span className="text-theme-primary font-semibold">Real Claim Probability</span> before you pay a single rupee.
-                        </p>
+                        <h1 className="font-display font-bold text-4xl md:text-6xl mb-6 leading-tight tracking-tight">
+                            <span className="text-theme-primary">Discover What Insurance</span><br />
+                            <span className="text-gradient italic">Companies Hide From You</span>
+                        </h1>
                     </RevealOnScroll>
 
                     <RevealOnScroll direction="up" delay={0.3}>
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-                            <Link href="/tools/hidden-facts" className="btn-primary text-lg px-8 py-4 w-full sm:w-auto hover-lift-lg group">
-                                <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                Check Your Policy for Hidden Facts
-                            </Link>
-                            <Link href="/tools/calculator" className="btn-secondary text-lg px-8 py-4 w-full sm:w-auto hover-lift group">
-                                <Calculator className="w-5 h-5 text-theme-muted group-hover:text-theme-primary transition-colors" />
-                                Calculate Real Premium
-                            </Link>
-                        </div>
-                    </RevealOnScroll>
-
-                    {/* Infinity Ticker Integration */}
-                    <RevealOnScroll direction="up" delay={0.4} className="max-w-5xl mx-auto">
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-theme-bg-primary via-theme-bg-primary/80 to-transparent z-10 pointer-events-none" />
-                            <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-theme-bg-primary via-theme-bg-primary/80 to-transparent z-10 pointer-events-none" />
-                            <InfinityTicker
-                                speed={25}
-                                direction="left"
-                                items={[
-                                    "LIC", "HDFC Life", "ICICI Prudential", "SBI Life", "Max Life",
-                                    "Tata AIA", "Bajaj Allianz", "Star Health", "Niva Bupa", "Care Health"
-                                ]}
-                            />
-                        </div>
-                        <p className="text-theme-muted/60 text-xs font-semibold uppercase tracking-[0.2em] mt-6">
-                            Analyzing Policies From Top Insurers
+                        <p className="text-theme-secondary text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+                            Compare policies, uncover hidden exclusions, and make informed decisions.
+                            We show you the fine print that could save your claim.
                         </p>
                     </RevealOnScroll>
+
+                    <RevealOnScroll direction="up" delay={0.4}>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                            <Link href="/tools/hidden-facts" className="btn-primary text-lg px-8 py-4 w-full sm:w-auto group">
+                                <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                Explore Hidden Facts
+                            </Link>
+                            <Link href="/tools/calculator" className="btn-secondary text-lg px-8 py-4 w-full sm:w-auto group">
+                                Calculate Premium
+                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+                    </RevealOnScroll>
+                </div>
+            </section>
+
+            {/* Logo Ticker Section - Separate from Hero */}
+            <section className="py-4 bg-slate-100 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+                <div className="max-w-7xl mx-auto">
+                    <InfinityTicker
+                        speed={1.5}
+                        direction="left"
+                        items={[
+                            <Image key="lic" src="/Logos/life-insurance-corporation-logo-png_seeklogo-477287.png" alt="LIC" width={100} height={50} className="h-10 w-auto object-contain" />,
+                            <Image key="hdfc" src="/Logos/HDFC-Life-Logo.png" alt="HDFC Life" width={120} height={50} className="h-8 w-auto object-contain" />,
+                            <Image key="icici" src="/Logos/icici-prudential-life-insurance-logo-png_seeklogo-307031.png" alt="ICICI Prudential" width={140} height={50} className="h-8 w-auto object-contain" />,
+                            <Image key="sbi" src="/Logos/sbi-life-insurance-logo-png_seeklogo-123116.png" alt="SBI Life" width={120} height={50} className="h-10 w-auto object-contain" />,
+                            <Image key="max" src="/Logos/axis-max-life-insurance-logo-png_seeklogo-643158.png" alt="Max Life" width={100} height={50} className="h-8 w-auto object-contain" />,
+                            <Image key="tata" src="/Logos/tata-aia-life-insurance-seeklogo.png" alt="Tata AIA" width={100} height={50} className="h-8 w-auto object-contain" />,
+                            <Image key="bajaj" src="/Logos/bajaj-allianz-life-insurance-logo-png_seeklogo-307030.png" alt="Bajaj Allianz" width={120} height={50} className="h-8 w-auto object-contain" />,
+                            <Image key="star" src="/Logos/star-health-insurance-logo-png_seeklogo-303863.png" alt="Star Health" width={100} height={50} className="h-10 w-auto object-contain" />,
+                            <Image key="care" src="/Logos/Care_health_insurance_logo.png" alt="Care Health" width={100} height={50} className="h-8 w-auto object-contain" />,
+                            <Image key="acko" src="/Logos/Acko_General_Insurance_logo.svg.png" alt="Acko" width={100} height={50} className="h-6 w-auto object-contain" />,
+                        ]}
+                    />
+                    <p className="text-center text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-[0.2em] mt-4 pb-2">
+                        Analyzing Policies From Top Insurers
+                    </p>
                 </div>
             </section>
 

@@ -1,51 +1,60 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
-import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
-import { wrap } from '@motionone/utils'
+import { useRef } from 'react'
+import { motion, useAnimationFrame, useMotionValue } from 'framer-motion'
 
 interface InfinityTickerProps {
-    items: string[]
+    items: React.ReactNode[]
     direction?: 'left' | 'right'
     speed?: number
 }
 
-export default function InfinityTicker({ items, direction = 'left', speed = 0.5 }: InfinityTickerProps) {
-    const baseX = useMotionValue(0)
-    const { scrollY } = useScroll()
-    const scrollVelocity = useTransform(scrollY, [0, 1000], [0, 5], { clamp: false })
-    const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`)
+export default function InfinityTicker({ items, direction = 'left', speed = 1 }: InfinityTickerProps) {
+    const containerRef = useRef<HTMLDivElement>(null)
+    const x = useMotionValue(0)
 
-    const directionFactor = useRef<number>(1)
+    useAnimationFrame((time, delta) => {
+        if (!containerRef.current) return
 
-    useAnimationFrame((t, delta) => {
-        let moveBy = directionFactor.current * speed * (delta / 1000) * 100 // Speed adjustment
+        const containerWidth = containerRef.current.scrollWidth / 4 // We duplicate 4 times
+        const moveAmount = (delta / 1000) * speed * 50 // pixels per second
 
         if (direction === 'left') {
-            moveBy = -Math.abs(moveBy)
+            x.set(x.get() - moveAmount)
+            // Reset when we've scrolled one full set
+            if (Math.abs(x.get()) >= containerWidth) {
+                x.set(0)
+            }
         } else {
-            moveBy = Math.abs(moveBy)
+            x.set(x.get() + moveAmount)
+            if (x.get() >= containerWidth) {
+                x.set(0)
+            }
         }
-
-        baseX.set(baseX.get() + moveBy)
     })
 
     return (
-        <div className="relative flex w-full overflow-hidden bg-primary/5 py-4 backdrop-blur-sm border-y border-primary/10">
-            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-background to-transparent" />
-            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-background to-transparent" />
+        <div className="relative w-full overflow-hidden py-6 bg-slate-50/50 dark:bg-slate-900/50 border-y border-slate-200 dark:border-slate-800">
+            {/* Left fade gradient */}
+            <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-white dark:from-slate-950 to-transparent" />
+            {/* Right fade gradient */}
+            <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-white dark:from-slate-950 to-transparent" />
 
-            <motion.div className="flex whitespace-nowrap" style={{ x }}>
-                {[...Array(4)].map((_, i) => (
-                    <div key={i} className="flex gap-8 px-4 sm:gap-16 sm:px-8">
-                        {items.map((item, index) => (
-                            <span
-                                key={index}
-                                className="inline-flex items-center gap-2 text-lg font-medium text-muted-foreground/80 font-display"
+            <motion.div
+                ref={containerRef}
+                className="flex items-center"
+                style={{ x }}
+            >
+                {/* Duplicate items 4 times for seamless loop */}
+                {[...Array(4)].map((_, setIndex) => (
+                    <div key={setIndex} className="flex items-center gap-12 px-6 shrink-0">
+                        {items.map((item, itemIndex) => (
+                            <div
+                                key={`${setIndex}-${itemIndex}`}
+                                className="flex items-center justify-center shrink-0 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110"
                             >
-                                <span className="h-1.5 w-1.5 rounded-full bg-primary/40" />
                                 {item}
-                            </span>
+                            </div>
                         ))}
                     </div>
                 ))}
