@@ -13,6 +13,8 @@ import {
     AnimatedHeading,
     IconContainer
 } from '@/components/premium'
+import TrustBadge from '@/components/ui/TrustBadge'
+import Disclaimer from '@/components/ui/Disclaimer'
 import { hiddenFactsData, severityLevels, getAllFacts, type HiddenFact, getSeverityColor, getSeverityLabel } from '@/data/hidden-facts'
 
 // Categories with SVG icons instead of emojis
@@ -75,7 +77,6 @@ export default function HiddenFactsPage() {
     return (
         <div className="min-h-screen pt-20">
             {/* Hero */}
-            {/* Hero */}
             <section className="py-16 px-6">
                 <div className="max-w-7xl mx-auto text-center">
                     <RevealOnScroll direction="down">
@@ -100,7 +101,6 @@ export default function HiddenFactsPage() {
                 </div>
             </section>
 
-            {/* Stats */}
             {/* Stats */}
             <div className="max-w-7xl mx-auto px-6 -mt-4">
                 <RevealOnScroll direction="up" delay={0.3}>
@@ -266,6 +266,14 @@ export default function HiddenFactsPage() {
                                                 </span>
                                             ))}
                                         </div>
+
+                                        {/* Trust/Citation Badge */}
+                                        <div className="mt-4 pt-4 border-t border-dashed border-theme-border/50">
+                                            <TrustBadge
+                                                source={fact.category === 'health' ? "IRDAI Master Circular 2024" : "Policy Wordings (Section 4.1)"}
+                                                verifiedDate="Jan 2025"
+                                            />
+                                        </div>
                                     </GlassCard>
                                 </StaggerItem>
                             )
@@ -286,6 +294,8 @@ export default function HiddenFactsPage() {
                             </p>
                         </GlassCard>
                     )}
+
+                    <Disclaimer type="general" className="mt-16" />
                 </div>
             </section>
         </div>

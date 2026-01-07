@@ -24,9 +24,9 @@ import {
     FloatingElement,
     Magnetic,
     TiltCard,
-    InfiniteSlider,
     TextRoll
 } from '@/components/premium'
+import InfinityTicker from '@/components/InfinityTicker'
 
 // Insurance categories with semantic icons
 const insuranceCategories = [
@@ -59,162 +59,64 @@ export default function HomePage() {
     return (
         <div className="min-h-screen">
             {/* Hero Section */}
-            <section
-                ref={heroRef}
-                className="relative pt-48 pb-24 px-6 -mt-20 overflow-hidden"
-            >
-                {/* Hero Background Image with Parallax Effect */}
-                <ParallaxSection className="absolute inset-0 z-0" speed={0.3}>
-                    <div className="absolute inset-0 scale-110">
-                        <Image
-                            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&q=80"
-                            alt="Insurance protection background"
-                            fill
-                            priority
-                            className="object-cover"
-                        />
-                    </div>
-                </ParallaxSection>
-                <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/50 to-white/90 
-                              dark:from-slate-950/60 dark:via-slate-950/40 dark:to-slate-950/80 z-[1]" />
-
-                {/* Animated decorative blobs */}
-                <FloatingElement className="absolute top-1/4 left-10 z-[2]" range={20} duration={6}>
-                    <AnimatedBlob
-                        className="w-64 h-64"
-                        opacity={0.25}
-                        duration={10}
-                    />
-                </FloatingElement>
-                <FloatingElement className="absolute bottom-1/4 right-10 z-[2]" range={25} duration={8} delay={2}>
-                    <AnimatedBlob
-                        className="w-80 h-80"
-                        opacity={0.2}
-                        duration={12}
-                    />
-                </FloatingElement>
+            <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+                <div className="absolute inset-0 bg-accent/5 -skew-y-3 transform origin-top-left scale-110" />
 
                 <div className="max-w-7xl mx-auto text-center relative z-10">
-                    <RevealOnScroll direction="up" delay={0.1}>
-                        <div className="flex flex-col items-center mb-6">
-                            <span className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full 
-                                 text-accent text-sm font-medium mb-4">
-                                <Sparkles className="w-4 h-4" />
-                                India's Most Transparent Insurance Platform
-                            </span>
-
-                            <div className="h-8 flex items-center gap-2 text-theme-secondary font-medium">
-                                <span>Smart Protection for your</span>
-                                <TextRoll
-                                    words={["Family", "Assets", "Health", "Future", "Life"]}
-                                    className="text-accent font-bold"
-                                />
-                            </div>
-                        </div>
+                    <RevealOnScroll direction="down">
+                        <span className="inline-flex items-center gap-2 px-4 py-2 glass-strong rounded-full 
+                             text-accent-dark dark:text-accent-light text-sm mb-8 font-medium shadow-glow-sm hover:scale-105 transition-transform duration-300 cursor-default">
+                            <Shield className="w-4 h-4" />
+                            India's First Brutally Honest Insurance Portal
+                        </span>
                     </RevealOnScroll>
 
-                    <RevealOnScroll direction="up" delay={0.2}>
-                        <h1 className="font-display font-extrabold text-4xl md:text-5xl lg:text-6xl text-theme-primary 
-                           leading-tight mb-6 drop-shadow-lg">
-                            <AnimatedHeading
-                                text="Discover What Insurance"
-                                animation="wordByWord"
-                                staggerDelay={0.08}
-                                className="justify-center"
-                            />
-                            <br />
-                            <GradientText className="drop-shadow-lg">
-                                <AnimatedHeading
-                                    text="Companies Hide From You"
-                                    animation="letterByLetter"
-                                    staggerDelay={0.08}
-                                    delay={0.5}
-                                    className="justify-center"
-                                />
-                            </GradientText>
+                    <RevealOnScroll direction="up" delay={0.1}>
+                        <h1 className="font-display font-bold text-5xl md:text-7xl mb-8 leading-tight tracking-tight">
+                            Stop Buying <br />
+                            <span className="text-gradient relative inline-block">
+                                Hidden Clauses
+                                <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-accent opacity-50 blur-sm rounded-full"></span>
+                            </span>
                         </h1>
                     </RevealOnScroll>
 
-                    <RevealOnScroll direction="up" delay={0.3}>
-                        <p className="text-theme-secondary text-lg md:text-xl max-w-2xl mx-auto mb-10 drop-shadow-md">
-                            Compare policies, uncover hidden exclusions, and make informed decisions.
-                            We show you the fine print that could save your claim.
+                    <RevealOnScroll direction="up" delay={0.2}>
+                        <p className="text-theme-secondary text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+                            We decode the fine print, expose rejection clauses, and calculate your <span className="text-theme-primary font-semibold">Real Claim Probability</span> before you pay a single rupee.
                         </p>
                     </RevealOnScroll>
 
-                    <RevealOnScroll direction="up" delay={0.4}>
-                        <div className="flex flex-wrap justify-center gap-4">
-                            <Link href="/tools/hidden-facts">
-                                <Magnetic strength={0.2} className="inline-block">
-                                    <MagicButton icon={Search} size="lg" glow>
-                                        Explore Hidden Facts
-                                    </MagicButton>
-                                </Magnetic>
+                    <RevealOnScroll direction="up" delay={0.3}>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+                            <Link href="/tools/hidden-facts" className="btn-primary text-lg px-8 py-4 w-full sm:w-auto hover-lift-lg group">
+                                <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                Check Your Policy for Hidden Facts
                             </Link>
-                            <Link href="/tools/calculator">
-                                <Magnetic strength={0.2} className="inline-block">
-                                    <MagicButton variant="secondary" icon={ArrowRight} iconPosition="right" size="lg">
-                                        Calculate Premium
-                                    </MagicButton>
-                                </Magnetic>
+                            <Link href="/tools/calculator" className="btn-secondary text-lg px-8 py-4 w-full sm:w-auto hover-lift group">
+                                <Calculator className="w-5 h-5 text-theme-muted group-hover:text-theme-primary transition-colors" />
+                                Calculate Real Premium
                             </Link>
                         </div>
                     </RevealOnScroll>
 
-                    {/* Infinite Logo Slider */}
-                    <RevealOnScroll delay={0.6} className="mt-16 pt-8 border-t border-default/10">
-                        <p className="text-sm text-theme-muted uppercase tracking-wider font-semibold mb-6">
-                            Decoding policies from top insurers
+                    {/* Infinity Ticker Integration */}
+                    <RevealOnScroll direction="up" delay={0.4} className="max-w-5xl mx-auto">
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-theme-bg-primary via-theme-bg-primary/80 to-transparent z-10 pointer-events-none" />
+                            <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-theme-bg-primary via-theme-bg-primary/80 to-transparent z-10 pointer-events-none" />
+                            <InfinityTicker
+                                speed={25}
+                                direction="left"
+                                items={[
+                                    "LIC", "HDFC Life", "ICICI Prudential", "SBI Life", "Max Life",
+                                    "Tata AIA", "Bajaj Allianz", "Star Health", "Niva Bupa", "Care Health"
+                                ]}
+                            />
+                        </div>
+                        <p className="text-theme-muted/60 text-xs font-semibold uppercase tracking-[0.2em] mt-6">
+                            Analyzing Policies From Top Insurers
                         </p>
-                        <InfiniteSlider gap={60} duration={80}>
-                            {[
-                                { name: "LIC", url: "/Logos/life-insurance-corporation-logo-png_seeklogo-477287.png", w: 160, h: 50 },
-                                { name: "HDFC Life", url: "/Logos/HDFC-Life-Logo.png", w: 160, h: 50 },
-                                { name: "Aditya Birla", url: "/Logos/Aditya Birla Insurace.png", w: 160, h: 50 },
-                                { name: "ICICI Prudential", url: "/Logos/icici-prudential-life-insurance-logo-png_seeklogo-307031.png", w: 160, h: 50 },
-                                { name: "SBI Life", url: "/Logos/sbi-life-insurance-logo-png_seeklogo-123116.png", w: 160, h: 50 },
-                                { name: "Kotak Life", url: "/Logos/kotak-life-insurance-logo-png_seeklogo-212711.png", w: 160, h: 50 },
-                                { name: "Tata AIA", url: "/Logos/tata-aia-life-insurance-seeklogo.png", w: 160, h: 50 },
-                                { name: "Bajaj Allianz", url: "/Logos/bajaj-allianz-life-insurance-logo-png_seeklogo-307030.png", w: 160, h: 50 },
-                                { name: "Max Life", url: "/Logos/axis-max-life-insurance-logo-png_seeklogo-643158.png", w: 160, h: 50 },
-                                { name: "Star Health", url: "/Logos/star-health-insurance-logo-png_seeklogo-303863.png", w: 160, h: 50 },
-                                { name: "Care Health", url: "/Logos/Care_health_insurance_logo.png", w: 160, h: 50 },
-                                { name: "Digit Insurance", url: "/Logos/digit-insurance-logo-png_seeklogo-465810.png", w: 160, h: 50 },
-                                { name: "Acko", url: "/Logos/Acko_General_Insurance_logo.svg.png", w: 160, h: 50 },
-                                { name: "Reliance Life", url: "/Logos/Reliance_Life_Insurance_Logo.png", w: 160, h: 50 },
-                                { name: "Reliance General", url: "/Logos/reliance-general-insurance-logo-png_seeklogo-503447.png", w: 160, h: 50 },
-                                { name: "HDFC Ergo", url: "/Logos/ifli-logo-new.png", w: 160, h: 50 },
-                                { name: "Nippon Life", url: "/Logos/nippon-life-insurance-logo-png_seeklogo-99705.png", w: 160, h: 50 },
-                                { name: "Ageas Federal", url: "/Logos/AgeasFederal-_Logo_Color.png", w: 160, h: 50 },
-                                { name: "Bharti AXA", url: "/Logos/BhartiAXALifeInsurance.png", w: 160, h: 50 },
-                                { name: "Future Generali", url: "/Logos/Future Generali insurance.png", w: 160, h: 50 },
-                                { name: "IDBI Federal", url: "/Logos/IDBIFederalLifeInsurancesvg.png", w: 160, h: 50 },
-                                { name: "IFFCO Tokio", url: "/Logos/IFFCO_TOKIO_Logo.png", w: 160, h: 50 },
-                                { name: "National Insurance", url: "/Logos/National_Insurance_Company.png", w: 160, h: 50 },
-                                { name: "Oriental Insurance", url: "/Logos/The_Oriental_Insurance_Company_Logo.png", w: 160, h: 50 },
-                                { name: "United India", url: "/Logos/United_India_Insurance.png", w: 160, h: 50 },
-                                { name: "Aviva", url: "/Logos/avivi.png", w: 160, h: 50 },
-                                { name: "Edelweiss", url: "/Logos/edelweisslogo.png", w: 160, h: 50 },
-                                { name: "Manipal Cigna", url: "/Logos/hi-logo-Manipal.png", w: 200, h: 60 },
-                                { name: "MetLife", url: "/Logos/met-life-india-logo-png_seeklogo-91366.png", w: 160, h: 50 },
-                                { name: "Star Union Dai-ichi", url: "/Logos/Star unini dai.png", w: 160, h: 50 },
-                                { name: "Niva Bupa", url: "/Logos/bupa Insurance.png", w: 160, h: 50 },
-                                { name: "ICICI Lombard", url: "/Logos/ICICI-Lombard.png", w: 160, h: 50 },
-                                { name: "New India Assurance", url: "/Logos/New India Assurance.png", w: 160, h: 50 },
-                                { name: "Cholamandalam MS", url: "/Logos/Cholamandalam MS.png", w: 160, h: 50 },
-                                { name: "Kotak General", url: "/Logos/Kotak General Insurance.png", w: 160, h: 50 },
-                            ].map((logo) => (
-                                <div key={logo.name} className="relative h-14 w-auto flex items-center justify-center px-4 grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100 hover:scale-105">
-                                    <Image
-                                        src={logo.url}
-                                        alt={`${logo.name} logo`}
-                                        width={logo.w}
-                                        height={logo.h}
-                                        className="h-full w-auto object-contain"
-                                    />
-                                </div>
-                            ))}
-                        </InfiniteSlider>
                     </RevealOnScroll>
                 </div>
             </section>
