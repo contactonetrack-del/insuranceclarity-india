@@ -62,8 +62,8 @@ export function InfiniteSlider({
             )}
             style={{
                 ...gapVar,
-                maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
-                WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+                maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
+                WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
             }}
         >
             {/* First copy */}
