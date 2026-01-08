@@ -60,7 +60,11 @@ export function InfiniteSlider({
                 "marquee relative overflow-x-clip overflow-y-visible w-full select-none group",
                 className
             )}
-            style={gapVar}
+            style={{
+                ...gapVar,
+                maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+                WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+            }}
         >
             {/* First copy */}
             <div
@@ -92,10 +96,6 @@ export function InfiniteSlider({
             >
                 {children}
             </div>
-
-            {/* Fade masks */}
-            <div className="absolute top-0 left-0 h-full w-16 bg-gradient-to-r from-white to-transparent dark:from-slate-950 dark:to-transparent z-10 pointer-events-none" />
-            <div className="absolute top-0 right-0 h-full w-16 bg-gradient-to-l from-white to-transparent dark:from-slate-950 dark:to-transparent z-10 pointer-events-none" />
         </div>
     )
 }

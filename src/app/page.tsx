@@ -177,219 +177,261 @@ export default function HomePage() {
                                 { name: "Tata AIA", url: "/Logos/tata-aia-life-insurance-seeklogo.png", w: 160, h: 50 },
                                 { name: "Bajaj Allianz", url: "/Logos/bajaj-allianz-life-insurance-logo-png_seeklogo-307030.png", w: 160, h: 50 },
                                 { name: "Max Life", url: "/Logos/axis-max-life-insurance-logo-png_seeklogo-643158.png", w: 160, h: 50 },
-                                { name: "Star Health", url: "/Logos/star-health-insurance-logo-png_seeklogo-303863.png", w: 160, h: 50 },
-                                { name: "Care Health", url: "/Logos/Care_health_insurance_logo.png", w: 160, h: 50 },
-                                { name: "Digit Insurance", url: "/Logos/digit-insurance-logo-png_seeklogo-465810.png", w: 160, h: 50 },
-                                { name: "Acko", url: "/Logos/Acko_General_Insurance_logo.svg.png", w: 160, h: 50 },
-                                { name: "Reliance Life", url: "/Logos/Reliance_Life_Insurance_Logo.png", w: 160, h: 50 },
-                                { name: "Reliance General", url: "/Logos/reliance-general-insurance-logo-png_seeklogo-503447.png", w: 160, h: 50 },
-                                { name: "HDFC Ergo", url: "/Logos/ifli-logo-new.png", w: 160, h: 50 },
-                                { name: "Nippon Life", url: "/Logos/nippon-life-insurance-logo-png_seeklogo-99705.png", w: 160, h: 50 },
-                                { name: "Ageas Federal", url: "/Logos/AgeasFederal-_Logo_Color.png", w: 160, h: 50 },
-                                { name: "Bharti AXA", url: "/Logos/BhartiAXALifeInsurance.png", w: 160, h: 50 },
-                                { name: "Future Generali", url: "/Logos/Future Generali insurance.png", w: 160, h: 50 },
-                                { name: "IDBI Federal", url: "/Logos/IDBIFederalLifeInsurancesvg.png", w: 160, h: 50 },
-                                { name: "IFFCO Tokio", url: "/Logos/IFFCO_TOKIO_Logo.png", w: 160, h: 50 },
-                                { name: "National Insurance", url: "/Logos/National_Insurance_Company.png", w: 160, h: 50 },
-                                { name: "Oriental Insurance", url: "/Logos/The_Oriental_Insurance_Company_Logo.png", w: 160, h: 50 },
-                                { name: "United India", url: "/Logos/United_India_Insurance.png", w: 160, h: 50 },
-                                { name: "Aviva", url: "/Logos/avivi.png", w: 160, h: 50 },
-                                { name: "Edelweiss", url: "/Logos/edelweisslogo.png", w: 160, h: 50 },
-                                { name: "Manipal Cigna", url: "/Logos/hi-logo-Manipal.png", w: 200, h: 60 },
-                                { name: "MetLife", url: "/Logos/met-life-india-logo-png_seeklogo-91366.png", w: 160, h: 50 },
-                                { name: "Star Union Dai-ichi", url: "/Logos/Star unini dai.png", w: 160, h: 50 },
-                                { name: "Niva Bupa", url: "/Logos/bupa Insurance.png", w: 160, h: 50 },
-                                { name: "ICICI Lombard", url: "/Logos/ICICI-Lombard.png", w: 160, h: 50 },
-                                { name: "New India Assurance", url: "/Logos/New India Assurance.png", w: 160, h: 50 },
-                                { name: "Cholamandalam MS", url: "/Logos/Cholamandalam MS.png", w: 160, h: 50 },
-                                { name: "Kotak General", url: "/Logos/Kotak General Insurance.png", w: 160, h: 50 },
-                            ].map((logo) => (
-                                <div key={logo.name} className="relative h-14 w-auto flex items-center justify-center px-6 py-4 transition-all duration-300 opacity-80 hover:opacity-100 hover:scale-110 hover:drop-shadow-lg">
-                                    <Image
-                                        src={logo.url}
-                                        alt={`${logo.name} logo`}
-                                        width={logo.w}
-                                        height={logo.h}
-                                        className="h-full w-auto object-contain"
-                                    />
-                                </div>
-                            ))}
-                        </InfiniteSlider>
-                    </RevealOnScroll>
                 </div>
-            </section>
+                    </section>
 
-            {/* Stats Section */}
-            <section className="py-16 glass-subtle">
-                <div className="max-w-7xl mx-auto px-6">
-                    <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-6" staggerDelay={0.1}>
-                        {stats.map((stat, i) => (
-                            <StaggerItem key={i} className="text-center">
-                                <div className="flex justify-center mb-3">
-                                    <IconContainer
-                                        icon={stat.icon}
-                                        size="md"
-                                        variant="glass"
-                                    />
-                                </div>
-                                <div className="font-display font-extrabold text-4xl md:text-5xl text-gradient mb-1">
-                                    <AnimatedCounter
-                                        value={stat.value}
-                                        suffix={stat.suffix}
-                                        duration={1.5}
-                                    />
-                                </div>
-                                <div className="text-theme-secondary">{stat.label}</div>
-                            </StaggerItem>
-                        ))}
-                    </StaggerContainer>
-                </div>
-            </section>
-
-            {/* Insurance Categories */}
-            <section className="py-20 px-6">
-                <div className="max-w-7xl mx-auto">
-                    <RevealOnScroll className="text-center mb-12">
-                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent 
-                           text-sm rounded-full mb-4 font-medium">
-                            <Shield className="w-4 h-4" />
-                            BROWSE INSURANCE
-                        </span>
-                        <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary">
-                            Explore Insurance Types
-                        </h2>
-                        <p className="text-theme-secondary mt-4 max-w-xl mx-auto">
-                            Comprehensive guides for every insurance category with hidden facts and real claim cases.
-                        </p>
-                    </RevealOnScroll>
-
-                    <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
-                        {insuranceCategories.map((cat) => (
-                            <StaggerItem key={cat.href}>
-                                <Link href={cat.href} className="block h-full">
-                                    <TiltCard containerClassName="h-full" className="h-full">
-                                        <GlassCard
-                                            hover
-                                            glowOnHover
-                                            className="cursor-pointer group h-full"
-                                        >
-                                            <div className="flex items-start gap-4">
-                                                <IconContainer
-                                                    icon={cat.icon}
-                                                    size="lg"
-                                                    variant="gradient"
-                                                    gradientFrom={`from-${cat.color.split(' ')[0].replace('from-', '')}`}
-                                                    gradientTo={`to-${cat.color.split(' ')[1].replace('to-', '')}`}
-                                                />
-                                                <div className="flex-1">
-                                                    <h3 className="font-display font-semibold text-lg text-theme-primary mb-1 
-                                                     group-hover:text-accent transition-colors duration-150">
-                                                        {cat.title}
-                                                    </h3>
-                                                    <p className="text-theme-secondary text-sm">{cat.desc}</p>
-                                                </div>
-                                                <ArrowRight className="w-5 h-5 text-theme-muted opacity-0 group-hover:opacity-100 
-                                                    group-hover:translate-x-1 transition-all duration-200" />
-                                            </div>
-                                        </GlassCard>
-                                    </TiltCard>
-                                </Link>
-                            </StaggerItem>
-                        ))}
-                    </StaggerContainer>
-                </div>
-            </section>
-
-            {/* Tools Section */}
-            <section className="py-20 px-6 glass-subtle">
-                <div className="max-w-7xl mx-auto">
-                    <RevealOnScroll className="text-center mb-12">
-                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent 
-                           text-sm rounded-full mb-4 font-medium">
-                            <BarChart3 className="w-4 h-4" />
-                            FREE TOOLS
-                        </span>
-                        <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary">
-                            Tools to Make Better Decisions
-                        </h2>
-                        <p className="text-theme-secondary mt-4 max-w-xl mx-auto">
-                            Our unique tools help you understand policies better than any agent will tell you.
-                        </p>
-                    </RevealOnScroll>
-
-                    <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6" staggerDelay={0.1}>
-                        {tools.map((tool) => (
-                            <StaggerItem key={tool.href}>
-                                <Link href={tool.href}>
-                                    <GlassCard
-                                        hover
-                                        glowOnHover
-                                        className="cursor-pointer group"
-                                    >
-                                        <div className="flex gap-5 items-center">
-                                            <IconContainer
-                                                icon={tool.icon}
-                                                size="xl"
-                                                variant="gradient"
-                                                gradientFrom={`from-${tool.color.split(' ')[0].replace('from-', '')}`}
-                                                gradientTo={`to-${tool.color.split(' ')[1].replace('to-', '')}`}
-                                            />
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-3 mb-1">
-                                                    <h3 className="font-display font-semibold text-lg text-theme-primary 
-                                                     group-hover:text-accent transition-colors duration-150">
-                                                        {tool.title}
-                                                    </h3>
-                                                    <span className="px-2 py-0.5 bg-accent-10 text-accent text-xs rounded-full font-medium">
-                                                        {tool.badge}
-                                                    </span>
-                                                </div>
-                                                <p className="text-theme-secondary text-sm">{tool.desc}</p>
-                                            </div>
-                                            <ArrowRight className="w-6 h-6 text-theme-muted opacity-0 group-hover:opacity-100 
-                                                  group-hover:translate-x-1 transition-all duration-200" />
-                                        </div>
-                                    </GlassCard>
-                                </Link>
-                            </StaggerItem>
-                        ))}
-                    </StaggerContainer>
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="py-20 px-6">
-                <div className="max-w-4xl mx-auto text-center">
-                    <RevealOnScroll direction="scale">
-                        <GlassCard padding="lg" className="relative overflow-hidden">
-                            {/* Subtle gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-accent-5 via-transparent to-transparent pointer-events-none" />
-
-                            <div className="relative z-10">
-                                <IconContainer
-                                    icon={Search}
-                                    size="xl"
-                                    variant="gradient"
-                                    className="mx-auto mb-6"
-                                />
-
-                                <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary mb-4">
-                                    Ready to Understand Your Insurance?
+                    {/* Infinite Logo Slider */}
+                    <section className="py-16">
+                        <div className="max-w-[1400px] mx-auto px-6">
+                            <RevealOnScroll className="text-center mb-10">
+                                <span className="text-sm font-semibold tracking-wider text-accent uppercase mb-2 block">
+                                    Our Partners
+                                </span>
+                                <h2 className="text-3xl font-bold text-theme-primary">
+                                    Decoding Policies from Top Insurers
                                 </h2>
-                                <p className="text-theme-secondary text-lg mb-8 max-w-xl mx-auto">
-                                    Start with the Hidden Facts tool and discover what your policy really covers.
-                                </p>
+                                <div className="h-1 w-20 bg-gradient-to-r from-accent to-transparent mx-auto mt-4 rounded-full opacity-60" />
+                            </RevealOnScroll>
 
-                                <Link href="/tools/hidden-facts">
-                                    <MagicButton icon={Search} size="lg" glow>
-                                        Explore Hidden Facts
-                                    </MagicButton>
-                                </Link>
-                            </div>
-                        </GlassCard>
-                    </RevealOnScroll>
+                            <RevealOnScroll delay={0.2} className="relative group/ticker">
+                                {/* Premium Ticker Container */}
+                                <div className="glass-strong rounded-[2rem] p-4 shadow-xl border-hover/20 relative overflow-hidden">
+                                    {/* Decorative background glow */}
+                                    <div className="absolute -top-24 -left-24 w-48 h-48 bg-accent/10 blur-[100px] pointer-events-none" />
+                                    <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-accent/10 blur-[100px] pointer-events-none" />
+
+                                    <InfiniteSlider gap={60} duration={40} className="py-2">
+                                        {[
+                                            { name: "LIC", url: "/Logos/life-insurance-corporation-logo-png_seeklogo-477287.png", w: 160, h: 50 },
+                                            { name: "HDFC Life", url: "/Logos/HDFC-Life-Logo.png", w: 160, h: 50 },
+                                            { name: "Aditya Birla", url: "/Logos/Aditya Birla Insurace.png", w: 160, h: 50 },
+                                            { name: "ICICI Prudential", url: "/Logos/icici-prudential-life-insurance-logo-png_seeklogo-307031.png", w: 160, h: 50 },
+                                            { name: "SBI Life", url: "/Logos/sbi-life-insurance-logo-png_seeklogo-123116.png", w: 160, h: 50 },
+                                            { name: "Kotak Life", url: "/Logos/kotak-life-insurance-logo-png_seeklogo-212711.png", w: 160, h: 50 },
+                                            { name: "Tata AIA", url: "/Logos/tata-aia-life-insurance-seeklogo.png", w: 160, h: 50 },
+                                            { name: "Bajaj Allianz", url: "/Logos/bajaj-allianz-life-insurance-logo-png_seeklogo-307030.png", w: 160, h: 50 },
+                                            { name: "Max Life", url: "/Logos/axis-max-life-insurance-logo-png_seeklogo-643158.png", w: 160, h: 50 },
+                                            { name: "Star Health", url: "/Logos/star-health-insurance-logo-png_seeklogo-303863.png", w: 160, h: 50 },
+                                            { name: "Care Health", url: "/Logos/Care_health_insurance_logo.png", w: 160, h: 50 },
+                                            { name: "Digit Insurance", url: "/Logos/digit-insurance-logo-png_seeklogo-465810.png", w: 160, h: 50 },
+                                            { name: "Acko", url: "/Logos/Acko_General_Insurance_logo.svg.png", w: 160, h: 50 },
+                                            { name: "Reliance Life", url: "/Logos/Reliance_Life_Insurance_Logo.png", w: 160, h: 50 },
+                                            { name: "Reliance General", url: "/Logos/reliance-general-insurance-logo-png_seeklogo-503447.png", w: 160, h: 50 },
+                                            { name: "HDFC Ergo", url: "/Logos/ifli-logo-new.png", w: 160, h: 50 },
+                                            { name: "Nippon Life", url: "/Logos/nippon-life-insurance-logo-png_seeklogo-99705.png", w: 160, h: 50 },
+                                            { name: "Ageas Federal", url: "/Logos/AgeasFederal-_Logo_Color.png", w: 160, h: 50 },
+                                            { name: "Bharti AXA", url: "/Logos/BhartiAXALifeInsurance.png", w: 160, h: 50 },
+                                            { name: "Future Generali", url: "/Logos/Future Generali insurance.png", w: 160, h: 50 },
+                                            { name: "IDBI Federal", url: "/Logos/IDBIFederalLifeInsurancesvg.png", w: 160, h: 50 },
+                                            { name: "IFFCO Tokio", url: "/Logos/IFFCO_TOKIO_Logo.png", w: 160, h: 50 },
+                                            { name: "National Insurance", url: "/Logos/National_Insurance_Company.png", w: 160, h: 50 },
+                                            { name: "Oriental Insurance", url: "/Logos/The_Oriental_Insurance_Company_Logo.png", w: 160, h: 50 },
+                                            { name: "United India", url: "/Logos/United_India_Insurance.png", w: 160, h: 50 },
+                                            { name: "Aviva", url: "/Logos/avivi.png", w: 160, h: 50 },
+                                            { name: "Edelweiss", url: "/Logos/edelweisslogo.png", w: 160, h: 50 },
+                                            { name: "Manipal Cigna", url: "/Logos/hi-logo-Manipal.png", w: 200, h: 60 },
+                                            { name: "MetLife", url: "/Logos/met-life-india-logo-png_seeklogo-91366.png", w: 160, h: 50 },
+                                            { name: "Star Union Dai-ichi", url: "/Logos/Star unini dai.png", w: 160, h: 50 },
+                                            { name: "Niva Bupa", url: "/Logos/bupa Insurance.png", w: 160, h: 50 },
+                                            { name: "ICICI Lombard", url: "/Logos/ICICI-Lombard.png", w: 160, h: 50 },
+                                            { name: "New India Assurance", url: "/Logos/New India Assurance.png", w: 160, h: 50 },
+                                            { name: "Cholamandalam MS", url: "/Logos/Cholamandalam MS.png", w: 160, h: 50 },
+                                            { name: "Kotak General", url: "/Logos/Kotak General Insurance.png", w: 160, h: 50 },
+                                        ].map((logo) => (
+                                            <div
+                                                key={logo.name}
+                                                className="relative h-14 w-auto flex items-center justify-center px-8 py-4 transition-all duration-500 opacity-60 hover:opacity-100 group/logo"
+                                                style={{ perspective: '1000px' }}
+                                            >
+                                                <div className="transition-transform duration-500 group-hover/logo:[transform:rotateX(10deg)_rotateY(10deg)_scale(1.15)] group-hover/logo:drop-shadow-[0_20px_20px_rgba(var(--color-accent-rgb),0.3)]">
+                                                    <Image
+                                                        src={logo.url}
+                                                        alt={`${logo.name} logo`}
+                                                        width={logo.w}
+                                                        height={logo.h}
+                                                        className="h-full w-auto object-contain"
+                                                        priority={false}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </InfiniteSlider>
+                                </div>
+                            </RevealOnScroll>
+                        </div>
+                    </section>
+
+                    {/* Stats Section */}
+                    <section className="py-16 glass-subtle">
+                        <div className="max-w-7xl mx-auto px-6">
+                            <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-6" staggerDelay={0.1}>
+                                {stats.map((stat, i) => (
+                                    <StaggerItem key={i} className="text-center">
+                                        <div className="flex justify-center mb-3">
+                                            <IconContainer
+                                                icon={stat.icon}
+                                                size="md"
+                                                variant="glass"
+                                            />
+                                        </div>
+                                        <div className="font-display font-extrabold text-4xl md:text-5xl text-gradient mb-1">
+                                            <AnimatedCounter
+                                                value={stat.value}
+                                                suffix={stat.suffix}
+                                                duration={1.5}
+                                            />
+                                        </div>
+                                        <div className="text-theme-secondary">{stat.label}</div>
+                                    </StaggerItem>
+                                ))}
+                            </StaggerContainer>
+                        </div>
+                    </section>
+
+                    {/* Insurance Categories */}
+                    <section className="py-20 px-6">
+                        <div className="max-w-7xl mx-auto">
+                            <RevealOnScroll className="text-center mb-12">
+                                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent 
+                           text-sm rounded-full mb-4 font-medium">
+                                    <Shield className="w-4 h-4" />
+                                    BROWSE INSURANCE
+                                </span>
+                                <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary">
+                                    Explore Insurance Types
+                                </h2>
+                                <p className="text-theme-secondary mt-4 max-w-xl mx-auto">
+                                    Comprehensive guides for every insurance category with hidden facts and real claim cases.
+                                </p>
+                            </RevealOnScroll>
+
+                            <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
+                                {insuranceCategories.map((cat) => (
+                                    <StaggerItem key={cat.href}>
+                                        <Link href={cat.href} className="block h-full">
+                                            <TiltCard containerClassName="h-full" className="h-full">
+                                                <GlassCard
+                                                    hover
+                                                    glowOnHover
+                                                    className="cursor-pointer group h-full"
+                                                >
+                                                    <div className="flex items-start gap-4">
+                                                        <IconContainer
+                                                            icon={cat.icon}
+                                                            size="lg"
+                                                            variant="gradient"
+                                                            gradientFrom={`from-${cat.color.split(' ')[0].replace('from-', '')}`}
+                                                            gradientTo={`to-${cat.color.split(' ')[1].replace('to-', '')}`}
+                                                        />
+                                                        <div className="flex-1">
+                                                            <h3 className="font-display font-semibold text-lg text-theme-primary mb-1 
+                                                     group-hover:text-accent transition-colors duration-150">
+                                                                {cat.title}
+                                                            </h3>
+                                                            <p className="text-theme-secondary text-sm">{cat.desc}</p>
+                                                        </div>
+                                                        <ArrowRight className="w-5 h-5 text-theme-muted opacity-0 group-hover:opacity-100 
+                                                    group-hover:translate-x-1 transition-all duration-200" />
+                                                    </div>
+                                                </GlassCard>
+                                            </TiltCard>
+                                        </Link>
+                                    </StaggerItem>
+                                ))}
+                            </StaggerContainer>
+                        </div>
+                    </section>
+
+                    {/* Tools Section */}
+                    <section className="py-20 px-6 glass-subtle">
+                        <div className="max-w-7xl mx-auto">
+                            <RevealOnScroll className="text-center mb-12">
+                                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent 
+                           text-sm rounded-full mb-4 font-medium">
+                                    <BarChart3 className="w-4 h-4" />
+                                    FREE TOOLS
+                                </span>
+                                <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary">
+                                    Tools to Make Better Decisions
+                                </h2>
+                                <p className="text-theme-secondary mt-4 max-w-xl mx-auto">
+                                    Our unique tools help you understand policies better than any agent will tell you.
+                                </p>
+                            </RevealOnScroll>
+
+                            <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6" staggerDelay={0.1}>
+                                {tools.map((tool) => (
+                                    <StaggerItem key={tool.href}>
+                                        <Link href={tool.href}>
+                                            <GlassCard
+                                                hover
+                                                glowOnHover
+                                                className="cursor-pointer group"
+                                            >
+                                                <div className="flex gap-5 items-center">
+                                                    <IconContainer
+                                                        icon={tool.icon}
+                                                        size="xl"
+                                                        variant="gradient"
+                                                        gradientFrom={`from-${tool.color.split(' ')[0].replace('from-', '')}`}
+                                                        gradientTo={`to-${tool.color.split(' ')[1].replace('to-', '')}`}
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-3 mb-1">
+                                                            <h3 className="font-display font-semibold text-lg text-theme-primary 
+                                                     group-hover:text-accent transition-colors duration-150">
+                                                                {tool.title}
+                                                            </h3>
+                                                            <span className="px-2 py-0.5 bg-accent-10 text-accent text-xs rounded-full font-medium">
+                                                                {tool.badge}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-theme-secondary text-sm">{tool.desc}</p>
+                                                    </div>
+                                                    <ArrowRight className="w-6 h-6 text-theme-muted opacity-0 group-hover:opacity-100 
+                                                  group-hover:translate-x-1 transition-all duration-200" />
+                                                </div>
+                                            </GlassCard>
+                                        </Link>
+                                    </StaggerItem>
+                                ))}
+                            </StaggerContainer>
+                        </div>
+                    </section>
+
+                    {/* CTA Section */}
+                    <section className="py-20 px-6">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <RevealOnScroll direction="scale">
+                                <GlassCard padding="lg" className="relative overflow-hidden">
+                                    {/* Subtle gradient overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-accent-5 via-transparent to-transparent pointer-events-none" />
+
+                                    <div className="relative z-10">
+                                        <IconContainer
+                                            icon={Search}
+                                            size="xl"
+                                            variant="gradient"
+                                            className="mx-auto mb-6"
+                                        />
+
+                                        <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary mb-4">
+                                            Ready to Understand Your Insurance?
+                                        </h2>
+                                        <p className="text-theme-secondary text-lg mb-8 max-w-xl mx-auto">
+                                            Start with the Hidden Facts tool and discover what your policy really covers.
+                                        </p>
+
+                                        <Link href="/tools/hidden-facts">
+                                            <MagicButton icon={Search} size="lg" glow>
+                                                Explore Hidden Facts
+                                            </MagicButton>
+                                        </Link>
+                                    </div>
+                                </GlassCard>
+                            </RevealOnScroll>
+                        </div>
+                    </section>
                 </div>
-            </section>
-        </div>
-    )
+                )
 }
