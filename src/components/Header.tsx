@@ -43,9 +43,7 @@ export default function Header() {
     return (
         <header
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-300
-        ${isScrolled
-                    ? 'bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-md border-b border-slate-200 dark:border-slate-800'
-                    : 'bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm'}`}
+        ${isScrolled ? 'glass-strong shadow-md' : 'glass-subtle'}`}
         >
             <div className="max-w-7xl mx-auto px-6">
                 <div className="flex items-center justify-between h-20">
@@ -81,25 +79,28 @@ export default function Header() {
                             </button>
 
                             {activeDropdown === 'insurance' && (
-                                <div className="absolute top-full left-0 mt-2 w-72 p-2 rounded-xl 
-                              shadow-xl animate-fade-in-up
-                              bg-white dark:bg-slate-900 border border-default">
-                                    {insuranceTypes.map((item, index) => (
-                                        <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            className="flex items-center gap-3 px-4 py-3 rounded-lg
+                                <div className="absolute top-full left-0 pt-2 w-72">
+                                    {/* Invisible bridge to prevent gap issues */}
+                                    <div className="absolute top-0 left-0 w-full h-2" />
+                                    <div className="p-2 rounded-xl shadow-xl animate-fade-in-up
+                                      bg-white dark:bg-slate-900 border border-default">
+                                        {insuranceTypes.map((item, index) => (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                className="flex items-center gap-3 px-4 py-3 rounded-lg
                                text-theme-secondary hover:text-accent hover:bg-accent-5
                                transition-all duration-200"
-                                            style={{ animationDelay: `${index * 50}ms` }}
-                                        >
-                                            <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${item.color} 
+                                                style={{ animationDelay: `${index * 50}ms` }}
+                                            >
+                                                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${item.color} 
                                     flex items-center justify-center shadow-sm`}>
-                                                <item.icon className="w-5 h-5 text-white" strokeWidth={2} />
-                                            </div>
-                                            <span className="font-medium">{item.label}</span>
-                                        </Link>
-                                    ))}
+                                                    <item.icon className="w-5 h-5 text-white" strokeWidth={2} />
+                                                </div>
+                                                <span className="font-medium">{item.label}</span>
+                                            </Link>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -119,25 +120,28 @@ export default function Header() {
                             </button>
 
                             {activeDropdown === 'tools' && (
-                                <div className="absolute top-full left-0 mt-2 w-72 p-2 rounded-xl 
-                              shadow-xl animate-fade-in-up
-                              bg-white dark:bg-slate-900 border border-default">
-                                    {tools.map((item, index) => (
-                                        <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            className="flex items-center gap-3 px-4 py-3 rounded-lg
+                                <div className="absolute top-full left-0 pt-2 w-72">
+                                    {/* Invisible bridge to prevent gap issues */}
+                                    <div className="absolute top-0 left-0 w-full h-2" />
+                                    <div className="p-2 rounded-xl shadow-xl animate-fade-in-up
+                                      bg-white dark:bg-slate-900 border border-default">
+                                        {tools.map((item, index) => (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                className="flex items-center gap-3 px-4 py-3 rounded-lg
                                text-theme-secondary hover:text-accent hover:bg-accent-5
                                transition-all duration-200"
-                                            style={{ animationDelay: `${index * 50}ms` }}
-                                        >
-                                            <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${item.color} 
+                                                style={{ animationDelay: `${index * 50}ms` }}
+                                            >
+                                                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${item.color} 
                                     flex items-center justify-center shadow-sm`}>
-                                                <item.icon className="w-5 h-5 text-white" strokeWidth={2} />
-                                            </div>
-                                            <span className="font-medium">{item.label}</span>
-                                        </Link>
-                                    ))}
+                                                    <item.icon className="w-5 h-5 text-white" strokeWidth={2} />
+                                                </div>
+                                                <span className="font-medium">{item.label}</span>
+                                            </Link>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>

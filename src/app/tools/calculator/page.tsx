@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
-import Disclaimer from '@/components/ui/Disclaimer'
 
 export default function CalculatorPage() {
     const [age, setAge] = useState<number>(25)
@@ -131,21 +130,12 @@ export default function CalculatorPage() {
                         className="rounded-xl border bg-primary/5 p-6"
                     >
                         <h3 className="mb-2 font-semibold">Estimated Premium</h3>
-                        <div className="mb-1 text-4xl font-bold text-primary">
-                            {premium > 0 ? formatCurrency(Math.round(premium * 1.18)) : '---'}
+                        <div className="mb-4 text-4xl font-bold text-primary">
+                            {premium > 0 ? formatCurrency(premium) : '---'}
                             <span className="text-base font-normal text-muted-foreground">/year</span>
                         </div>
-
-                        {premium > 0 && (
-                            <div className="mb-4 text-xs text-muted-foreground flex items-center gap-2">
-                                <span>Base: {formatCurrency(premium)}</span>
-                                <span>+</span>
-                                <span>GST (18%): {formatCurrency(Math.round(premium * 0.18))}</span>
-                            </div>
-                        )}
-
                         <p className="text-sm text-muted-foreground">
-                            *This indicative premium includes 18% GST. Final premium may vary based on medical tests and underwriting.
+                            *This is an indicative premium based on your age ({age}) and sum assured ({formatCurrency(sumAssured)}). Final premium may vary based on medical tests.
                         </p>
                     </motion.div>
 
@@ -163,8 +153,6 @@ export default function CalculatorPage() {
                             </li>
                         </ul>
                     </div>
-
-                    <Disclaimer type="financial" compact />
                 </div>
             </div>
         </div>

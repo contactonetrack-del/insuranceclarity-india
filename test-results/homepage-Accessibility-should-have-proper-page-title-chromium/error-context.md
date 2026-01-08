@@ -1,0 +1,365 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "InsuranceClarity" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e9]: InsuranceClarity
+      - navigation [ref=e10]:
+        - link "Home" [ref=e11] [cursor=pointer]:
+          - /url: /
+        - button "Insurance Types" [ref=e13] [cursor=pointer]:
+          - text: Insurance Types
+          - img [ref=e14]
+        - button "Tools" [ref=e17] [cursor=pointer]:
+          - text: Tools
+          - img [ref=e18]
+        - link "Resources" [ref=e20] [cursor=pointer]:
+          - /url: /resources
+  - main [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic:
+            - generic:
+              - img "Insurance protection background"
+        - generic [ref=e29]:
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - img [ref=e33]
+              - text: India's Most Transparent Insurance Platform
+            - generic [ref=e35]:
+              - generic [ref=e36]: Smart Protection for your
+              - generic [ref=e38]: Family
+          - heading "Discover What Insurance Companies Hide From You" [level=1] [ref=e40]:
+            - generic "Discover What Insurance" [ref=e41]:
+              - generic [ref=e42]: Discover
+              - generic [ref=e43]: What
+              - generic [ref=e44]: Insurance
+            - generic "Companies Hide From You" [ref=e46]:
+              - generic [ref=e47]: C
+              - generic [ref=e48]: o
+              - generic [ref=e49]: m
+              - generic [ref=e50]: p
+              - generic [ref=e51]: a
+              - generic [ref=e52]: "n"
+              - generic [ref=e53]: i
+              - generic [ref=e54]: e
+              - generic [ref=e55]: s
+              - generic [ref=e57]: H
+              - generic [ref=e58]: i
+              - generic [ref=e59]: d
+              - generic [ref=e60]: e
+              - generic [ref=e62]: F
+              - generic [ref=e63]: r
+              - generic [ref=e64]: o
+              - generic [ref=e65]: m
+              - generic [ref=e67]: "Y"
+              - generic [ref=e68]: o
+              - generic [ref=e69]: u
+          - paragraph [ref=e71]: Compare policies, uncover hidden exclusions, and make informed decisions. We show you the fine print that could save your claim.
+          - generic [ref=e73]:
+            - link "Explore Hidden Facts" [ref=e74] [cursor=pointer]:
+              - /url: /tools/hidden-facts
+              - button "Explore Hidden Facts" [ref=e76]:
+                - img [ref=e78]
+                - generic [ref=e81]: Explore Hidden Facts
+            - link "Calculate Premium" [ref=e82] [cursor=pointer]:
+              - /url: /tools/calculator
+              - button "Calculate Premium" [ref=e84]:
+                - generic [ref=e85]: Calculate Premium
+                - img [ref=e87]
+          - generic [ref=e89]:
+            - paragraph [ref=e90]: Decoding policies from top insurers
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - img "LIC logo" [ref=e94]
+                - img "HDFC Life logo" [ref=e96]
+                - img "Aditya Birla logo" [ref=e98]
+                - img "ICICI Prudential logo" [ref=e100]
+                - img "SBI Life logo" [ref=e102]
+                - img "Kotak Life logo" [ref=e104]
+                - img "Tata AIA logo" [ref=e106]
+                - img "Bajaj Allianz logo" [ref=e108]
+                - img "Max Life logo" [ref=e110]
+                - img "Star Health logo" [ref=e112]
+                - img "Care Health logo" [ref=e114]
+                - img "Digit Insurance logo" [ref=e116]
+                - img "Acko logo" [ref=e118]
+                - img "Reliance Life logo" [ref=e120]
+                - img "Reliance General logo" [ref=e122]
+                - img "HDFC Ergo logo" [ref=e124]
+                - img "Nippon Life logo" [ref=e126]
+                - img "Ageas Federal logo" [ref=e128]
+                - img "Bharti AXA logo" [ref=e130]
+                - img "Future Generali logo" [ref=e132]
+                - img "IDBI Federal logo" [ref=e134]
+                - img "IFFCO Tokio logo" [ref=e136]
+                - img "National Insurance logo" [ref=e138]
+                - img "Oriental Insurance logo" [ref=e140]
+                - img "United India logo" [ref=e142]
+                - img "Aviva logo" [ref=e144]
+                - img "Edelweiss logo" [ref=e146]
+                - img "Manipal Cigna logo" [ref=e148]
+                - img "MetLife logo" [ref=e150]
+                - img "Star Union Dai-ichi logo" [ref=e152]
+                - img "Niva Bupa logo" [ref=e154]
+                - img "ICICI Lombard logo" [ref=e156]
+                - img "New India Assurance logo" [ref=e158]
+                - img "Cholamandalam MS logo" [ref=e160]
+                - img "Kotak General logo" [ref=e162]
+              - generic [ref=e163]:
+                - img [ref=e165]
+                - img [ref=e167]
+                - img [ref=e169]
+                - img [ref=e171]
+                - img [ref=e173]
+                - img [ref=e175]
+                - img [ref=e177]
+                - img [ref=e179]
+                - img [ref=e181]
+                - img [ref=e183]
+                - img [ref=e185]
+                - img [ref=e187]
+                - img [ref=e189]
+                - img [ref=e191]
+                - img [ref=e193]
+                - img [ref=e195]
+                - img [ref=e197]
+                - img [ref=e199]
+                - img [ref=e201]
+                - img [ref=e203]
+                - img [ref=e205]
+                - img [ref=e207]
+                - img [ref=e209]
+                - img [ref=e211]
+                - img [ref=e213]
+                - img [ref=e215]
+                - img [ref=e217]
+                - img [ref=e219]
+                - img [ref=e221]
+                - img [ref=e223]
+                - img [ref=e225]
+                - img [ref=e227]
+                - img [ref=e229]
+                - img [ref=e231]
+                - img [ref=e233]
+      - generic [ref=e236]:
+        - generic [ref=e237]:
+          - img [ref=e240]
+          - generic [ref=e244]: 0+
+          - generic [ref=e245]: Hidden Facts
+        - generic [ref=e246]:
+          - img [ref=e249]
+          - generic [ref=e252]: "0"
+          - generic [ref=e253]: Insurance Types
+        - generic [ref=e254]:
+          - img [ref=e257]
+          - generic [ref=e260]: "0"
+          - generic [ref=e261]: Free Tools
+        - generic [ref=e262]:
+          - img [ref=e265]
+          - generic [ref=e269]: 0+
+          - generic [ref=e270]: Claim Cases
+      - generic [ref=e272]:
+        - generic [ref=e273]:
+          - generic [ref=e274]:
+            - img [ref=e275]
+            - text: BROWSE INSURANCE
+          - heading "Explore Insurance Types" [level=2] [ref=e277]
+          - paragraph [ref=e278]: Comprehensive guides for every insurance category with hidden facts and real claim cases.
+        - generic [ref=e279]:
+          - link "Life Insurance Term, Whole Life, ULIPs" [ref=e281] [cursor=pointer]:
+            - /url: /insurance/life
+            - generic [ref=e286]:
+              - img [ref=e288]
+              - generic [ref=e290]:
+                - heading "Life Insurance" [level=3] [ref=e291]
+                - paragraph [ref=e292]: Term, Whole Life, ULIPs
+              - img [ref=e293]
+          - link "Health Insurance Individual, Family, Critical Illness" [ref=e296] [cursor=pointer]:
+            - /url: /insurance/health
+            - generic [ref=e301]:
+              - img [ref=e303]
+              - generic [ref=e307]:
+                - heading "Health Insurance" [level=3] [ref=e308]
+                - paragraph [ref=e309]: Individual, Family, Critical Illness
+              - img [ref=e310]
+          - link "Motor Insurance Car, Bike, Comprehensive" [ref=e313] [cursor=pointer]:
+            - /url: /insurance/motor
+            - generic [ref=e318]:
+              - img [ref=e320]
+              - generic [ref=e324]:
+                - heading "Motor Insurance" [level=3] [ref=e325]
+                - paragraph [ref=e326]: Car, Bike, Comprehensive
+              - img [ref=e327]
+          - link "Home Insurance Building, Contents, Fire" [ref=e330] [cursor=pointer]:
+            - /url: /insurance/home
+            - generic [ref=e335]:
+              - img [ref=e337]
+              - generic [ref=e340]:
+                - heading "Home Insurance" [level=3] [ref=e341]
+                - paragraph [ref=e342]: Building, Contents, Fire
+              - img [ref=e343]
+          - link "Travel Insurance Domestic, International" [ref=e346] [cursor=pointer]:
+            - /url: /insurance/travel
+            - generic [ref=e351]:
+              - img [ref=e353]
+              - generic [ref=e355]:
+                - heading "Travel Insurance" [level=3] [ref=e356]
+                - paragraph [ref=e357]: Domestic, International
+              - img [ref=e358]
+          - link "Specialized Pet, Wedding, Gadget" [ref=e361] [cursor=pointer]:
+            - /url: /insurance/specialized
+            - generic [ref=e366]:
+              - img [ref=e368]
+              - generic [ref=e371]:
+                - heading "Specialized" [level=3] [ref=e372]
+                - paragraph [ref=e373]: Pet, Wedding, Gadget
+              - img [ref=e374]
+      - generic [ref=e377]:
+        - generic [ref=e378]:
+          - generic [ref=e379]:
+            - img [ref=e380]
+            - text: FREE TOOLS
+          - heading "Tools to Make Better Decisions" [level=2] [ref=e382]
+          - paragraph [ref=e383]: Our unique tools help you understand policies better than any agent will tell you.
+        - generic [ref=e384]:
+          - link "Hidden Facts Revealer 150+ Facts 150+ exclusions insurers don't tell you" [ref=e386] [cursor=pointer]:
+            - /url: /tools/hidden-facts
+            - generic [ref=e389]:
+              - img [ref=e391]
+              - generic [ref=e394]:
+                - generic [ref=e395]:
+                  - heading "Hidden Facts Revealer" [level=3] [ref=e396]
+                  - generic [ref=e397]: 150+ Facts
+                - paragraph [ref=e398]: 150+ exclusions insurers don't tell you
+              - img [ref=e399]
+          - link "Premium Calculator Free Get instant premium estimates" [ref=e402] [cursor=pointer]:
+            - /url: /tools/calculator
+            - generic [ref=e405]:
+              - img [ref=e407]
+              - generic [ref=e409]:
+                - generic [ref=e410]:
+                  - heading "Premium Calculator" [level=3] [ref=e411]
+                  - generic [ref=e412]: Free
+                - paragraph [ref=e413]: Get instant premium estimates
+              - img [ref=e414]
+          - link "Policy Comparison Popular Compare features side by side" [ref=e417] [cursor=pointer]:
+            - /url: /tools/compare
+            - generic [ref=e420]:
+              - img [ref=e422]
+              - generic [ref=e426]:
+                - generic [ref=e427]:
+                  - heading "Policy Comparison" [level=3] [ref=e428]
+                  - generic [ref=e429]: Popular
+                - paragraph [ref=e430]: Compare features side by side
+              - img [ref=e431]
+          - link "Real Claim Cases 30+ Cases Learn from real claim outcomes" [ref=e434] [cursor=pointer]:
+            - /url: /tools/claim-cases
+            - generic [ref=e437]:
+              - img [ref=e439]
+              - generic [ref=e442]:
+                - generic [ref=e443]:
+                  - heading "Real Claim Cases" [level=3] [ref=e444]
+                  - generic [ref=e445]: 30+ Cases
+                - paragraph [ref=e446]: Learn from real claim outcomes
+              - img [ref=e447]
+      - generic [ref=e454]:
+        - img [ref=e456]
+        - heading "Ready to Understand Your Insurance?" [level=2] [ref=e459]
+        - paragraph [ref=e460]: Start with the Hidden Facts tool and discover what your policy really covers.
+        - link "Explore Hidden Facts" [ref=e461] [cursor=pointer]:
+          - /url: /tools/hidden-facts
+          - button "Explore Hidden Facts" [ref=e462]:
+            - img [ref=e464]
+            - generic [ref=e467]: Explore Hidden Facts
+  - contentinfo [ref=e468]:
+    - generic [ref=e469]:
+      - generic [ref=e470]:
+        - generic [ref=e471]:
+          - link "InsuranceClarity" [ref=e472] [cursor=pointer]:
+            - /url: /
+            - img [ref=e474]
+            - generic [ref=e476]: InsuranceClarity
+          - paragraph [ref=e477]: India's most transparent insurance platform. Making insurance understandable for everyone.
+          - generic [ref=e478]:
+            - generic [ref=e479]:
+              - img [ref=e480]
+              - text: India
+            - generic [ref=e483]:
+              - img [ref=e484]
+              - text: insuranceclarity.in
+        - generic [ref=e487]:
+          - heading "Insurance Types" [level=3] [ref=e488]
+          - list [ref=e489]:
+            - listitem [ref=e490]:
+              - link "Life Insurance" [ref=e491] [cursor=pointer]:
+                - /url: /insurance/life
+                - img [ref=e492]
+                - text: Life Insurance
+            - listitem [ref=e494]:
+              - link "Health Insurance" [ref=e495] [cursor=pointer]:
+                - /url: /insurance/health
+                - img [ref=e496]
+                - text: Health Insurance
+            - listitem [ref=e500]:
+              - link "Motor Insurance" [ref=e501] [cursor=pointer]:
+                - /url: /insurance/motor
+                - img [ref=e502]
+                - text: Motor Insurance
+            - listitem [ref=e506]:
+              - link "Home Insurance" [ref=e507] [cursor=pointer]:
+                - /url: /insurance/home
+                - img [ref=e508]
+                - text: Home Insurance
+            - listitem [ref=e511]:
+              - link "Travel Insurance" [ref=e512] [cursor=pointer]:
+                - /url: /insurance/travel
+                - img [ref=e513]
+                - text: Travel Insurance
+        - generic [ref=e515]:
+          - heading "Tools" [level=3] [ref=e516]
+          - list [ref=e517]:
+            - listitem [ref=e518]:
+              - link "Hidden Facts" [ref=e519] [cursor=pointer]:
+                - /url: /tools/hidden-facts
+                - img [ref=e520]
+                - text: Hidden Facts
+            - listitem [ref=e523]:
+              - link "Compare Policies" [ref=e524] [cursor=pointer]:
+                - /url: /tools/compare
+                - img [ref=e525]
+                - text: Compare Policies
+            - listitem [ref=e529]:
+              - link "Premium Calculator" [ref=e530] [cursor=pointer]:
+                - /url: /tools/calculator
+                - img [ref=e531]
+                - text: Premium Calculator
+            - listitem [ref=e533]:
+              - link "Claim Cases" [ref=e534] [cursor=pointer]:
+                - /url: /tools/claim-cases
+                - img [ref=e535]
+                - text: Claim Cases
+        - generic [ref=e538]:
+          - heading "Company" [level=3] [ref=e539]
+          - list [ref=e540]:
+            - listitem [ref=e541]:
+              - link "About Us" [ref=e542] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e543]:
+              - link "Contact" [ref=e544] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e545]:
+              - link "Privacy Policy" [ref=e546] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e547]:
+              - link "Terms of Service" [ref=e548] [cursor=pointer]:
+                - /url: /terms
+      - generic [ref=e549]:
+        - paragraph [ref=e550]: © 2026 InsuranceClarity India. All rights reserved.
+        - paragraph [ref=e551]: Data sourced from IRDAI, insurer websites, and consumer reports. Not financial advice.
+```

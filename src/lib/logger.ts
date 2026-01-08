@@ -1,82 +1,197 @@
 /**
- * Structured Logger
- * A simple structured logging utility for consistent log formatting.
- * In production, consider using Pino or Winston with log aggregation.
+ * Structured Logger for Insurance Platform
+ * 
+ * Uses Pino for high-performance, JSON-structured logging.
+ * Safe for production with PII masking integration.
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+import pino from 'pino';
+import { maskEmail, maskPhone, maskAadhaar, maskPAN, maskPolicyNo } from './pii-mask';
 
-interface LogEntry {
-    level: LogLevel
-    message: string
-    timestamp: string
-    [key: string]: unknown
+// Determine log level based on environment
+const LOG_LEVEL = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug');
+
+// Base logger configuration
+const baseConfig: pino.LoggerOptions = {
+    level: LOG_LEVEL,
+    base: {
+        app: 'insurance-clarity',
+        env: process.env.NODE_ENV,
+    },
+    timestamp: pino.stdTimeFunctions.isoTime,
+};
+
+// Pretty print in development
+const devConfig: pino.LoggerOptions = {
+    ...baseConfig,
+    transport: {
+        target: 'pino-pretty',
+        options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            ignore: 'pid,hostname',
+        },
+    },
+};
+
+// Production config (JSON for log aggregation)
+const prodConfig: pino.LoggerOptions = {
+    ...baseConfig,
+    // Add custom serializers for production
+    formatters: {
+        level: (label) => ({ level: label }),
+    },
+};
+
+// Create the logger instance
+export const logger = pino(
+    process.env.NODE_ENV === 'production' ? prodConfig : devConfig
+);
+
+// ============================================
+// SAFE LOGGING HELPERS (with PII masking)
+// ============================================
+
+interface SafeUserContext {
+    userId?: string;
+    email?: string;
+    phone?: string;
+    aadhaar?: string;
+    pan?: string;
 }
 
-const LOG_LEVELS: Record<LogLevel, number> = {
-    debug: 0,
-    info: 1,
-    warn: 2,
-    error: 3,
+/**
+ * Create a safe user context with masked PII
+ */
+export function createSafeUserContext(user: SafeUserContext): Record<string, string> {
+    const safe: Record<string, string> = {};
+
+    if (user.userId) safe.userId = user.userId;
+    if (user.email) safe.email = maskEmail(user.email);
+    if (user.phone) safe.phone = maskPhone(user.phone);
+    if (user.aadhaar) safe.aadhaar = maskAadhaar(user.aadhaar);
+    if (user.pan) safe.pan = maskPAN(user.pan);
+
+    return safe;
 }
 
-const CURRENT_LOG_LEVEL: LogLevel = (process.env.LOG_LEVEL as LogLevel) || 'info'
-
-function shouldLog(level: LogLevel): boolean {
-    return LOG_LEVELS[level] >= LOG_LEVELS[CURRENT_LOG_LEVEL]
+interface SafePolicyContext {
+    policyId?: string;
+    policyNo?: string;
+    category?: string;
+    provider?: string;
 }
 
-function formatLog(entry: LogEntry): string {
-    return JSON.stringify(entry)
+/**
+ * Create a safe policy context with masked policy numbers
+ */
+export function createSafePolicyContext(policy: SafePolicyContext): Record<string, string> {
+    const safe: Record<string, string> = {};
+
+    if (policy.policyId) safe.policyId = policy.policyId;
+    if (policy.policyNo) safe.policyNo = maskPolicyNo(policy.policyNo);
+    if (policy.category) safe.category = policy.category;
+    if (policy.provider) safe.provider = policy.provider;
+
+    return safe;
 }
 
-function createLogEntry(level: LogLevel, message: string, data?: Record<string, unknown>): LogEntry {
-    return {
-        level,
-        message,
-        timestamp: new Date().toISOString(),
-        ...data,
+// ============================================
+// DOMAIN-SPECIFIC LOGGERS
+// ============================================
+
+/**
+ * Log API request/response (for middleware)
+ */
+export function logApiRequest(
+    method: string,
+    path: string,
+    statusCode: number,
+    durationMs: number,
+    metadata?: Record<string, unknown>
+): void {
+    const logData = {
+        type: 'api_request',
+        method,
+        path,
+        statusCode,
+        durationMs,
+        ...metadata,
+    };
+
+    if (statusCode >= 500) {
+        logger.error(logData, 'API request failed');
+    } else if (statusCode >= 400) {
+        logger.warn(logData, 'API request client error');
+    } else if (durationMs > 500) {
+        logger.warn(logData, 'API request slow');
+    } else {
+        logger.info(logData, 'API request completed');
     }
 }
 
-export const logger = {
-    debug(message: string, data?: Record<string, unknown>) {
-        if (shouldLog('debug')) {
-            console.debug(formatLog(createLogEntry('debug', message, data)))
-        }
-    },
-
-    info(message: string, data?: Record<string, unknown>) {
-        if (shouldLog('info')) {
-            console.info(formatLog(createLogEntry('info', message, data)))
-        }
-    },
-
-    warn(message: string, data?: Record<string, unknown>) {
-        if (shouldLog('warn')) {
-            console.warn(formatLog(createLogEntry('warn', message, data)))
-        }
-    },
-
-    error(message: string, error?: Error | unknown, data?: Record<string, unknown>) {
-        if (shouldLog('error')) {
-            const errorData = error instanceof Error
-                ? { errorName: error.name, errorMessage: error.message, stack: error.stack }
-                : { error }
-            console.error(formatLog(createLogEntry('error', message, { ...errorData, ...data })))
-        }
-    },
-
-    // Log API requests
-    request(method: string, path: string, statusCode: number, duration: number, data?: Record<string, unknown>) {
-        this.info('API Request', {
-            method,
-            path,
-            statusCode,
-            duration: `${duration}ms`,
-            ...data,
-        })
-    },
+/**
+ * Log insurance-specific events
+ */
+export function logInsuranceEvent(
+    event: string,
+    category: string,
+    metadata?: Record<string, unknown>
+): void {
+    logger.info({
+        type: 'insurance_event',
+        event,
+        category,
+        ...metadata,
+    }, `Insurance event: ${event}`);
 }
 
-export default logger
+/**
+ * Log database query performance
+ */
+export function logDbQuery(
+    model: string,
+    action: string,
+    durationMs: number,
+    metadata?: Record<string, unknown>
+): void {
+    const logData = {
+        type: 'db_query',
+        model,
+        action,
+        durationMs,
+        ...metadata,
+    };
+
+    if (durationMs > 200) {
+        logger.warn(logData, 'Slow database query');
+    } else {
+        logger.debug(logData, 'Database query');
+    }
+}
+
+/**
+ * Log security events
+ */
+export function logSecurityEvent(
+    event: string,
+    severity: 'low' | 'medium' | 'high' | 'critical',
+    metadata?: Record<string, unknown>
+): void {
+    const logData = {
+        type: 'security_event',
+        event,
+        severity,
+        ...metadata,
+    };
+
+    if (severity === 'critical' || severity === 'high') {
+        logger.error(logData, `Security event: ${event}`);
+    } else if (severity === 'medium') {
+        logger.warn(logData, `Security event: ${event}`);
+    } else {
+        logger.info(logData, `Security event: ${event}`);
+    }
+}
+
+export default logger;

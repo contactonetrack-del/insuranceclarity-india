@@ -121,59 +121,6 @@
 }
 
 /* ============================================
-   ACCESSIBILITY - Focus Styles (WCAG AA)
-   ============================================ */
-
-/* Focus ring for all interactive elements */
-:focus-visible {
-    outline: 2px solid rgb(var(--color-accent));
-    outline-offset: 2px;
-}
-
-/* Remove default outline in favor of visible focus ring */
-:focus:not(:focus-visible) {
-    outline: none;
-}
-
-/* High visibility focus for buttons and links */
-a:focus-visible,
-button:focus-visible,
-[role="button"]:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-    outline: 2px solid rgb(var(--color-accent));
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(var(--color-accent), 0.2);
-}
-
-/* Screen Reader Only - Hidden but accessible */
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-}
-
-/* Not SR Only - Shows element when focused (for skip links) */
-.sr-only:focus,
-.sr-only.focus:focus-visible {
-    position: static;
-    width: auto;
-    height: auto;
-    padding: inherit;
-    margin: inherit;
-    overflow: visible;
-    clip: auto;
-    white-space: normal;
-}
-
-/* ============================================
    REDUCED MOTION - Accessibility First
    ============================================ */
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { Shield, Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe } from 'lucide-react'
-import Disclaimer from '@/components/ui/Disclaimer'
 
 const footerLinks = {
     insurance: [
@@ -120,17 +119,12 @@ export default function Footer() {
 
                 {/* Bottom */}
                 <div className="mt-12 pt-8 border-t border-default flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="w-full">
-                        <Disclaimer type="general" compact className="mb-8" />
-                        <div className="flex flex-col md:flex-row justify-between items-center">
-                            <p className="text-theme-muted text-sm">
-                                © 2026 InsuranceClarity India. All rights reserved.
-                            </p>
-                            <p className="text-theme-muted text-xs opacity-70">
-                                Data sourced from IRDAI, insurer websites, and consumer reports. Not financial advice.
-                            </p>
-                        </div>
-                    </div>
+                    <p className="text-theme-muted text-sm">
+                        © 2026 InsuranceClarity India. All rights reserved.
+                    </p>
+                    <p className="text-theme-muted text-xs opacity-70">
+                        Data sourced from IRDAI, insurer websites, and consumer reports. Not financial advice.
+                    </p>
                 </div>
             </div>
         </footer>
