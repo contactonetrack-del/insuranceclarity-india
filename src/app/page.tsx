@@ -165,7 +165,7 @@ export default function HomePage() {
                     <RevealOnScroll delay={0.6} className="relative group/ticker w-screen -ml-[calc(50vw-50%)] mt-12">
                         <div className="text-center mb-6">
                             <span className="text-[10px] font-bold tracking-[0.4em] text-accent/50 uppercase">
-                                Top Insurers in India
+                                Decoding policies from top insurers
                             </span>
                         </div>
 
