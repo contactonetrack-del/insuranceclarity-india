@@ -685,6 +685,7 @@ select option {
     flex-shrink: 0;
     justify-content: space-around;
     min-width: 100%;
+    will-change: transform;
 }
 
 @keyframes marquee-scroll {

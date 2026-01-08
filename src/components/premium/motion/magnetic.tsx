@@ -28,8 +28,12 @@ export function Magnetic({
     const springX = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 })
     const springY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 })
 
+    const [isHovered, setIsHovered] = useState(false)
+
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!ref.current || prefersReducedMotion) return
+
+        setIsHovered(true)
 
         const rect = ref.current.getBoundingClientRect()
         const centerX = rect.left + rect.width / 2
@@ -47,6 +51,7 @@ export function Magnetic({
     }
 
     const handleMouseLeave = () => {
+        setIsHovered(false)
         x.set(0)
         y.set(0)
     }
@@ -68,7 +73,8 @@ export function Magnetic({
             onMouseLeave={handleMouseLeave}
             style={{
                 x: springX,
-                y: springY
+                y: springY,
+                zIndex: isHovered ? 50 : 1
             }}
         >
             {children}
