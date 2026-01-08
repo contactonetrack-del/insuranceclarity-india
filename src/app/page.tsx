@@ -170,12 +170,12 @@ export default function HomePage() {
                         </div>
 
                         {/* Premium Ticker Container - Full Bleed */}
-                        <div className="glass-strong p-0 py-6 shadow-2xl border-y border-hover/5 relative overflow-visible w-full">
+                        <div className="glass-strong p-0 py-3 shadow-lg border-y border-hover/5 relative overflow-visible w-full">
                             {/* Decorative background glow */}
                             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-64 h-32 bg-accent/5 blur-[100px] pointer-events-none" />
                             <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-64 h-32 bg-emerald-500/5 blur-[100px] pointer-events-none" />
 
-                            <InfiniteSlider gap={100} duration={120} className="py-8">
+                            <InfiniteSlider gap={80} duration={120} className="py-4">
                                 {[
                                     { name: "LIC", url: "/Logos/life-insurance-corporation-logo-png_seeklogo-477287.png", w: 160, h: 50 },
                                     { name: "HDFC Life", url: "/Logos/HDFC-Life-Logo.png", w: 160, h: 50 },
@@ -215,7 +215,7 @@ export default function HomePage() {
                                 ].map((logo) => (
                                     <div
                                         key={logo.name}
-                                        className="relative h-11 w-auto flex items-center justify-center px-12 py-8 transition-all duration-500 opacity-60 hover:opacity-100 group/logo"
+                                        className="relative h-8 w-auto flex items-center justify-center px-8 py-3 transition-all duration-500 opacity-60 hover:opacity-100 group/logo"
                                         style={{ perspective: '1000px' }}
                                     >
                                         <div className="transition-transform duration-500 group-hover/logo:[transform:rotateX(10deg)_rotateY(10deg)_scale(1.25)] group-hover/logo:drop-shadow-[0_20px_25px_rgba(var(--color-accent-rgb),0.2)]">
