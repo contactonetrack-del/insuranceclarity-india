@@ -57,7 +57,7 @@ export function InfiniteSlider({
     return (
         <div
             className={cn(
-                "marquee relative overflow-hidden w-full select-none group",
+                "marquee relative overflow-x-clip overflow-y-visible w-full select-none group",
                 className
             )}
             style={gapVar}

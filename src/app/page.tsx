@@ -204,7 +204,7 @@ export default function HomePage() {
                                 { name: "Cholamandalam MS", url: "/Logos/Cholamandalam MS.png", w: 160, h: 50 },
                                 { name: "Kotak General", url: "/Logos/Kotak General Insurance.png", w: 160, h: 50 },
                             ].map((logo) => (
-                                <div key={logo.name} className="relative h-14 w-auto flex items-center justify-center px-4 transition-all duration-300 opacity-80 hover:opacity-100 hover:scale-110 hover:drop-shadow-lg">
+                                <div key={logo.name} className="relative h-14 w-auto flex items-center justify-center px-6 py-4 transition-all duration-300 opacity-80 hover:opacity-100 hover:scale-110 hover:drop-shadow-lg">
                                     <Image
                                         src={logo.url}
                                         alt={`${logo.name} logo`}
