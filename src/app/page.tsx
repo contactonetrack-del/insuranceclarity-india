@@ -27,6 +27,7 @@ import {
     InfiniteSlider,
     TextRoll
 } from '@/components/premium'
+import RegulatoryDisclaimer from '@/components/RegulatoryDisclaimer'
 
 // Insurance categories with semantic icons
 const insuranceCategories = [
@@ -143,7 +144,7 @@ export default function HomePage() {
                     </RevealOnScroll>
 
                     <RevealOnScroll direction="up" delay={0.4}>
-                        <div className="flex flex-wrap justify-center gap-4 mb-12">
+                        <div className="flex flex-wrap justify-center gap-4 mb-8">
                             <Link href="/tools/hidden-facts">
                                 <Magnetic strength={0.2} className="inline-block">
                                     <MagicButton icon={Search} size="lg" glow>
@@ -154,11 +155,19 @@ export default function HomePage() {
                             <Link href="/tools/calculator">
                                 <Magnetic strength={0.2} className="inline-block">
                                     <MagicButton variant="secondary" icon={ArrowRight} iconPosition="right" size="lg">
-                                        Calculate Premium
+                                        Estimate Premium
                                     </MagicButton>
                                 </Magnetic>
                             </Link>
                         </div>
+                    </RevealOnScroll>
+
+                    {/* Inline Disclaimer */}
+                    <RevealOnScroll direction="up" delay={0.5}>
+                        <p className="text-xs text-theme-muted text-center max-w-lg mx-auto mb-8">
+                            <strong>Note:</strong> InsuranceClarity is an educational platform, not an IRDAI-licensed intermediary.
+                            We do not sell insurance. <Link href="/terms" className="underline hover:text-accent">Learn more</Link>
+                        </p>
                     </RevealOnScroll>
 
                     {/* Infinite Logo Slider - Full Bleed Edge-to-Edge */}
@@ -175,47 +184,47 @@ export default function HomePage() {
                             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-64 h-32 bg-accent/5 blur-[100px] pointer-events-none" />
                             <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-64 h-32 bg-emerald-500/5 blur-[100px] pointer-events-none" />
 
-                            <InfiniteSlider gap={80} duration={120} className="py-4">
+                            <InfiniteSlider gap={60} duration={120} className="py-6">
                                 {[
-                                    { name: "LIC", url: "/Logos/life-insurance-corporation-logo-png_seeklogo-477287.png", w: 160, h: 50 },
-                                    { name: "HDFC Life", url: "/Logos/HDFC-Life-Logo.png", w: 160, h: 50 },
-                                    { name: "Aditya Birla", url: "/Logos/Aditya Birla Insurace.png", w: 160, h: 50 },
-                                    { name: "ICICI Prudential", url: "/Logos/icici-prudential-life-insurance-logo-png_seeklogo-307031.png", w: 160, h: 50 },
-                                    { name: "SBI Life", url: "/Logos/sbi-life-insurance-logo-png_seeklogo-123116.png", w: 160, h: 50 },
-                                    { name: "Kotak Life", url: "/Logos/kotak-life-insurance-logo-png_seeklogo-212711.png", w: 160, h: 50 },
-                                    { name: "Tata AIA", url: "/Logos/tata-aia-life-insurance-seeklogo.png", w: 160, h: 50 },
-                                    { name: "Bajaj Allianz", url: "/Logos/bajaj-allianz-life-insurance-logo-png_seeklogo-307030.png", w: 160, h: 50 },
-                                    { name: "Max Life", url: "/Logos/axis-max-life-insurance-logo-png_seeklogo-643158.png", w: 160, h: 50 },
-                                    { name: "Star Health", url: "/Logos/star-health-insurance-logo-png_seeklogo-303863.png", w: 160, h: 50 },
-                                    { name: "Care Health", url: "/Logos/Care_health_insurance_logo.png", w: 160, h: 50 },
-                                    { name: "Digit Insurance", url: "/Logos/digit-insurance-logo-png_seeklogo-465810.png", w: 160, h: 50 },
-                                    { name: "Acko", url: "/Logos/Acko_General_Insurance_logo.svg.png", w: 160, h: 50 },
-                                    { name: "Reliance Life", url: "/Logos/Reliance_Life_Insurance_Logo.png", w: 160, h: 50 },
-                                    { name: "Reliance General", url: "/Logos/reliance-general-insurance-logo-png_seeklogo-503447.png", w: 160, h: 50 },
-                                    { name: "HDFC Ergo", url: "/Logos/ifli-logo-new.png", w: 160, h: 50 },
-                                    { name: "Nippon Life", url: "/Logos/nippon-life-insurance-logo-png_seeklogo-99705.png", w: 160, h: 50 },
-                                    { name: "Ageas Federal", url: "/Logos/AgeasFederal-_Logo_Color.png", w: 160, h: 50 },
-                                    { name: "Bharti AXA", url: "/Logos/BhartiAXALifeInsurance.png", w: 160, h: 50 },
-                                    { name: "Future Generali", url: "/Logos/Future Generali insurance.png", w: 160, h: 50 },
-                                    { name: "IDBI Federal", url: "/Logos/IDBIFederalLifeInsurancesvg.png", w: 160, h: 50 },
-                                    { name: "IFFCO Tokio", url: "/Logos/IFFCO_TOKIO_Logo.png", w: 160, h: 50 },
-                                    { name: "National Insurance", url: "/Logos/National_Insurance_Company.png", w: 160, h: 50 },
-                                    { name: "Oriental Insurance", url: "/Logos/The_Oriental_Insurance_Company_Logo.png", w: 160, h: 50 },
-                                    { name: "United India", url: "/Logos/United_India_Insurance.png", w: 160, h: 50 },
-                                    { name: "Aviva", url: "/Logos/avivi.png", w: 160, h: 50 },
-                                    { name: "Edelweiss", url: "/Logos/edelweisslogo.png", w: 160, h: 50 },
+                                    { name: "LIC", url: "/Logos/life-insurance-corporation-logo-png_seeklogo-477287.png", w: 160, h: 60 },
+                                    { name: "HDFC Life", url: "/Logos/HDFC-Life-Logo.png", w: 120, h: 40 },
+                                    { name: "Aditya Birla", url: "/Logos/Aditya Birla Insurace.png", w: 160, h: 60 },
+                                    { name: "ICICI Prudential", url: "/Logos/icici-prudential-life-insurance-logo-png_seeklogo-307031.png", w: 160, h: 60 },
+                                    { name: "SBI Life", url: "/Logos/sbi-life-insurance-logo-png_seeklogo-123116.png", w: 160, h: 60 },
+                                    { name: "Kotak Life", url: "/Logos/kotak-life-insurance-logo-png_seeklogo-212711.png", w: 160, h: 60 },
+                                    { name: "Tata AIA", url: "/Logos/tata-aia-life-insurance-seeklogo.png", w: 160, h: 60 },
+                                    { name: "Bajaj Allianz", url: "/Logos/bajaj-allianz-life-insurance-logo-png_seeklogo-307030.png", w: 160, h: 60 },
+                                    { name: "Max Life", url: "/Logos/axis-max-life-insurance-logo-png_seeklogo-643158.png", w: 160, h: 60 },
+                                    { name: "Star Health", url: "/Logos/star-health-insurance-logo-png_seeklogo-303863.png", w: 160, h: 60 },
+                                    { name: "Care Health", url: "/Logos/Care_health_insurance_logo.png", w: 160, h: 60 },
+                                    { name: "Digit Insurance", url: "/Logos/digit-insurance-logo-png_seeklogo-465810.png", w: 160, h: 60 },
+                                    { name: "Acko", url: "/Logos/Acko_General_Insurance_logo.svg.png", w: 160, h: 60 },
+                                    { name: "Reliance Life", url: "/Logos/Reliance_Life_Insurance_Logo.png", w: 160, h: 60 },
+                                    { name: "Reliance General", url: "/Logos/reliance-general-insurance-logo-png_seeklogo-503447.png", w: 160, h: 60 },
+                                    { name: "HDFC Ergo", url: "/Logos/ifli-logo-new.png", w: 160, h: 60 },
+                                    { name: "Nippon Life", url: "/Logos/nippon-life-insurance-logo-png_seeklogo-99705.png", w: 120, h: 40 },
+                                    { name: "Ageas Federal", url: "/Logos/AgeasFederal-_Logo_Color.png", w: 160, h: 60 },
+                                    { name: "Bharti AXA", url: "/Logos/BhartiAXALifeInsurance.png", w: 160, h: 60 },
+                                    { name: "Future Generali", url: "/Logos/Future Generali insurance.png", w: 160, h: 60 },
+                                    { name: "IDBI Federal", url: "/Logos/IDBIFederalLifeInsurancesvg.png", w: 160, h: 60 },
+                                    { name: "IFFCO Tokio", url: "/Logos/IFFCO_TOKIO_Logo.png", w: 160, h: 60 },
+                                    { name: "National Insurance", url: "/Logos/National_Insurance_Company.png", w: 160, h: 60 },
+                                    { name: "Oriental Insurance", url: "/Logos/The_Oriental_Insurance_Company_Logo.png", w: 160, h: 60 },
+                                    { name: "United India", url: "/Logos/United_India_Insurance.png", w: 120, h: 40 },
+                                    { name: "Aviva", url: "/Logos/avivi.png", w: 160, h: 60 },
+                                    { name: "Edelweiss", url: "/Logos/edelweisslogo.png", w: 160, h: 60 },
                                     { name: "Manipal Cigna", url: "/Logos/hi-logo-Manipal.png", w: 200, h: 60 },
-                                    { name: "MetLife", url: "/Logos/met-life-india-logo-png_seeklogo-91366.png", w: 160, h: 50 },
-                                    { name: "Star Union Dai-ichi", url: "/Logos/Star unini dai.png", w: 160, h: 50 },
-                                    { name: "Niva Bupa", url: "/Logos/bupa Insurance.png", w: 160, h: 50 },
-                                    { name: "ICICI Lombard", url: "/Logos/ICICI-Lombard.png", w: 160, h: 50 },
-                                    { name: "New India Assurance", url: "/Logos/New India Assurance.png", w: 160, h: 50 },
-                                    { name: "Cholamandalam MS", url: "/Logos/Cholamandalam MS.png", w: 160, h: 50 },
-                                    { name: "Kotak General", url: "/Logos/Kotak General Insurance.png", w: 160, h: 50 },
+                                    { name: "MetLife", url: "/Logos/met-life-india-logo-png_seeklogo-91366.png", w: 160, h: 60 },
+                                    { name: "Star Union Dai-ichi", url: "/Logos/Star unini dai.png", w: 160, h: 60 },
+                                    { name: "Niva Bupa", url: "/Logos/bupa Insurance.png", w: 160, h: 60 },
+                                    { name: "ICICI Lombard", url: "/Logos/ICICI-Lombard.png", w: 160, h: 60 },
+                                    { name: "New India Assurance", url: "/Logos/New India Assurance.png", w: 160, h: 60 },
+                                    { name: "Cholamandalam MS", url: "/Logos/Cholamandalam MS.png", w: 160, h: 60 },
+                                    { name: "Kotak General", url: "/Logos/Kotak General Insurance.png", w: 160, h: 60 },
                                 ].map((logo) => (
                                     <div
                                         key={logo.name}
-                                        className="relative h-8 w-auto flex items-center justify-center px-8 py-3 transition-all duration-500 opacity-60 hover:opacity-100 group/logo"
+                                        className="relative h-12 w-auto flex items-center justify-center px-6 py-2 transition-all duration-500 opacity-60 hover:opacity-100 group/logo"
                                         style={{ perspective: '1000px' }}
                                     >
                                         <div className="transition-transform duration-500 group-hover/logo:[transform:rotateX(10deg)_rotateY(10deg)_scale(1.25)] group-hover/logo:drop-shadow-[0_20px_25px_rgba(var(--color-accent-rgb),0.2)]">
@@ -330,7 +339,7 @@ export default function HomePage() {
                             Tools to Make Better Decisions
                         </h2>
                         <p className="text-theme-secondary mt-4 max-w-xl mx-auto">
-                            Our unique tools help you understand policies better than any agent will tell you.
+                            Explore policy details and common exclusions with our educational tools.
                         </p>
                     </RevealOnScroll>
 

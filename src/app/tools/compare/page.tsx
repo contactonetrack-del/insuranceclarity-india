@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Scale, Check, X, Info, AlertCircle } from 'lucide-react'
 import Card from '@/components/ui/Card'
+import RegulatoryDisclaimer from '@/components/RegulatoryDisclaimer'
 
 interface Policy {
     id: string
@@ -78,8 +79,16 @@ export default function ComparePage() {
                         Compare Insurance Policies
                     </h1>
                     <p className="text-theme-secondary max-w-2xl mx-auto">
-                        Side-by-side comparison of features, premiums, and claim settlement ratios.
+                        Side-by-side comparison of features and claim settlement ratios.
+                        This is sample data for educational purposes.
                     </p>
+                </div>
+            </section>
+
+            {/* Prominent Disclaimer */}
+            <section className="px-6">
+                <div className="max-w-4xl mx-auto">
+                    <RegulatoryDisclaimer variant="prominent" />
                 </div>
             </section>
 
@@ -183,13 +192,23 @@ export default function ComparePage() {
             )}
 
             <section className="py-8 px-6 pb-20">
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-4xl mx-auto space-y-4">
                     <Card className="border-amber-500/30 bg-amber-500/5">
                         <p className="text-amber-600 dark:text-amber-400 text-sm flex items-center gap-2">
                             <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                            This is a demo comparison. Actual comparison tool will fetch real-time quotes.
+                            This is a demo comparison using sample data for educational purposes only.
                         </p>
                     </Card>
+
+                    {/* Methodology Disclosure */}
+                    <div className="glass rounded-xl p-4 text-sm text-theme-secondary">
+                        <h4 className="font-medium text-theme-primary mb-2">How We Compare</h4>
+                        <ul className="space-y-1 text-xs">
+                            <li>• <strong>Data Sources:</strong> IRDAI annual reports, insurer websites (sample data as of January 2026)</li>
+                            <li>• <strong>Methodology:</strong> Policies compared on publicly available features; this does not constitute a ranking or recommendation</li>
+                            <li>• <strong>Limitations:</strong> Premiums, features, and terms change frequently. Always verify current details with the insurer.</li>
+                        </ul>
+                    </div>
                 </div>
             </section>
         </div>

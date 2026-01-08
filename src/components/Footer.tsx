@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Shield, Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe } from 'lucide-react'
+import { Shield, Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail } from 'lucide-react'
+import RegulatoryDisclaimer from './RegulatoryDisclaimer'
 
 const footerLinks = {
     insurance: [
@@ -20,6 +21,7 @@ const footerLinks = {
         { href: '/contact', label: 'Contact' },
         { href: '/privacy', label: 'Privacy Policy' },
         { href: '/terms', label: 'Terms of Service' },
+        { href: '/cookies', label: 'Cookie Policy' },
     ],
 }
 
@@ -118,13 +120,34 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom */}
-                <div className="mt-12 pt-8 border-t border-default flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-theme-muted text-sm">
-                        © 2026 InsuranceClarity India. All rights reserved.
+                <div className="mt-12 pt-8 border-t border-default space-y-4">
+                    {/* Regulatory Disclaimer */}
+                    <RegulatoryDisclaimer variant="compact" />
+
+                    {/* Transparency Notice */}
+                    <p className="text-xs text-theme-muted">
+                        <strong>Transparency:</strong> We do not receive commissions from insurers.
+                        Data sourced from IRDAI, insurer websites, and consumer reports.
                     </p>
-                    <p className="text-theme-muted text-xs opacity-70">
-                        Data sourced from IRDAI, insurer websites, and consumer reports. Not financial advice.
-                    </p>
+
+                    {/* Contact & Copyright */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-4">
+                        <div className="text-theme-muted text-xs space-y-1">
+                            <p className="flex items-center gap-2">
+                                <Mail className="w-3 h-3" />
+                                <a href="mailto:contact@insuranceclarity.in" className="hover:text-accent">
+                                    contact@insuranceclarity.in
+                                </a>
+                            </p>
+                            <p className="flex items-center gap-2">
+                                <MapPin className="w-3 h-3" />
+                                India
+                            </p>
+                        </div>
+                        <p className="text-theme-muted text-sm">
+                            © 2026 InsuranceClarity India. All rights reserved.
+                        </p>
+                    </div>
                 </div>
             </div>
         </footer>

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
+import RegulatoryDisclaimer from '@/components/RegulatoryDisclaimer'
 
 export default function CalculatorPage() {
     const [age, setAge] = useState<number>(25)
@@ -46,13 +47,16 @@ export default function CalculatorPage() {
         <div className="container mx-auto px-4 py-8 md:py-12">
             <header className="mb-8 text-center">
                 <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
-                    Smart Premium Calculator
+                    Premium Estimate Calculator
                 </h1>
                 <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-                    Get an accurate estimate for your insurance premium in seconds.
-                    Our advanced algorithm considers over 20+ factors to give you the best price.
+                    Get an indicative estimate for your insurance premium.
+                    This tool uses sample data and is for educational purposes only.
                 </p>
             </header>
+
+            {/* Prominent Disclaimer */}
+            <RegulatoryDisclaimer variant="prominent" className="mb-8" />
 
             <div className="grid gap-8 lg:grid-cols-3">
                 {/* Calculator Form */}
@@ -140,18 +144,22 @@ export default function CalculatorPage() {
                     </motion.div>
 
                     <div className="rounded-xl border bg-muted/50 p-6">
-                        <h3 className="mb-4 font-semibold">Why use our calculator?</h3>
+                        <h3 className="mb-4 font-semibold">About this calculator</h3>
                         <ul className="space-y-3 text-sm text-muted-foreground text-left">
                             <li className="flex gap-2">
-                                <span className="text-primary">✓</span> No spam calls
+                                <span className="text-primary">✓</span> No personal data stored
                             </li>
                             <li className="flex gap-2">
-                                <span className="text-primary">✓</span> 99% accuracy
+                                <span className="text-primary">✓</span> Indicative estimates only
                             </li>
                             <li className="flex gap-2">
-                                <span className="text-primary">✓</span> Compare top insurers
+                                <span className="text-primary">✓</span> Verify with insurers
                             </li>
                         </ul>
+                        <p className="mt-4 text-xs text-muted-foreground opacity-70">
+                            Note: Actual premiums depend on medical history, lifestyle, and insurer underwriting.
+                            Always verify terms directly with the insurance company.
+                        </p>
                     </div>
                 </div>
             </div>

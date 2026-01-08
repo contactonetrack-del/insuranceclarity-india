@@ -43,25 +43,95 @@ declare global {
 }
 
 /**
+ * PII/Sensitive fields that must NEVER be sent to analytics.
+ * These are blocked at the tracking layer for compliance.
+ */
+const BLOCKED_PARAMS = new Set([
+    'age',
+    'user_age',
+    'sum_insured',
+    'sum_assured',
+    'phone',
+    'email',
+    'mobile',
+    'aadhaar',
+    'pan',
+    'dob',
+    'date_of_birth',
+    'name',
+    'full_name',
+    'address',
+    'policy_number',
+    'income',
+]);
+
+/**
+ * Sanitize event params by removing blocked PII fields.
+ * Logs a warning in development if blocked fields are found.
+ */
+function sanitizeEventParams(params: Record<string, unknown>): Record<string, unknown> {
+    const sanitized: Record<string, unknown> = {};
+    const blockedFound: string[] = [];
+
+    for (const [key, value] of Object.entries(params)) {
+        const normalizedKey = key.toLowerCase();
+        if (BLOCKED_PARAMS.has(normalizedKey)) {
+            blockedFound.push(key);
+        } else {
+            sanitized[key] = value;
+        }
+    }
+
+    if (blockedFound.length > 0 && process.env.NODE_ENV !== 'production') {
+        console.warn('[Analytics] Blocked PII params:', blockedFound);
+    }
+
+    return sanitized;
+}
+
+/**
+ * Check if user has Do Not Track enabled in browser.
+ * Respects user privacy preference per audit recommendations.
+ */
+function isDoNotTrackEnabled(): boolean {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+        return false;
+    }
+
+    // @ts-expect-error - doNotTrack may not be in Navigator type
+    const dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+    return dnt === '1' || dnt === 'yes';
+}
+
+/**
  * Core event tracking function
  */
 export function trackEvent(
     eventName: string,
     eventParams: Record<string, unknown> = {}
 ): void {
+    // Sanitize params to remove any PII
+    const safeParams = sanitizeEventParams(eventParams);
+
     // Don't track in development
     if (process.env.NODE_ENV !== 'production') {
-        console.log('[Analytics Dev]', eventName, eventParams);
+        console.log('[Analytics Dev]', eventName, safeParams);
+        return;
+    }
+
+    // Respect Do Not Track browser setting
+    if (isDoNotTrackEnabled()) {
+        console.log('[Analytics] DNT enabled, skipping tracking');
         return;
     }
 
     // Google Analytics 4
     if (typeof window !== 'undefined' && window.gtag) {
-        window.gtag('event', eventName, eventParams);
+        window.gtag('event', eventName, safeParams);
     }
 
     // Future: Send to custom analytics endpoint
-    // sendToCustomAnalytics(eventName, eventParams);
+    // sendToCustomAnalytics(eventName, safeParams);
 }
 
 // ============================================
@@ -80,13 +150,34 @@ export function trackPolicyComparison(event: PolicyComparisonEvent): void {
 }
 
 /**
- * Track calculator usage
+ * Track calculator usage with bucketed (privacy-safe) ranges
  */
 export function trackCalculatorUsed(event: CalculatorEvent): void {
+    // Bucket age into ranges for privacy
+    const getAgeRange = (age?: number): string => {
+        if (!age) return 'unknown';
+        if (age < 25) return '18-24';
+        if (age < 35) return '25-34';
+        if (age < 45) return '35-44';
+        if (age < 55) return '45-54';
+        if (age < 65) return '55-64';
+        return '65+';
+    };
+
+    // Bucket sum insured into ranges for privacy
+    const getSumRange = (sum?: number): string => {
+        if (!sum) return 'unknown';
+        if (sum < 1000000) return 'under_10L';
+        if (sum < 2500000) return '10L-25L';
+        if (sum < 5000000) return '25L-50L';
+        if (sum < 10000000) return '50L-1Cr';
+        return '1Cr+';
+    };
+
     trackEvent('calculator_used', {
         calculator_type: event.type,
-        sum_insured: event.sum_insured,
-        user_age: event.age,
+        sum_range: getSumRange(event.sum_insured),
+        age_range: getAgeRange(event.age),
         calculation_completed: event.completed,
     });
 }

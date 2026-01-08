@@ -21,7 +21,7 @@ Sentry.init({
     // Only send errors in production
     enabled: process.env.NODE_ENV === 'production',
 
-    // Filter out non-actionable errors
+    // Filter out non-actionable errors and sanitize PII
     beforeSend(event) {
         // Don't send errors from development
         if (process.env.NODE_ENV !== 'production') {
@@ -31,6 +31,40 @@ Sentry.init({
         // Filter out specific errors if needed
         if (event.exception?.values?.[0]?.value?.includes('ResizeObserver loop')) {
             return null;
+        }
+
+        // Sanitize URL query params (remove potential PII)
+        if (event.request?.url) {
+            try {
+                const url = new URL(event.request.url);
+                const sensitiveParams = ['email', 'phone', 'name', 'aadhaar', 'pan', 'dob', 'age'];
+                sensitiveParams.forEach(param => url.searchParams.delete(param));
+                event.request.url = url.toString();
+            } catch {
+                // URL parsing failed, continue
+            }
+        }
+
+        // Scrub request body data
+        if (event.request?.data) {
+            event.request.data = '[REDACTED]';
+        }
+
+        // Sanitize breadcrumbs
+        if (event.breadcrumbs) {
+            event.breadcrumbs = event.breadcrumbs.map(breadcrumb => {
+                // Redact form input values
+                if (breadcrumb.category === 'ui.input') {
+                    return { ...breadcrumb, message: '[input]', data: undefined };
+                }
+                // Redact XHR/fetch request bodies
+                if (breadcrumb.category === 'xhr' || breadcrumb.category === 'fetch') {
+                    if (breadcrumb.data) {
+                        breadcrumb.data = { ...breadcrumb.data, body: undefined };
+                    }
+                }
+                return breadcrumb;
+            });
         }
 
         return event;

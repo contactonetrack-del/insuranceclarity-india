@@ -42,6 +42,56 @@ describe('Analytics', () => {
                 {}
             );
         });
+
+        it('should block PII params: age, sum_insured, phone, email', () => {
+            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+
+            trackEvent('test_with_pii', {
+                age: 30,
+                user_age: 25,
+                sum_insured: 5000000,
+                phone: '9876543210',
+                email: 'test@example.com',
+                safe_param: 'allowed',
+            });
+
+            // Should only contain safe_param
+            expect(consoleSpy).toHaveBeenCalledWith(
+                '[Analytics Dev]',
+                'test_with_pii',
+                { safe_param: 'allowed' }
+            );
+
+            // Should warn about blocked params
+            expect(warnSpy).toHaveBeenCalledWith(
+                '[Analytics] Blocked PII params:',
+                expect.arrayContaining(['age', 'user_age', 'sum_insured', 'phone', 'email'])
+            );
+
+            warnSpy.mockRestore();
+        });
+
+        it('should block aadhaar, pan, dob, name, address', () => {
+            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+
+            trackEvent('test_more_pii', {
+                aadhaar: '123456789012',
+                pan: 'ABCDE1234F',
+                dob: '1990-01-01',
+                name: 'John Doe',
+                address: '123 Main St',
+                calculator_type: 'health',
+            });
+
+            // Should only contain calculator_type
+            expect(consoleSpy).toHaveBeenCalledWith(
+                '[Analytics Dev]',
+                'test_more_pii',
+                { calculator_type: 'health' }
+            );
+
+            warnSpy.mockRestore();
+        });
     });
 
     describe('trackPolicyComparison', () => {
@@ -64,11 +114,11 @@ describe('Analytics', () => {
     });
 
     describe('trackCalculatorUsed', () => {
-        it('should track calculator usage', () => {
+        it('should track calculator usage with bucketed ranges', () => {
             trackCalculatorUsed({
                 type: 'motor',
-                sum_insured: 500000,
-                age: 30,
+                sum_insured: 500000, // Should become 'under_10L'
+                age: 30, // Should become '25-34'
                 completed: true,
             });
 
@@ -77,8 +127,27 @@ describe('Analytics', () => {
                 'calculator_used',
                 expect.objectContaining({
                     calculator_type: 'motor',
-                    sum_insured: 500000,
+                    sum_range: 'under_10L',
+                    age_range: '25-34',
                     calculation_completed: true,
+                })
+            );
+        });
+
+        it('should bucket large sum insured correctly', () => {
+            trackCalculatorUsed({
+                type: 'life',
+                sum_insured: 7500000, // Should become '50L-1Cr'
+                age: 45, // Should become '45-54'
+                completed: true,
+            });
+
+            expect(consoleSpy).toHaveBeenCalledWith(
+                '[Analytics Dev]',
+                'calculator_used',
+                expect.objectContaining({
+                    sum_range: '50L-1Cr',
+                    age_range: '45-54',
                 })
             );
         });
