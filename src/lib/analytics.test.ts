@@ -8,7 +8,7 @@ import {
 } from '@/lib/analytics';
 
 describe('Analytics', () => {
-    let consoleSpy: ReturnType<typeof vi.spyOn>;
+    let consoleSpy: any;
     const originalEnv = process.env.NODE_ENV;
 
     beforeEach(() => {

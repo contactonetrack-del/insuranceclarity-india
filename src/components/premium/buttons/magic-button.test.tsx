@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import React from 'react';
 
 // Simple smoke tests that don't require deep framer-motion mocking
