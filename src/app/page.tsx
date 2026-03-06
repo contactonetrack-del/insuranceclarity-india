@@ -332,7 +332,7 @@ export default function HomePage() {
 
                     <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
                         {insuranceCategories.map((cat) => (
-                            <StaggerItem key={cat.href}>
+                            <StaggerItem key={cat.href} className="h-full">
                                 <Link href={cat.href} className="block h-full">
                                     <TiltCard containerClassName="h-full" className="h-full">
                                         <GlassCard
