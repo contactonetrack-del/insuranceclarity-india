@@ -6,17 +6,23 @@ import {
     Menu, X, ChevronDown, Shield, Database,
     Heart, Building2, Car, Home, Plane, Gem, UserCheck,
     Search, Scale, Calculator, FileText, Coffee,
-    Briefcase, Network, Ship, Zap
+    Briefcase, Network, Ship, Zap,
+    Activity, HeartPulse, UserCircle, Users, UserX
 } from 'lucide-react'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import { IconContainer } from '@/components/ui/Icon'
 
 const insuranceTypes = [
     { href: '/insurance/life', label: 'Life Insurance', icon: Heart, color: 'from-red-500 to-pink-600' },
+    { href: '/insurance/term-life', label: 'Term Life Insurance', icon: HeartPulse, color: 'from-blue-500 to-cyan-600' },
     { href: '/insurance/health', label: 'Health Insurance', icon: Building2, color: 'from-emerald-500 to-teal-600' },
+    { href: '/insurance/family-floater', label: 'Family Floater', icon: Users, color: 'from-fuchsia-500 to-pink-600' },
+    { href: '/insurance/senior-citizen', label: 'Senior Citizen', icon: UserCircle, color: 'from-teal-500 to-emerald-600' },
+    { href: '/insurance/critical-illness', label: 'Critical Illness', icon: Activity, color: 'from-rose-500 to-red-600' },
     { href: '/insurance/motor', label: 'Motor Insurance', icon: Car, color: 'from-blue-500 to-indigo-600' },
     { href: '/insurance/home', label: 'Home Insurance', icon: Home, color: 'from-amber-500 to-orange-600' },
     { href: '/insurance/travel', label: 'Travel Insurance', icon: Plane, color: 'from-purple-500 to-violet-600' },
+    { href: '/insurance/disability', label: 'Disability Insurance', icon: UserX, color: 'from-indigo-500 to-purple-600' },
     { href: '/insurance/specialized', label: 'Specialized Individual', icon: Gem, color: 'from-cyan-500 to-blue-600' },
     { href: '/insurance/personal-accident', label: 'Personal Accident', icon: UserCheck, color: 'from-rose-500 to-red-600' },
 ]
