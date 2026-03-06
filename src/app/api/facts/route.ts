@@ -1,15 +1,35 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getAllFacts, type HiddenFact } from '@/data/hidden-facts'
 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic'
 
+const factQuerySchema = z.object({
+    category: z.string().optional().nullable(),
+    severity: z.string().optional().nullable(),
+    search: z.string().optional().nullable()
+})
+
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url)
-        const category = searchParams.get('category')
-        const severity = searchParams.get('severity')
-        const search = searchParams.get('search')
+
+        // Enterprise Hardening: Strict input validation
+        const validated = factQuerySchema.safeParse({
+            category: searchParams.get('category'),
+            severity: searchParams.get('severity'),
+            search: searchParams.get('search')
+        });
+
+        if (!validated.success) {
+            return NextResponse.json(
+                { error: 'Invalid input parameters', details: validated.error.format() },
+                { status: 400 }
+            )
+        }
+
+        const { category, severity, search } = validated.data;
 
         let facts = getAllFacts()
 

@@ -70,7 +70,11 @@ export default function Header() {
                             onMouseEnter={() => setActiveDropdown('insurance')}
                             onMouseLeave={() => setActiveDropdown(null)}
                         >
-                            <button className="nav-link flex items-center gap-1">
+                            <button
+                                className="nav-link flex items-center gap-1"
+                                aria-haspopup="true"
+                                aria-expanded={activeDropdown === 'insurance'}
+                            >
                                 Insurance Types
                                 <ChevronDown
                                     className={`w-4 h-4 transition-transform duration-200 
@@ -111,7 +115,11 @@ export default function Header() {
                             onMouseEnter={() => setActiveDropdown('tools')}
                             onMouseLeave={() => setActiveDropdown(null)}
                         >
-                            <button className="nav-link flex items-center gap-1">
+                            <button
+                                className="nav-link flex items-center gap-1"
+                                aria-haspopup="true"
+                                aria-expanded={activeDropdown === 'tools'}
+                            >
                                 Tools
                                 <ChevronDown
                                     className={`w-4 h-4 transition-transform duration-200 
@@ -161,6 +169,7 @@ export default function Header() {
                        hover:border-hover transition-all duration-200"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             aria-label="Toggle menu"
+                            aria-expanded={isMobileMenuOpen}
                         >
                             {isMobileMenuOpen ? (
                                 <X className="w-6 h-6 text-theme-primary" />

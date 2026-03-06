@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import PageTransition from '@/components/PageTransition'
+import LiveChat from '@/components/LiveChat'
 
 const inter = Inter({
     subsets: ['latin'],
@@ -42,8 +43,22 @@ export default function RootLayout({
 }: {
     children: React.ReactNode
 }) {
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'InsuranceClarity India',
+        url: 'https://insuranceclarity.in',
+        description: "India's most transparent insurance platform. Compare Life, Health, Motor, Home & Travel insurance.",
+    }
+
     return (
         <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
+            <head>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            </head>
             <body className="font-sans antialiased">
                 <ThemeProvider>
                     <Header />
@@ -52,6 +67,7 @@ export default function RootLayout({
                     </PageTransition>
                     <Footer />
                     <CookieBanner />
+                    <LiveChat />
                 </ThemeProvider>
             </body>
         </html>

@@ -5,7 +5,32 @@ import type { NextRequest } from 'next/server';
  * Security Middleware
  * Adds essential security headers for insurance platform compliance
  */
+// Simple in-memory store for rate limiting (Note: in serverless edges this is per isolate, but sufficient for basic abuse prevention)
+const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
+const RATE_LIMIT = 100; // max requests
+const TIME_WINDOW = 60 * 1000; // 1 minute
+
 export function middleware(request: NextRequest) {
+    // Basic Rate Limiting check
+    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+    const currentTime = Date.now();
+
+    if (ip !== 'unknown') {
+        const record = rateLimitMap.get(ip);
+        if (record) {
+            if (currentTime - record.timestamp < TIME_WINDOW) {
+                if (record.count >= RATE_LIMIT) {
+                    return new NextResponse('Too Many Requests. Please wait.', { status: 429 });
+                }
+                record.count += 1;
+            } else {
+                rateLimitMap.set(ip, { count: 1, timestamp: currentTime });
+            }
+        } else {
+            rateLimitMap.set(ip, { count: 1, timestamp: currentTime });
+        }
+    }
+
     const response = NextResponse.next();
 
     // Prevent clickjacking attacks
