@@ -99,7 +99,14 @@ export default function CookieBanner() {
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6">
             <div className="max-w-4xl mx-auto">
-                <div className="glass-strong rounded-2xl shadow-2xl border border-default overflow-hidden">
+                <div
+                    className="rounded-2xl shadow-2xl border border-default overflow-hidden"
+                    style={{
+                        background: 'rgb(var(--color-card-bg))',
+                        backdropFilter: 'blur(24px)',
+                        WebkitBackdropFilter: 'blur(24px)',
+                    }}
+                >
                     {!showPreferences ? (
                         /* Main Banner */
                         <div className="p-4 md:p-6">

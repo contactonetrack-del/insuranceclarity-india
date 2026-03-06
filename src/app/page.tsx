@@ -224,8 +224,8 @@ export default function HomePage() {
                                 ].map((logo) => (
                                     <div
                                         key={logo.name}
-                                        className="relative h-12 w-auto flex items-center justify-center px-6 py-2 transition-all duration-500 opacity-60 hover:opacity-100 group/logo"
-                                        style={{ perspective: '1000px' }}
+                                        className="relative flex items-center justify-center px-6 py-2 transition-all duration-500 opacity-60 hover:opacity-100 group/logo"
+                                        style={{ perspective: '1000px', height: '48px', minWidth: '120px' }}
                                     >
                                         <div className="transition-transform duration-500 group-hover/logo:[transform:rotateX(10deg)_rotateY(10deg)_scale(1.25)] group-hover/logo:drop-shadow-[0_20px_25px_rgba(var(--color-accent-rgb),0.2)]">
                                             <Image
@@ -233,7 +233,8 @@ export default function HomePage() {
                                                 alt={`${logo.name} logo`}
                                                 width={logo.w}
                                                 height={logo.h}
-                                                className="h-full w-auto object-contain"
+                                                className="object-contain"
+                                                style={{ maxHeight: '40px', width: 'auto', height: 'auto', maxWidth: `${logo.w}px` }}
                                                 priority={false}
                                             />
                                         </div>

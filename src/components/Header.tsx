@@ -42,8 +42,15 @@ export default function Header() {
 
     return (
         <header
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300
-        ${isScrolled ? 'glass-strong shadow-md' : 'glass-subtle'}`}
+            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 shadow-md`}
+            style={{
+                background: isScrolled
+                    ? 'rgb(var(--color-card-bg))'
+                    : 'rgba(var(--color-card-bg), 0.85)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                borderBottom: '1px solid var(--border-default)',
+            }}
         >
             <div className="max-w-7xl mx-auto px-6">
                 <div className="flex items-center justify-between h-20">

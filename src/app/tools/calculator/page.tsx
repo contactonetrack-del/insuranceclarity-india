@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
 import RegulatoryDisclaimer from '@/components/RegulatoryDisclaimer'
+import { Calculator, ArrowRight, Shield, CheckCircle } from 'lucide-react'
 
 export default function CalculatorPage() {
     const [age, setAge] = useState<number>(25)
@@ -34,7 +35,7 @@ export default function CalculatorPage() {
             const genderFactor = gender === 'Female' ? 0.9 : 1.0
 
             // Sum assured factor (per 1 Lakh)
-            const sumFactor = sumAssured / 100000 * 0.5 // e.g. 50L -> 25x multiplier on base
+            const sumFactor = sumAssured / 100000 * 0.5
 
             let total = (baseRate * ageFactor * genderFactor) + (sumFactor * 100)
 
@@ -46,10 +47,15 @@ export default function CalculatorPage() {
     return (
         <div className="container mx-auto px-4 py-8 md:py-12">
             <header className="mb-8 text-center">
-                <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent
+                   text-sm rounded-full mb-4 font-medium">
+                    <Calculator className="w-4 h-4" />
+                    FREE TOOL
+                </div>
+                <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-5xl text-theme-primary">
                     Premium Estimate Calculator
                 </h1>
-                <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                <p className="mx-auto max-w-2xl text-lg text-theme-secondary">
                     Get an indicative estimate for your insurance premium.
                     This tool uses sample data and is for educational purposes only.
                 </p>
@@ -61,26 +67,29 @@ export default function CalculatorPage() {
             <div className="grid gap-8 lg:grid-cols-3">
                 {/* Calculator Form */}
                 <div className="lg:col-span-2 space-y-8">
-                    <section className="rounded-xl border bg-card p-6 shadow-sm">
-                        <h2 className="mb-6 text-xl font-semibold">Enter Your Details</h2>
+                    <section className="glass rounded-2xl p-6 shadow-sm">
+                        <h2 className="mb-6 text-xl font-semibold text-theme-primary flex items-center gap-2">
+                            <Shield className="w-5 h-5 text-accent" />
+                            Enter Your Details
+                        </h2>
                         <div className="grid gap-6 md:grid-cols-2">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Age</label>
+                                <label className="text-sm font-medium text-theme-secondary">Age</label>
                                 <input
                                     type="number"
                                     value={age}
                                     onChange={(e) => setAge(Number(e.target.value))}
                                     min={18}
                                     max={100}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    className="input"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Insurance Type</label>
+                                <label className="text-sm font-medium text-theme-secondary">Insurance Type</label>
                                 <select
                                     value={type}
                                     onChange={(e) => setType(e.target.value)}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    className="input"
                                 >
                                     <option>Life Insurance</option>
                                     <option>Health Insurance</option>
@@ -88,11 +97,11 @@ export default function CalculatorPage() {
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Sum Assured (₹)</label>
+                                <label className="text-sm font-medium text-theme-secondary">Sum Assured (₹)</label>
                                 <select
                                     value={sumAssured}
                                     onChange={(e) => setSumAssured(Number(e.target.value))}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    className="input"
                                 >
                                     <option value={500000}>₹ 5 Lakhs</option>
                                     <option value={1000000}>₹ 10 Lakhs</option>
@@ -102,11 +111,11 @@ export default function CalculatorPage() {
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Gender</label>
+                                <label className="text-sm font-medium text-theme-secondary">Gender</label>
                                 <select
                                     value={gender}
                                     onChange={(e) => setGender(e.target.value)}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    className="input"
                                 >
                                     <option>Male</option>
                                     <option>Female</option>
@@ -119,9 +128,11 @@ export default function CalculatorPage() {
                             <button
                                 onClick={calculatePremium}
                                 disabled={isCalculating}
-                                className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 md:w-auto"
+                                className="btn-primary w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                             >
+                                <Calculator className="w-4 h-4" />
                                 {isCalculating ? 'Calculating...' : 'Calculate Premium'}
+                                <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
                     </section>
@@ -131,32 +142,35 @@ export default function CalculatorPage() {
                 <div className="space-y-6">
                     <motion.div
                         layout
-                        className="rounded-xl border bg-primary/5 p-6"
+                        className="glass rounded-2xl p-6 border border-default"
                     >
-                        <h3 className="mb-2 font-semibold">Estimated Premium</h3>
-                        <div className="mb-4 text-4xl font-bold text-primary">
+                        <h3 className="mb-2 font-semibold text-theme-primary">Estimated Premium</h3>
+                        <div className="mb-4 text-4xl font-bold text-accent">
                             {premium > 0 ? formatCurrency(premium) : '---'}
-                            <span className="text-base font-normal text-muted-foreground">/year</span>
+                            <span className="text-base font-normal text-theme-secondary">/year</span>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-theme-secondary">
                             *This is an indicative premium based on your age ({age}) and sum assured ({formatCurrency(sumAssured)}). Final premium may vary based on medical tests.
                         </p>
                     </motion.div>
 
-                    <div className="rounded-xl border bg-muted/50 p-6">
-                        <h3 className="mb-4 font-semibold">About this calculator</h3>
-                        <ul className="space-y-3 text-sm text-muted-foreground text-left">
-                            <li className="flex gap-2">
-                                <span className="text-primary">✓</span> No personal data stored
+                    <div className="glass rounded-2xl p-6">
+                        <h3 className="mb-4 font-semibold text-theme-primary">About this calculator</h3>
+                        <ul className="space-y-3 text-sm text-theme-secondary text-left">
+                            <li className="flex gap-2 items-center">
+                                <CheckCircle className="w-4 h-4 text-accent flex-shrink-0" />
+                                No personal data stored
                             </li>
-                            <li className="flex gap-2">
-                                <span className="text-primary">✓</span> Indicative estimates only
+                            <li className="flex gap-2 items-center">
+                                <CheckCircle className="w-4 h-4 text-accent flex-shrink-0" />
+                                Indicative estimates only
                             </li>
-                            <li className="flex gap-2">
-                                <span className="text-primary">✓</span> Verify with insurers
+                            <li className="flex gap-2 items-center">
+                                <CheckCircle className="w-4 h-4 text-accent flex-shrink-0" />
+                                Verify with insurers
                             </li>
                         </ul>
-                        <p className="mt-4 text-xs text-muted-foreground opacity-70">
+                        <p className="mt-4 text-xs text-theme-muted">
                             Note: Actual premiums depend on medical history, lifestyle, and insurer underwriting.
                             Always verify terms directly with the insurance company.
                         </p>
