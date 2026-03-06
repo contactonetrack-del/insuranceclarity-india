@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Shield, Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail } from 'lucide-react'
+import { Shield, Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail, Coffee } from 'lucide-react'
 import RegulatoryDisclaimer from './RegulatoryDisclaimer'
 
 const footerLinks = {
@@ -41,10 +41,27 @@ export default function Footer() {
                                 Insurance<span className="text-gradient">Clarity</span>
                             </span>
                         </Link>
-                        <p className="text-theme-secondary text-sm leading-relaxed mb-4">
+                        <p className="text-theme-secondary text-sm leading-relaxed mb-6">
                             India's most transparent insurance platform.
                             Making insurance understandable for everyone.
                         </p>
+
+                        {/* Donation Callout in Footer */}
+                        <div className="p-4 rounded-xl bg-accent-5 border border-default mb-6">
+                            <p className="text-xs text-theme-secondary mb-3 font-medium">
+                                Help us keep this platform independent and ad-free.
+                            </p>
+                            <a
+                                href="https://buymeacoffee.com/insuranceclarity"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-sm font-bold text-accent hover:underline decoration-2 underline-offset-4"
+                            >
+                                <Coffee className="w-4 h-4" />
+                                Support Our Mission
+                            </a>
+                        </div>
+
                         <div className="flex items-center gap-4 text-theme-muted text-sm">
                             <span className="flex items-center gap-1.5">
                                 <MapPin className="w-4 h-4" />

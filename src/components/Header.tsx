@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import {
     Menu, X, ChevronDown, Shield,
     Heart, Building2, Car, Home, Plane, Gem, UserCheck,
-    Search, Scale, Calculator, FileText
+    Search, Scale, Calculator, FileText, Coffee
 } from 'lucide-react'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import { IconContainer } from '@/components/ui/Icon'
@@ -170,6 +170,20 @@ export default function Header() {
                     <div className="flex items-center gap-3">
                         <ThemeToggle />
 
+                        {/* Donation Button - Desktop */}
+                        <a
+                            href="https://buymeacoffee.com/insuranceclarity"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl
+                                     bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400
+                                     border border-emerald-500/20 hover:border-emerald-500/40
+                                     transition-all duration-300 group font-medium text-sm"
+                        >
+                            <Coffee className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span>Support Us</span>
+                        </a>
+
                         {/* Mobile Menu Button */}
                         <button
                             className="lg:hidden w-11 h-11 flex items-center justify-center glass rounded-xl
@@ -247,6 +261,23 @@ export default function Header() {
                     >
                         Resources
                     </Link>
+
+                    <div className="mt-6 pt-6 border-t border-default">
+                        <a
+                            href="https://buymeacoffee.com/insuranceclarity"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-3 w-full py-4 rounded-xl
+                                     bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-500/20
+                                     active:scale-95 transition-all"
+                        >
+                            <Coffee className="w-5 h-5" />
+                            Support Our Project
+                        </a>
+                        <p className="text-center text-xs text-theme-muted mt-3">
+                            Help us keep insurance transparent & ad-free
+                        </p>
+                    </div>
                 </div>
             )}
         </header>

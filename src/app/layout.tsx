@@ -7,6 +7,7 @@ import CookieBanner from '@/components/CookieBanner'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import PageTransition from '@/components/PageTransition'
 import LiveChat from '@/components/LiveChat'
+import ClarityAdvisor from '@/components/ClarityAdvisor'
 
 const inter = Inter({
     subsets: ['latin'],
@@ -68,6 +69,7 @@ export default function RootLayout({
                     <Footer />
                     <CookieBanner />
                     <LiveChat />
+                    <ClarityAdvisor />
                 </ThemeProvider>
             </body>
         </html>
