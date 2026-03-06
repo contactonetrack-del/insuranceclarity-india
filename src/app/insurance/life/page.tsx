@@ -69,11 +69,11 @@ const lifeInsuranceTypes = [
 ]
 
 const csrData = [
-    { insurer: 'LIC of India', csr: '99.97%', rating: 'excellent' },
-    { insurer: 'Max Life', csr: '99.51%', rating: 'excellent' },
-    { insurer: 'HDFC Life', csr: '99.07%', rating: 'excellent' },
-    { insurer: 'ICICI Prudential', csr: '98.59%', rating: 'good' },
-    { insurer: 'SBI Life', csr: '97.64%', rating: 'good' },
+    { insurer: 'Max Life', csr: '99.70%', rating: 'excellent' },
+    { insurer: 'HDFC Life', csr: '99.68%', rating: 'excellent' },
+    { insurer: 'ICICI Prudential', csr: '99.30%', rating: 'excellent' },
+    { insurer: 'SBI Life', csr: '98.83%', rating: 'excellent' },
+    { insurer: 'LIC of India', csr: '98.15%', rating: 'good' },
 ]
 
 export default function LifeInsurancePage() {
@@ -156,16 +156,16 @@ export default function LifeInsurancePage() {
                                 <div className="text-theme-secondary text-sm">Main Types</div>
                             </GlassCard>
                             <GlassCard className="text-center" padding="md">
-                                <div className="font-display font-bold text-3xl text-accent mb-1">99.97%</div>
-                                <div className="text-theme-secondary text-sm">Highest CSR (LIC)</div>
+                                <div className="font-display font-bold text-3xl text-accent mb-1">99.70%</div>
+                                <div className="text-theme-secondary text-sm">Highest CSR (Max Life)</div>
                             </GlassCard>
                             <GlassCard className="text-center" padding="md">
-                                <div className="font-display font-bold text-3xl text-theme-primary mb-1">25+</div>
-                                <div className="text-theme-secondary text-sm">Insurers</div>
+                                <div className="font-display font-bold text-3xl text-theme-primary mb-1">24</div>
+                                <div className="text-theme-secondary text-sm">Life Insurers</div>
                             </GlassCard>
                             <GlassCard className="text-center" padding="md">
                                 <div className="font-display font-bold text-3xl text-theme-primary mb-1">30</div>
-                                <div className="text-theme-secondary text-sm">Days Max to Settle</div>
+                                <div className="text-theme-secondary text-sm">Days to Settle (post docs)</div>
                             </GlassCard>
                         </div>
                     </RevealOnScroll>

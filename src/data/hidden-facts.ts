@@ -45,10 +45,10 @@ export const hiddenFactsData: Record<string, { category: string; facts: Omit<Hid
                 id: "health-1",
                 title: "Pre-existing Disease Waiting Period",
                 severity: "critical",
-                description: "Diseases you have BEFORE buying policy are not covered for 2-4 years.",
+                description: "Diseases you have BEFORE buying policy are not covered for up to 2 years (max 24 months per IRDAI 2026 norms).",
                 affectedPolicies: ["All Health Insurance"],
                 whatToCheck: "Check 'Pre-existing Disease Clause' and waiting period duration",
-                realCase: "Diabetic patient's dialysis claim rejected - diabetes was pre-existing, 4-year wait applied."
+                realCase: "Diabetic patient's dialysis claim rejected - diabetes was pre-existing, 2-year wait applied."
             },
             {
                 id: "health-2",

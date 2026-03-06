@@ -561,8 +561,9 @@ export default function CalculatorPage() {
                                 </p>
                                 <p>
                                     <strong>IRDAI Complaints:</strong>{' '}
+                                    <a href="https://bimabharosa.irdai.gov.in" target="_blank" rel="noopener noreferrer" className="underline">Bima Bharosa Portal</a>{' | '}
                                     <a href="https://irdai.gov.in" target="_blank" rel="noopener noreferrer" className="underline">irdai.gov.in</a>{' | '}
-                                    <a href="mailto:complaints@irdai.gov.in" className="underline">complaints@irdai.gov.in</a>{' | '}1800-425-4477
+                                    <a href="mailto:complaints@irdai.gov.in" className="underline">complaints@irdai.gov.in</a>{' | '}155255 / 1800-4254-732
                                 </p>
                             </div>
                         </motion.div>

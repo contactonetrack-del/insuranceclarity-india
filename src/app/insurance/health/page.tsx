@@ -75,15 +75,16 @@ const commonExclusions = [
     { icon: Smile, title: 'Dental Treatment', desc: 'Unless due to accident' },
     { icon: Eye, title: 'Vision Correction', desc: 'Spectacles, LASIK surgery' },
     { icon: Syringe, title: 'Cosmetic Procedures', desc: 'Unless medically necessary' },
-    { icon: HeartPulse, title: 'Maternity', desc: '2-4 year waiting period' },
-    { icon: Stethoscope, title: 'Pre-existing Diseases', desc: '2-4 year waiting period' },
+    { icon: HeartPulse, title: 'Maternity', desc: '2-3 year waiting period' },
+    { icon: Stethoscope, title: 'Pre-existing Diseases', desc: 'Max 2-year waiting period (IRDAI 2026)' },
 ]
 
 const waitingPeriods = [
     { type: 'Initial Waiting', period: '30 Days', desc: 'No coverage for first 30 days (except accidents)' },
     { type: 'Specific Diseases', period: '2 Years', desc: 'Hernia, cataract, ENT disorders, etc.' },
-    { type: 'Pre-existing Diseases', period: '2-4 Years', desc: 'Diabetes, BP, thyroid, etc.' },
-    { type: 'Maternity', period: '2-4 Years', desc: 'Pregnancy and delivery costs' },
+    { type: 'Pre-existing Diseases', period: 'Max 2 Years', desc: 'Diabetes, BP, thyroid (max 24 months per IRDAI 2026 norms)' },
+    { type: 'Maternity', period: '2-3 Years', desc: 'Pregnancy and delivery costs (varies by insurer)' },
+    { type: 'Moratorium Period', period: '5 Years', desc: 'After 5 years, insurer cannot reject claims for non-disclosure (unless fraud)' },
 ]
 
 export default function HealthInsurancePage() {

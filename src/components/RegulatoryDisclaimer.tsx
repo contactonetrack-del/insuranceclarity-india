@@ -34,8 +34,9 @@ All information is for educational purposes only. Please verify policy terms dir
                             <p><strong>We do NOT:</strong> Advise on which policy to buy • Rank policies • Solicit applications • Earn commissions from insurers</p>
                             <p className="mt-1">
                                 <strong>IRDAI Complaints:</strong>{' '}
+                                <a href="https://bimabharosa.irdai.gov.in" target="_blank" className="underline">Bima Bharosa Portal</a> |{' '}
                                 <a href="https://www.irdai.gov.in" target="_blank" className="underline">irdai.gov.in</a> |
-                                complaints@irdai.gov.in | 1800-425-4477
+                                complaints@irdai.gov.in | 155255 / 1800-4254-732
                             </p>
                         </div>
                     </div>

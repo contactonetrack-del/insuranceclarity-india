@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default function TermsPage() {
-    const lastUpdated = 'January 9, 2026'
+    const lastUpdated = 'March 7, 2026'
     const version = '2.0 (Consumer Protection Act Compliant)'
 
     return (
@@ -81,9 +81,9 @@ export default function TermsPage() {
                             <div className="mt-4 pt-4 border-t border-amber-500/30 text-sm">
                                 <p><strong>IRDAI Complaints:</strong> If you believe we have violated IRDAI regulations:</p>
                                 <ul className="list-disc pl-4 mt-1">
-                                    <li>Website: <a href="https://www.irdai.gov.in" target="_blank" className="underline">www.irdai.gov.in</a></li>
+                                    <li>Website: <a href="https://bimabharosa.irdai.gov.in" target="_blank" className="underline">Bima Bharosa Portal</a> | <a href="https://www.irdai.gov.in" target="_blank" className="underline">www.irdai.gov.in</a></li>
                                     <li>Email: complaints@irdai.gov.in</li>
-                                    <li>Phone: 1800-425-4477 (toll-free)</li>
+                                    <li>Phone: 155255 / 1800-4254-732 (toll-free)</li>
                                 </ul>
                             </div>
                         </div>
