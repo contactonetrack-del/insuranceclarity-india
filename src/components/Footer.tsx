@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Shield, Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail, Coffee } from 'lucide-react'
+import { Shield, Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail, Coffee, Gem, UserCheck } from 'lucide-react'
 import RegulatoryDisclaimer from './RegulatoryDisclaimer'
 
 const footerLinks = {
@@ -9,6 +9,8 @@ const footerLinks = {
         { href: '/insurance/motor', label: 'Motor Insurance', icon: Car },
         { href: '/insurance/home', label: 'Home Insurance', icon: Home },
         { href: '/insurance/travel', label: 'Travel Insurance', icon: Plane },
+        { href: '/insurance/specialized', label: 'Specialized Insurance', icon: Gem },
+        { href: '/insurance/personal-accident', label: 'Personal Accident', icon: UserCheck },
     ],
     tools: [
         { href: '/tools/hidden-facts', label: 'Hidden Facts', icon: Search },
@@ -17,8 +19,8 @@ const footerLinks = {
         { href: '/tools/claim-cases', label: 'Claim Cases', icon: FileText },
     ],
     company: [
-        { href: '/about', label: 'About Us' },
-        { href: '/contact', label: 'Contact' },
+        { href: '/resources', label: 'Resources & Guides' },
+        { href: 'mailto:contact@insuranceclarity.in', label: 'Contact Us' },
         { href: '/privacy', label: 'Privacy Policy' },
         { href: '/terms', label: 'Terms of Service' },
         { href: '/cookies', label: 'Cookie Policy' },

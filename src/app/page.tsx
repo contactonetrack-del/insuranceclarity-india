@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRef } from 'react'
 import {
     ArrowRight, Shield, Search, BarChart3, FileText, Sparkles, Scale,
-    Heart, Building2, Car, Home, Plane, Gem, Calculator
+    Heart, Building2, Car, Home, Plane, Gem, Calculator, UserCheck
 } from 'lucide-react'
 
 // Premium components
@@ -37,6 +37,7 @@ const insuranceCategories = [
     { href: '/insurance/home', icon: Home, title: 'Home Insurance', desc: 'Building, Contents, Fire', color: 'from-amber-500 to-orange-600' },
     { href: '/insurance/travel', icon: Plane, title: 'Travel Insurance', desc: 'Domestic, International', color: 'from-purple-500 to-violet-600' },
     { href: '/insurance/specialized', icon: Gem, title: 'Specialized', desc: 'Pet, Wedding, Gadget', color: 'from-cyan-500 to-blue-600' },
+    { href: '/insurance/personal-accident', icon: UserCheck, title: 'Personal Accident', desc: 'Disability, Death, Medical Cover', color: 'from-rose-500 to-red-600' },
 ]
 
 // Tools with semantic icons and rich data
@@ -89,7 +90,7 @@ const tools = [
 
 const stats = [
     { value: 150, label: 'Hidden Facts', icon: Search, suffix: '+' },
-    { value: 8, label: 'Insurance Types', icon: Shield, suffix: '' },
+    { value: 7, label: 'Insurance Types', icon: Shield, suffix: '' },
     { value: 4, label: 'Free Tools', icon: BarChart3, suffix: '' },
     { value: 30, label: 'Claim Cases', icon: FileText, suffix: '+' },
 ]

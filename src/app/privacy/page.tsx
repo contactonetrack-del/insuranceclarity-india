@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { Shield, Mail, MapPin, Phone, AlertTriangle } from 'lucide-react'
+import { Shield, Mail, MapPin, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -153,21 +153,13 @@ export default function PrivacyPage() {
                         <h3 className="text-lg font-medium text-theme-primary">Tier 1: Internal Grievance Officer</h3>
                         <div className="bg-theme-surface rounded-lg p-4 my-4 space-y-2">
                             <p className="flex items-center gap-2 text-theme-secondary">
-                                <strong>Name:</strong> Grievance Officer, One Track
+                                <strong>Name:</strong> Grievance Officer, InsuranceClarity India
                             </p>
                             <p className="flex items-center gap-2 text-theme-secondary">
                                 <Mail className="w-4 h-4 text-accent" />
                                 <a href="mailto:privacy@insuranceclarity.in" className="text-accent hover:underline">
                                     privacy@insuranceclarity.in
                                 </a>
-                            </p>
-                            <p className="flex items-center gap-2 text-theme-secondary">
-                                <Phone className="w-4 h-4 text-accent" />
-                                +91-123-456-7890 (Mocked)
-                            </p>
-                            <p className="flex items-center gap-2 text-theme-secondary">
-                                <MapPin className="w-4 h-4 text-accent" />
-                                Plot No. 123, Tech Park, Bangalore, Karnataka - 560001 (Mocked)
                             </p>
                             <p className="text-theme-secondary"><strong>Response time:</strong> 30 days maximum</p>
                         </div>
@@ -324,13 +316,8 @@ export default function PrivacyPage() {
                                     privacy@insuranceclarity.in
                                 </a>
                             </p>
-                            <p className="flex items-center gap-2">
-                                <MapPin className="w-4 h-4 text-accent" />
-                                Plot No. 123, Tech Park, Bangalore, Karnataka - 560001 (Mocked)
-                            </p>
-                            <p className="flex items-center gap-2">
-                                <Phone className="w-4 h-4 text-accent" />
-                                +91-123-456-7890 (Mocked)
+                            <p className="text-theme-muted text-sm">
+                                India — InsuranceClarity is an online-only educational platform.
                             </p>
                         </div>
                         <p className="text-theme-muted text-sm mt-4">

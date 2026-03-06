@@ -70,10 +70,10 @@ const lifeInsuranceTypes = [
 
 const csrData = [
     { insurer: 'LIC of India', csr: '99.97%', rating: 'excellent' },
-    { insurer: 'Max Life', csr: '99.39%', rating: 'excellent' },
-    { insurer: 'ICICI Prudential', csr: '98.68%', rating: 'good' },
-    { insurer: 'HDFC Life', csr: '98.54%', rating: 'good' },
-    { insurer: 'SBI Life', csr: '97.84%', rating: 'good' },
+    { insurer: 'Max Life', csr: '99.51%', rating: 'excellent' },
+    { insurer: 'HDFC Life', csr: '99.07%', rating: 'excellent' },
+    { insurer: 'ICICI Prudential', csr: '98.59%', rating: 'good' },
+    { insurer: 'SBI Life', csr: '97.64%', rating: 'good' },
 ]
 
 export default function LifeInsurancePage() {
@@ -152,20 +152,20 @@ export default function LifeInsurancePage() {
                     <RevealOnScroll direction="up" delay={0.2}>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <GlassCard className="text-center" padding="md">
-                                <div className="font-display font-bold text-3xl text-theme-primary mb-1">6</div>
-                                <div className="text-theme-secondary text-sm">Types Available</div>
+                                <div className="font-display font-bold text-3xl text-theme-primary mb-1">4</div>
+                                <div className="text-theme-secondary text-sm">Main Types</div>
                             </GlassCard>
                             <GlassCard className="text-center" padding="md">
                                 <div className="font-display font-bold text-3xl text-accent mb-1">99.97%</div>
-                                <div className="text-theme-secondary text-sm">Highest CSR</div>
+                                <div className="text-theme-secondary text-sm">Highest CSR (LIC)</div>
                             </GlassCard>
                             <GlassCard className="text-center" padding="md">
-                                <div className="font-display font-bold text-3xl text-theme-primary mb-1">24+</div>
+                                <div className="font-display font-bold text-3xl text-theme-primary mb-1">25+</div>
                                 <div className="text-theme-secondary text-sm">Insurers</div>
                             </GlassCard>
                             <GlassCard className="text-center" padding="md">
-                                <div className="font-display font-bold text-3xl text-theme-primary mb-1">15-45</div>
-                                <div className="text-theme-secondary text-sm">Days to Settle</div>
+                                <div className="font-display font-bold text-3xl text-theme-primary mb-1">30</div>
+                                <div className="text-theme-secondary text-sm">Days Max to Settle</div>
                             </GlassCard>
                         </div>
                     </RevealOnScroll>
@@ -253,7 +253,7 @@ export default function LifeInsurancePage() {
                     <div className="text-center mb-10">
                         <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent text-sm rounded-full mb-3 font-medium">
                             <Shield className="w-4 h-4" />
-                            IRDAI DATA 2023-24
+                            IRDAI DATA 2024-25
                         </span>
                         <h2 className="font-display font-bold text-2xl text-theme-primary">Claim Settlement Ratio</h2>
                         <p className="text-theme-secondary mt-2">Higher CSR = Better chances of your claim being paid</p>
