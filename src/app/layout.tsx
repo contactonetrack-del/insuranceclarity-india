@@ -6,7 +6,6 @@ import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import PageTransition from '@/components/PageTransition'
-import LiveChat from '@/components/LiveChat'
 import ClarityAdvisor from '@/components/ClarityAdvisor'
 
 const inter = Inter({
@@ -91,7 +90,6 @@ export default function RootLayout({
                     </PageTransition>
                     <Footer />
                     <CookieBanner />
-                    <LiveChat />
                     <ClarityAdvisor />
                 </ThemeProvider>
             </body>
