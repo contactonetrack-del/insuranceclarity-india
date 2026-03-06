@@ -56,6 +56,7 @@ export default function CalculatorPage() {
     const [occupation, setOccupation] = useState('salaried')
     const [location, setLocation] = useState('tier2')
     const [selectedRiders, setSelectedRiders] = useState<string[]>([])
+    const [policyTerm, setPolicyTerm] = useState<number>(20)
 
     // Display State
     const [premium, setPremium] = useState<number>(0)
@@ -68,9 +69,11 @@ export default function CalculatorPage() {
         const baseRate = BASE_RATES[type as keyof typeof BASE_RATES] || 2000
 
         // 1. Core Profile Factor
-        const ageFactor = 1 + ((age - 18) * 0.035) // Increased sensitivity for realism
+        const ageFactor = 1 + ((age - 18) * 0.035)
         const genderFactor = gender === 'Female' ? 0.92 : 1.0
-        const profileBase = baseRate * ageFactor * genderFactor
+        // Longer term → slightly lower annualised cost (bulk discount)
+        const termFactor = policyTerm <= 10 ? 1.12 : policyTerm <= 20 ? 1.0 : policyTerm <= 30 ? 0.94 : 0.90
+        const profileBase = baseRate * ageFactor * genderFactor * termFactor
 
         // 2. Risk Factors
         const smokerFactor = isSmoker ? 1.45 : 1.0
@@ -103,7 +106,7 @@ export default function CalculatorPage() {
                 riders: Math.round(riderTotal)
             }
         }
-    }, [age, type, sumAssured, gender, isSmoker, occupation, location, selectedRiders])
+    }, [age, type, sumAssured, gender, isSmoker, occupation, location, selectedRiders, policyTerm])
 
     useEffect(() => {
         setIsCalculating(true)
@@ -115,8 +118,9 @@ export default function CalculatorPage() {
             // Higher confidence if age is in range and smokers are declared
             let conf = 85
             if (age > 60) conf -= 10
-            if (isSmoker) conf += 5
-            setConfidence(Math.min(95, conf))
+            if (isSmoker) conf += 3
+            if (policyTerm >= 20) conf += 5
+            setConfidence(Math.min(97, conf))
         }, 300)
         return () => clearTimeout(timer)
     }, [performCalculation])
@@ -166,7 +170,7 @@ export default function CalculatorPage() {
                         </div>
 
                         <div className="grid gap-8 md:grid-cols-2">
-                            {/* Age & Gender */}
+                            {/* Age, Policy Term & Gender */}
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
@@ -181,6 +185,33 @@ export default function CalculatorPage() {
                                         onChange={(e) => setAge(Number(e.target.value))}
                                         className="w-full h-2 bg-theme-secondary rounded-lg appearance-none cursor-pointer accent-accent"
                                     />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex justify-between">
+                                        <label className="text-sm font-semibold text-theme-primary flex items-center gap-1.5">
+                                            Policy Term (Years)
+                                            <div className="group relative">
+                                                <Info className="w-3.5 h-3.5 text-theme-muted cursor-help" />
+                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2 bg-theme-primary border border-default rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
+                                                    Longer terms (20–40 yrs) lock in lower rates &amp; offer better long-term value.
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <span className="text-accent font-bold">{policyTerm} yrs</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min={5}
+                                        max={40}
+                                        step={5}
+                                        value={policyTerm}
+                                        onChange={(e) => setPolicyTerm(Number(e.target.value))}
+                                        className="w-full h-2 bg-theme-secondary rounded-lg appearance-none cursor-pointer accent-accent"
+                                    />
+                                    <div className="flex justify-between text-[10px] text-theme-muted font-medium">
+                                        <span>5 yrs</span><span>20 yrs</span><span>40 yrs</span>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">
@@ -446,7 +477,7 @@ export default function CalculatorPage() {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }

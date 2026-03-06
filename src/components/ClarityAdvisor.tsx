@@ -16,7 +16,8 @@ import {
     User,
     Sparkles,
     Navigation,
-    BookOpen
+    BookOpen,
+    Trash2
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -215,9 +216,18 @@ export default function ClarityAdvisor() {
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={toggleOpen} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
-                                <X className="w-6 h-6" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    onClick={clearChat}
+                                    title="Clear chat"
+                                    className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                                <button onClick={toggleOpen} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
                         </div>
 
                         {/* Chat Body */}

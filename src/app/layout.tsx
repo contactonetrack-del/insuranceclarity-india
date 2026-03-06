@@ -44,13 +44,36 @@ export default function RootLayout({
 }: {
     children: React.ReactNode
 }) {
-    const jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'InsuranceClarity India',
-        url: 'https://insuranceclarity.in',
-        description: "India's most transparent insurance platform. Compare Life, Health, Motor, Home & Travel insurance.",
-    }
+    const jsonLd = [
+        {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'InsuranceClarity India',
+            url: 'https://insuranceclarity.in',
+            description: "India's most transparent insurance platform.",
+            potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://insuranceclarity.in/?q={search_term_string}',
+                'query-input': 'required name=search_term_string'
+            }
+        },
+        {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'InsuranceClarity India',
+            url: 'https://insuranceclarity.in',
+            logo: 'https://insuranceclarity.in/logo.png',
+            description: "India's most transparent insurance comparison and advisory platform.",
+            contactPoint: {
+                '@type': 'ContactPoint',
+                contactType: 'customer support',
+                availableLanguage: ['English', 'Hindi']
+            },
+            sameAs: [
+                'https://github.com/contactonetrack-del/insuranceclarity-india'
+            ]
+        }
+    ]
 
     return (
         <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
