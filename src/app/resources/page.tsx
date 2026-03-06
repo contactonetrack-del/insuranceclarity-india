@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Download, FileText, BookOpen, Video, ExternalLink, HelpCircle, Phone, Scale, Search } from 'lucide-react'
+import { Download, FileText, BookOpen, Video, ExternalLink, HelpCircle, Phone, Scale, Search, ArrowRight } from 'lucide-react'
 import {
     RevealOnScroll,
     StaggerContainer,
@@ -12,29 +12,38 @@ import {
     AnimatedHeading
 } from '@/components/premium'
 
-const resources = [
+interface ResourceItem {
+    title: string;
+    icon: string;
+    type: string;
+    href: string;
+    isDownload?: boolean;
+    isExternal?: boolean;
+}
+
+const resources: { category: string; items: ResourceItem[] }[] = [
     {
-        category: 'Guides',
+        category: 'Guides (PDFs)',
         items: [
-            { title: 'How to Choose Term Insurance', icon: '📋', type: 'PDF Guide' },
-            { title: 'Health Insurance Buying Checklist', icon: '✅', type: 'PDF Guide' },
-            { title: 'Motor Insurance Claims Process', icon: '🚗', type: 'PDF Guide' },
+            { title: 'Choosing Term Insurance', icon: '📋', type: 'PDF Guide', href: '/PDFs/term-insurance-guide.pdf', isDownload: true },
+            { title: 'Health Insurance Buying Checklist', icon: '✅', type: 'PDF Guide', href: '/PDFs/health-buying-checklist.pdf', isDownload: true },
+            { title: 'Motor Insurance Claims Process', icon: '🚗', type: 'PDF Guide', href: '/PDFs/motor-claims-guide.pdf', isDownload: true },
         ],
     },
     {
-        category: 'Calculators',
+        category: 'Calculators (Tools)',
         items: [
-            { title: 'Life Insurance Need Calculator', icon: '🧮', type: 'Tool' },
-            { title: 'Health Insurance Premium Estimator', icon: '🏥', type: 'Tool' },
-            { title: 'Car IDV Calculator', icon: '🚙', type: 'Tool' },
+            { title: 'Life Insurance Need Calculator', icon: '🧮', type: 'Tool', href: '/tools/calculator' },
+            { title: 'Health Insurance Premium Estimator', icon: '🏥', type: 'Tool', href: '/tools/calculator' },
+            { title: 'Car IDV Calculator', icon: '🚙', type: 'Tool', href: '/tools/calculator' },
         ],
     },
     {
-        category: 'IRDAI Resources',
+        category: '📊 Official & External Resources',
         items: [
-            { title: 'IRDAI Claim Settlement Ratio Report', icon: '📊', type: 'External' },
-            { title: 'Insurance Ombudsman Contacts', icon: '📞', type: 'External' },
-            { title: 'Grievance Redressal Portal', icon: '🏛️', type: 'External' },
+            { title: 'IRDAI Claim Settlement Ratio Report', icon: '📊', type: 'External', href: 'https://irdai.gov.in', isExternal: true },
+            { title: 'Insurance Ombudsman Contacts', icon: '📞', type: 'External', href: 'https://www.cioins.co.in/Ombudsman', isExternal: true },
+            { title: 'Grievance Redressal Portal', icon: '🏛️', type: 'External', href: 'https://igms.irda.gov.in', isExternal: true },
         ],
     },
 ]
@@ -84,21 +93,50 @@ export default function ResourcesPage() {
                             </RevealOnScroll>
 
                             <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6" staggerDelay={0.1}>
-                                {section.items.map((item, i) => (
-                                    <StaggerItem key={i}>
-                                        <TiltCard>
-                                            <GlassCard hover className="group cursor-pointer h-full relative overflow-hidden" padding="md">
-                                                <div className="absolute top-0 right-0 p-4 opacity-50">
-                                                    <Download className="w-5 h-5 text-theme-muted group-hover:text-accent transition-colors" />
-                                                </div>
-                                                <span className="text-4xl block mb-4 filter drop-shadow-sm">{item.icon}</span>
-                                                <h3 className="font-display font-semibold text-lg text-theme-primary group-hover:text-accent transition-colors mb-2">
-                                                    {item.title}
-                                                </h3>
-                                                <span className="inline-flex items-center gap-1.5 text-theme-secondary text-sm font-medium bg-accent/5 px-2 py-1 rounded-md">
-                                                    <FileText className="w-3 h-3" /> {item.type}
-                                                </span>
-                                            </GlassCard>
+                                {section.items.map((item: ResourceItem, i) => (
+                                    <StaggerItem key={i} className="h-full">
+                                        <TiltCard containerClassName="h-full" className="h-full">
+                                            {item.isExternal || item.isDownload ? (
+                                                <a
+                                                    href={item.href}
+                                                    target={item.isExternal ? "_blank" : undefined}
+                                                    download={item.isDownload}
+                                                    rel={item.isExternal ? "noopener noreferrer" : undefined}
+                                                    className="block h-full"
+                                                >
+                                                    <GlassCard hover className="group cursor-pointer h-full relative overflow-hidden" padding="md">
+                                                        <div className="absolute top-0 right-0 p-4 opacity-50">
+                                                            {item.isDownload ? (
+                                                                <Download className="w-5 h-5 text-theme-muted group-hover:text-accent transition-colors" />
+                                                            ) : (
+                                                                <ExternalLink className="w-5 h-5 text-theme-muted group-hover:text-accent transition-colors" />
+                                                            )}
+                                                        </div>
+                                                        <span className="text-4xl block mb-4 filter drop-shadow-sm">{item.icon}</span>
+                                                        <h3 className="font-display font-semibold text-lg text-theme-primary group-hover:text-accent transition-colors mb-2">
+                                                            {item.title}
+                                                        </h3>
+                                                        <span className="inline-flex items-center gap-1.5 text-theme-secondary text-sm font-medium bg-accent/5 px-2 py-1 rounded-md">
+                                                            <FileText className="w-3 h-3" /> {item.type}
+                                                        </span>
+                                                    </GlassCard>
+                                                </a>
+                                            ) : (
+                                                <Link href={item.href} className="block h-full">
+                                                    <GlassCard hover className="group cursor-pointer h-full relative overflow-hidden" padding="md">
+                                                        <div className="absolute top-0 right-0 p-4 opacity-50">
+                                                            <ArrowRight className="w-5 h-5 text-theme-muted group-hover:text-accent transition-colors" />
+                                                        </div>
+                                                        <span className="text-4xl block mb-4 filter drop-shadow-sm">{item.icon}</span>
+                                                        <h3 className="font-display font-semibold text-lg text-theme-primary group-hover:text-accent transition-colors mb-2">
+                                                            {item.title}
+                                                        </h3>
+                                                        <span className="inline-flex items-center gap-1.5 text-theme-secondary text-sm font-medium bg-accent/5 px-2 py-1 rounded-md">
+                                                            <FileText className="w-3 h-3" /> {item.type}
+                                                        </span>
+                                                    </GlassCard>
+                                                </Link>
+                                            )}
                                         </TiltCard>
                                     </StaggerItem>
                                 ))}
