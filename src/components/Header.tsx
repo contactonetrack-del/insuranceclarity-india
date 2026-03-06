@@ -27,7 +27,7 @@ const businessTypes = [
     { href: '/insurance/liability', label: 'Liability Insurance', icon: Scale, color: 'from-amber-500 to-orange-600' },
     { href: '/insurance/marine', label: 'Marine & Aviation', icon: Ship, color: 'from-blue-500 to-cyan-600' },
     { href: '/insurance/ev', label: 'EV & Emerging Tech', icon: Zap, color: 'from-fuchsia-500 to-purple-600' },
-    { href: '/insurance/directory', label: 'Global Insurance Directory', icon: Database, color: 'from-accent to-accent-hover' },
+    { href: '/insurance/directory', label: 'Insurance Directory', icon: Database, color: 'from-accent to-accent-hover' },
 ]
 
 const tools = [
