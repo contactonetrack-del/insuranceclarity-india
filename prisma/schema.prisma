@@ -60,3 +60,17 @@ model Newsletter {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+model Quote {
+  id              String   @id @default(uuid())
+  insuranceType   String
+  coverageAmount  Int
+  applicantAge    Int
+  premiumAmount   Float
+  status          String   @default("PENDING")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([insuranceType])
+}

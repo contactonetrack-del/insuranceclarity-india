@@ -1,3 +1,5 @@
+'use server'
+
 import data from '@/data/mega-database.json';
 
 export interface InsuranceProduct {
@@ -120,7 +122,7 @@ function scoreProduct(product: InsuranceProduct, queryTokens: string[]): MatchRe
 /**
  * Main inference function to find the best matching insurance products for a natural language query.
  */
-export function findBestMatches(query: string, maxResults: number = 3): MatchResult[] {
+export async function findBestMatches(query: string, maxResults: number = 3): Promise<MatchResult[]> {
     const tokens = tokenize(query);
 
     if (tokens.length === 0) {

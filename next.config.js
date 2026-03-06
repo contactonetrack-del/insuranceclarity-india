@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Enable static HTML export for GitHub Pages deployment
-    output: 'export',
+    // Removed static export to allow Edge runtime / Server actions
 
     // Enable React strict mode for better development warnings
     reactStrictMode: true,

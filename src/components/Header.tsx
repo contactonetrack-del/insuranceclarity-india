@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import { IconContainer } from '@/components/ui/Icon'
+import { useGlobalStore } from '@/store/useGlobalStore'
 
 const insuranceTypes = [
     { href: '/insurance/life', label: 'Life Insurance', icon: Heart, color: 'from-red-500 to-pink-600' },
@@ -47,7 +48,7 @@ const tools = [
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false)
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const { mobileMenuOpen: isMobileMenuOpen, setMobileMenuOpen } = useGlobalStore()
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
 
     useEffect(() => {
@@ -249,7 +250,7 @@ export default function Header() {
                         <button
                             className="lg:hidden w-11 h-11 flex items-center justify-center glass rounded-xl
                        hover:border-hover transition-all duration-200"
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
                             aria-label="Toggle menu"
                             aria-expanded={isMobileMenuOpen}
                         >
@@ -270,7 +271,7 @@ export default function Header() {
                     <Link
                         href="/"
                         className="block py-4 text-lg text-theme-primary border-b border-default"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        onClick={() => setMobileMenuOpen(false)}
                     >
                         Home
                     </Link>
@@ -284,7 +285,7 @@ export default function Header() {
                                 key={item.href}
                                 href={item.href}
                                 className="flex items-center gap-3 py-3 text-theme-secondary hover:text-accent transition-colors"
-                                onClick={() => setIsMobileMenuOpen(false)}
+                                onClick={() => setMobileMenuOpen(false)}
                             >
                                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} 
                               flex items-center justify-center`}>
@@ -304,7 +305,7 @@ export default function Header() {
                                 key={item.href}
                                 href={item.href}
                                 className="flex items-center gap-3 py-3 text-theme-secondary hover:text-accent transition-colors"
-                                onClick={() => setIsMobileMenuOpen(false)}
+                                onClick={() => setMobileMenuOpen(false)}
                             >
                                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} 
                               flex items-center justify-center`}>
@@ -324,7 +325,7 @@ export default function Header() {
                                 key={item.href}
                                 href={item.href}
                                 className="flex items-center gap-3 py-3 text-theme-secondary hover:text-accent transition-colors"
-                                onClick={() => setIsMobileMenuOpen(false)}
+                                onClick={() => setMobileMenuOpen(false)}
                             >
                                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} 
                               flex items-center justify-center`}>
@@ -338,7 +339,7 @@ export default function Header() {
                     <Link
                         href="/resources"
                         className="block py-4 text-lg text-theme-primary"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        onClick={() => setMobileMenuOpen(false)}
                     >
                         Resources
                     </Link>
