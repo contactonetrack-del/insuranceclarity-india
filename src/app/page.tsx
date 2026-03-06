@@ -298,7 +298,7 @@ export default function HomePage() {
                                         <GlassCard
                                             hover
                                             glowOnHover
-                                            className="cursor-pointer group h-full"
+                                            className="cursor-pointer group h-full min-h-[100px]"
                                         >
                                             <div className="flex items-start gap-4">
                                                 <IconContainer
