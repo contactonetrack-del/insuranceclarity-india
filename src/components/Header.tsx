@@ -40,6 +40,7 @@ const businessTypes = [
 
 const tools = [
     { href: '/tools/ai-advisor', label: 'AI Risk Advisor', icon: Bot, color: 'from-indigo-500 to-purple-600' },
+    { href: '/tools/interactive-quote', label: 'Interactive Quote', icon: Zap, color: 'from-amber-400 to-orange-500' },
     { href: '/tools/hidden-facts', label: 'Hidden Facts Revealer', icon: Search, color: 'from-red-500 to-rose-600' },
     { href: '/tools/compare', label: 'Policy Comparison', icon: Scale, color: 'from-blue-500 to-indigo-600' },
     { href: '/tools/calculator', label: 'Premium Calculator', icon: Calculator, color: 'from-emerald-500 to-green-600' },

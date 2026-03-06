@@ -6,7 +6,8 @@ import { useRef } from 'react'
 import {
     ArrowRight, Shield, Search, BarChart3, FileText, Sparkles, Scale,
     Heart, Building2, Car, Home, Plane, Gem, Calculator, UserCheck,
-    Briefcase, Network, Ship, Zap
+    Briefcase, Network, Ship, Zap, HeartPulse, Users, UserCircle, Activity, Baby, UserX,
+    Database, Bot
 } from 'lucide-react'
 
 // Premium components
@@ -33,12 +34,18 @@ import RegulatoryDisclaimer from '@/components/RegulatoryDisclaimer'
 // Insurance categories with semantic icons
 const insuranceCategories = [
     { href: '/insurance/life', icon: Heart, title: 'Life Insurance', desc: 'Term, Whole Life, ULIPs', color: 'from-red-500 to-pink-600' },
+    { href: '/insurance/term-life', icon: HeartPulse, title: 'Term Life', desc: 'Pure Protection, High Cover', color: 'from-blue-500 to-cyan-600' },
     { href: '/insurance/health', icon: Building2, title: 'Health Insurance', desc: 'Individual, Family, Critical Illness', color: 'from-emerald-500 to-teal-600' },
+    { href: '/insurance/family-floater', icon: Users, title: 'Family Floater', desc: 'One Policy, Entire Family', color: 'from-fuchsia-500 to-pink-600' },
+    { href: '/insurance/senior-citizen', icon: UserCircle, title: 'Senior Citizen', desc: 'Care for your Parents', color: 'from-teal-500 to-emerald-600' },
+    { href: '/insurance/critical-illness', icon: Activity, title: 'Critical Illness', desc: 'Life-Changing Illness Cover', color: 'from-rose-500 to-red-600' },
+    { href: '/insurance/maternity', icon: Baby, title: 'Maternity Insurance', desc: 'Welcoming New Life Safely', color: 'from-pink-500 to-rose-600' },
     { href: '/insurance/motor', icon: Car, title: 'Motor Insurance', desc: 'Car, Bike, Comprehensive', color: 'from-blue-500 to-indigo-600' },
     { href: '/insurance/home', icon: Home, title: 'Home Insurance', desc: 'Building, Contents, Fire', color: 'from-amber-500 to-orange-600' },
     { href: '/insurance/travel', icon: Plane, title: 'Travel Insurance', desc: 'Domestic, International', color: 'from-purple-500 to-violet-600' },
+    { href: '/insurance/disability', icon: UserX, title: 'Disability Cover', desc: 'Income Protection for Injuries', color: 'from-indigo-500 to-purple-600' },
     { href: '/insurance/specialized', icon: Gem, title: 'Specialized', desc: 'Pet, Wedding, Gadget', color: 'from-cyan-500 to-blue-600' },
-    { href: '/insurance/personal-accident', icon: UserCheck, title: 'Personal Accident', desc: 'Disability, Death, Medical Cover', color: 'from-rose-500 to-red-600' },
+    { href: '/insurance/personal-accident', icon: UserCheck, title: 'Personal Accident', desc: 'Disability, Death, Medical', color: 'from-rose-500 to-red-600' },
 ]
 
 const businessCategories = [
@@ -47,6 +54,7 @@ const businessCategories = [
     { href: '/insurance/liability', icon: Scale, title: 'Liability Insurance', desc: 'Public, Product, D&O, Professional', color: 'from-amber-500 to-orange-600' },
     { href: '/insurance/marine', icon: Ship, title: 'Marine & Aviation', desc: 'Cargo, Hull, Freight Liability', color: 'from-blue-500 to-cyan-600' },
     { href: '/insurance/ev', icon: Zap, title: 'EV & Emerging Tech', desc: 'Electric Vehicles, AI, Parametric', color: 'from-fuchsia-500 to-purple-600' },
+    { href: '/insurance/directory', icon: Database, title: 'Insurance Directory', desc: 'Verified Directory of Indian Insurers', color: 'from-indigo-600 to-blue-700' },
 ]
 
 // Tools with semantic icons and rich data
@@ -85,6 +93,28 @@ const tools = [
         gradient: 'from-blue-500/20 via-indigo-500/10 to-transparent',
     },
     {
+        href: '/tools/ai-advisor',
+        icon: Bot,
+        title: 'AI Risk Advisor',
+        desc: 'Chat with our intelligent assistant to discover potential risks and suitable insurance categories.',
+        badge: 'AI Powered',
+        stat: 'Smart',
+        statLabel: 'Dynamic AI',
+        color: 'from-indigo-500 to-purple-600',
+        gradient: 'from-indigo-500/20 via-purple-500/10 to-transparent',
+    },
+    {
+        href: '/tools/interactive-quote',
+        icon: Zap,
+        title: 'Interactive Quote Wizard',
+        desc: 'Escape the forms. Talk to our AI assistant to get an instant, binding insurance quote via conversation.',
+        badge: 'New',
+        stat: '1 Min',
+        statLabel: 'Quick Quote',
+        color: 'from-amber-400 to-orange-500',
+        gradient: 'from-amber-400/20 via-orange-500/10 to-transparent',
+    },
+    {
         href: '/tools/claim-cases',
         icon: FileText,
         title: 'Real Claim Cases',
@@ -99,8 +129,8 @@ const tools = [
 
 const stats = [
     { value: 150, label: 'Hidden Facts', icon: Search, suffix: '+' },
-    { value: 7, label: 'Insurance Types', icon: Shield, suffix: '' },
-    { value: 4, label: 'Free Tools', icon: BarChart3, suffix: '' },
+    { value: 13, label: 'Insurance Types', icon: Shield, suffix: '' },
+    { value: 6, label: 'Free Tools', icon: BarChart3, suffix: '' },
     { value: 30, label: 'Claim Cases', icon: FileText, suffix: '+' },
 ]
 
