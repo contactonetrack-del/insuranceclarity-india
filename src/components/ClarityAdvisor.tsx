@@ -31,42 +31,50 @@ interface Message {
 // Knowledge Base for Simulated AI Responses
 const INTENTS = [
     {
-        keywords: ['calc', 'premium', 'estimate', 'how much', 'cost'],
-        response: "I can help you estimate your insurance costs! Our Premium Calculator is perfect for that.",
+        keywords: ['calc', 'premium', 'estimate', 'how much', 'cost', 'quote', 'price', 'payment', 'money', 'calculate'],
+        response: "I can help you estimate your insurance costs! Our Smart Premium Advisor is perfect for that. It accounts for age, tobacco use, and more.",
         actions: [{ label: 'Open Calculator', href: '/tools/calculator', icon: Calculator }]
     },
     {
-        keywords: ['term', 'life', 'death', 'family', 'protection'],
-        response: "Term insurance is vital for family security. Check out our comprehensive guide or use the calculator for an estimate.",
+        keywords: ['term', 'life', 'death', 'family', 'protection', 'policy', 'secure', 'income', 'future'],
+        response: "Term insurance provides a huge cover at a low cost, ensuring your family's financial security. Would you like to see our comprehensive guide?",
         actions: [
             { label: 'Term Guide', href: '/resources', icon: BookOpen },
-            { label: 'Get Estimate', href: '/tools/calculator', icon: Calculator }
+            { label: 'Calculate Term Needs', href: '/tools/calculator', icon: Calculator }
         ]
     },
     {
-        keywords: ['health', 'medical', 'hospital', 'doctor', 'illness'],
-        response: "Health insurance covers your medical expenses and hospitalization. We have detailed buying checklists for you.",
-        actions: [{ label: 'Health Resources', href: '/resources', icon: Heart }]
+        keywords: ['health', 'medical', 'hospital', 'doctor', 'illness', 'disease', 'surgery', 'mediclaim', 'care'],
+        response: "Health insurance is essential to protect your savings from medical emergencies. I have checklists and guides ready for you.",
+        actions: [{ label: 'Health Hub', href: '/resources', icon: Heart }]
     },
     {
-        keywords: ['car', 'bike', 'motor', 'vehicle', 'accident', 'claim'],
-        response: "Looking for motor insurance? I can help you understand the claim process or estimate the IDV.",
-        actions: [{ label: 'Motor Guides', href: '/resources', icon: Navigation }]
+        keywords: ['car', 'bike', 'motor', 'vehicle', 'accident', 'claim', 'service', 'garage', 'idv', 'repair'],
+        response: "Motor insurance is mandatory and provides peace of mind on the road. I can help with claim processes or IDV estimates.",
+        actions: [{ label: 'Motor Guide', href: '/resources', icon: Navigation }]
     },
     {
-        keywords: ['download', 'pdf', 'guide', 'ebook'],
-        response: "You can download professional insurance guides in PDF format from our Resources page.",
-        actions: [{ label: 'Download Center', href: '/resources', icon: Info }]
+        keywords: ['download', 'pdf', 'guide', 'ebook', 'checklist', 'report', 'document', 'form'],
+        response: "All our professional guides, like 'Choosing Term Insurance' and 'Health Checklists', are available as downloadable PDFs.",
+        actions: [{ label: 'Browse Downloads', href: '/resources', icon: Info }]
     },
     {
-        keywords: ['support', 'donate', 'coffee', 'help you', 'funding'],
-        response: "That's very kind! Support from users like you keeps this site free and independent. Would you like to support us?",
+        keywords: ['support', 'donate', 'coffee', 'help you', 'funding', 'pay', 'contribute', 'donation'],
+        response: "Insurance Clarity is a free resource. Your support helps us keep it that way! Would you like to visit our support page?",
         actions: [{ label: 'Support Us', href: 'https://buymeacoffee.com/insuranceclarity', icon: Coffee }]
     },
     {
-        keywords: ['who', 'what', 'you', 'advisor', 'bot'],
-        response: "I'm the Clarity Advisor! I'm an AI assistant designed to help you navigate this website and understand insurance basics. How can I assist?",
+        keywords: ['who', 'what', 'you', 'advisor', 'bot', 'help', 'assist', 'do', 'purpose', 'name'],
+        response: "I'm the Clarity Advisor! I'm here to help you navigate our calculators, download expert guides, and answer your insurance questions.",
         actions: []
+    },
+    {
+        keywords: ['hi', 'hello', 'hey', 'greetings', 'morning', 'evening', 'yo'],
+        response: "Hello there! I'm your Clarity Advisor. How can I help you make insurance simple today?",
+        actions: [
+            { label: 'Start Calculator', href: '/tools/calculator', icon: Calculator },
+            { label: 'Read Guides', href: '/resources', icon: BookOpen }
+        ]
     }
 ]
 
@@ -127,6 +135,8 @@ export default function ClarityAdvisor() {
         // Simulate AI Thinking
         setTimeout(() => {
             const lowerText = userText.toLowerCase()
+
+            // Intelligence: Try to find multiple keyword matches or exact matches
             let matchedIntent = INTENTS.find(intent =>
                 intent.keywords.some(key => lowerText.includes(key))
             )
@@ -134,13 +144,22 @@ export default function ClarityAdvisor() {
             if (matchedIntent) {
                 addBotMessage(matchedIntent.response, matchedIntent.actions)
             } else {
-                addBotMessage("I'm not quite sure about that, but I can help you find what you need in our resources or calculators!", [
-                    { label: 'Browse Resources', href: '/resources', icon: BookOpen },
-                    { label: 'Try Calculators', href: '/tools/calculator', icon: Calculator }
-                ])
+                // Fallback for general insurance interest
+                if (lowerText.includes('insurance')) {
+                    addBotMessage("Insurance can be complex! Which type are you interested in? I have specific guides for Life, Health, and Motor.", [
+                        { label: 'Term Insurance', href: '/resources', icon: Shield },
+                        { label: 'Health Insurance', href: '/resources', icon: Heart },
+                        { label: 'Motor Insurance', href: '/resources', icon: Navigation }
+                    ])
+                } else {
+                    addBotMessage("I'm still learning! While I didn't fully catch that, I can definitely help you with calculators or our expert guides. Give it a try!", [
+                        { label: 'Browse Resources', href: '/resources', icon: BookOpen },
+                        { label: 'Try Calculators', href: '/tools/calculator', icon: Calculator }
+                    ])
+                }
             }
             setIsTyping(false)
-        }, 1500)
+        }, 1200)
     }
 
     const toggleOpen = () => {
@@ -156,7 +175,7 @@ export default function ClarityAdvisor() {
                         initial={{ opacity: 0, y: 20, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                        className="mb-4 w-[380px] max-w-[95vw] h-[550px] flex flex-col overflow-hidden rounded-3xl border border-default shadow-3xl bg-theme-primary"
+                        className="mb-4 w-[380px] max-w-[95vw] h-[580px] flex flex-col overflow-hidden rounded-3xl border border-default shadow-3xl bg-theme-primary"
                     >
                         {/* Header */}
                         <div className="p-5 bg-gradient-accent flex items-center justify-between text-white shadow-lg">
@@ -173,7 +192,7 @@ export default function ClarityAdvisor() {
                                         <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
                                     </h3>
                                     <div className="flex items-center gap-1.5 mt-1">
-                                        <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">Free AI Mode</span>
+                                        <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">Intelligent Advisor</span>
                                     </div>
                                 </div>
                             </div>
@@ -190,13 +209,15 @@ export default function ClarityAdvisor() {
                             {messages.map((msg) => (
                                 <div key={msg.id} className={`flex flex-col ${msg.type === 'user' ? 'items-end' : 'items-start'} space-y-2`}>
                                     <div className={`flex gap-3 max-w-[85%] ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}>
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm ${msg.type === 'bot' ? 'bg-accent text-white' : 'bg-theme-secondary text-theme-secondary'
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm border ${msg.type === 'bot'
+                                                ? 'bg-accent text-white border-accent'
+                                                : 'bg-theme-secondary text-theme-secondary border-default'
                                             }`}>
                                             {msg.type === 'bot' ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
                                         </div>
-                                        <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.type === 'bot'
-                                                ? 'rounded-tl-none bg-white dark:bg-slate-800 text-theme-primary'
-                                                : 'rounded-tr-none bg-accent text-white'
+                                        <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm font-medium ${msg.type === 'bot'
+                                                ? 'rounded-tl-none bg-white dark:bg-slate-800 text-theme-primary border border-default'
+                                                : 'rounded-tr-none bg-accent text-white dark:text-white'
                                             }`}>
                                             {msg.text}
                                         </div>
@@ -228,11 +249,11 @@ export default function ClarityAdvisor() {
                             ))}
 
                             {isTyping && (
-                                <div className="flex gap-3 animate-pulse">
-                                    <div className="w-8 h-8 rounded-full bg-accent-10 flex items-center justify-center text-accent">
+                                <div className="flex gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center animate-pulse">
                                         <Bot className="w-4 h-4" />
                                     </div>
-                                    <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl rounded-tl-none border border-default flex gap-1 items-center">
+                                    <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl rounded-tl-none border border-default flex gap-1 items-center shadow-sm">
                                         <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce [animation-delay:-0.3s]" />
                                         <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce [animation-delay:-0.15s]" />
                                         <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" />
@@ -250,7 +271,7 @@ export default function ClarityAdvisor() {
                                     onChange={(e) => setInputValue(e.target.value)}
                                     onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                                     placeholder="Ask anything about insurance..."
-                                    className="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-accent transition-all text-theme-primary"
+                                    className="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-accent transition-all text-theme-primary shadow-inner"
                                 />
                                 <button
                                     onClick={handleSend}
@@ -261,10 +282,10 @@ export default function ClarityAdvisor() {
                                 </button>
                             </div>
                             <div className="flex justify-center gap-4 mt-3">
-                                <span className="text-[10px] text-theme-muted flex items-center gap-1">
-                                    <Shield className="w-3 h-3" /> Secure Navigation
+                                <span className="text-[10px] text-theme-muted flex items-center gap-1 font-medium">
+                                    <Shield className="w-3 h-3 text-accent" /> Expert Advisor
                                 </span>
-                                <span className="text-[10px] text-theme-muted flex items-center gap-1">
+                                <span className="text-[10px] text-theme-muted flex items-center gap-1 font-medium">
                                     <Sparkles className="w-3 h-3 text-accent" /> Multitasker AI
                                 </span>
                             </div>
