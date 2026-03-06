@@ -57,7 +57,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
     }
 
     return (
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait" initial={true}>
             <motion.div
                 key={pathname}
                 initial="initial"
@@ -130,7 +130,7 @@ export function SlidePageTransition({ children }: PageTransitionProps) {
     }
 
     return (
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait" initial={true}>
             <motion.div
                 key={pathname}
                 initial="initial"
@@ -176,7 +176,7 @@ export function ScalePageTransition({ children }: PageTransitionProps) {
     }
 
     return (
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait" initial={true}>
             <motion.div
                 key={pathname}
                 initial="initial"

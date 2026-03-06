@@ -141,7 +141,6 @@ export default function CalculatorPage() {
                 {/* Sidebar / Results Preview */}
                 <div className="space-y-6">
                     <motion.div
-                        layout
                         className="glass rounded-2xl p-6 border border-default"
                     >
                         <h3 className="mb-2 font-semibold text-theme-primary">Estimated Premium</h3>
