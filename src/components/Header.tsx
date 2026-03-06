@@ -27,6 +27,7 @@ const businessTypes = [
     { href: '/insurance/liability', label: 'Liability Insurance', icon: Scale, color: 'from-amber-500 to-orange-600' },
     { href: '/insurance/marine', label: 'Marine & Aviation', icon: Ship, color: 'from-blue-500 to-cyan-600' },
     { href: '/insurance/ev', label: 'EV & Emerging Tech', icon: Zap, color: 'from-fuchsia-500 to-purple-600' },
+    { href: '/insurance/directory', label: 'Global Insurance Directory', icon: Database, color: 'from-accent to-accent-hover' },
 ]
 
 const tools = [
@@ -34,7 +35,6 @@ const tools = [
     { href: '/tools/compare', label: 'Policy Comparison', icon: Scale, color: 'from-blue-500 to-indigo-600' },
     { href: '/tools/calculator', label: 'Premium Calculator', icon: Calculator, color: 'from-emerald-500 to-green-600' },
     { href: '/tools/claim-cases', label: 'Claim Cases', icon: FileText, color: 'from-amber-500 to-yellow-600' },
-    { href: '/insurance/directory', label: 'Global Insurance Directory', icon: Database, color: 'from-accent to-accent-hover' },
 ]
 
 export default function Header() {
