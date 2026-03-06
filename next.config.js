@@ -1,10 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Enable static HTML export for GitHub Pages deployment
+    output: 'export',
+
     // Enable React strict mode for better development warnings
     reactStrictMode: true,
 
-    // Image optimization settings for next-image-export-optimizer
+    // Image optimization settings
+    // Note: images.unoptimized is required for static export
     images: {
+        unoptimized: true,
         remotePatterns: [
             {
                 protocol: 'https',
@@ -23,25 +28,6 @@ const nextConfig = {
         nextImageExportOptimizer_generateAndUseBlurImages: "true"
     },
 
-    // Production security headers (applied via headers() for all routes)
-    async headers() {
-        return [
-            {
-                source: '/:path*',
-                headers: [
-                    {
-                        key: 'X-DNS-Prefetch-Control',
-                        value: 'on',
-                    },
-                    {
-                        key: 'Strict-Transport-Security',
-                        value: 'max-age=63072000; includeSubDomains; preload',
-                    },
-                ],
-            },
-        ];
-    },
-
     // Improve build performance
     experimental: {
         // Enable optimistic client cache
@@ -52,3 +38,4 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
