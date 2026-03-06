@@ -189,15 +189,15 @@ export default function CalculatorPage() {
 
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
-                                        <label className="text-sm font-semibold text-theme-primary flex items-center gap-1.5">
+                                        <div className="text-sm font-semibold text-theme-primary flex items-center gap-1.5">
                                             Policy Term (Years)
                                             <div className="group relative">
                                                 <Info className="w-3.5 h-3.5 text-theme-muted cursor-help" />
-                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2 bg-theme-primary border border-default rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
+                                                <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2 bg-theme-primary border border-default rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
                                                     Longer terms (20–40 yrs) lock in lower rates &amp; offer better long-term value.
                                                 </div>
                                             </div>
-                                        </label>
+                                        </div>
                                         <span className="text-accent font-bold">{policyTerm} yrs</span>
                                     </div>
                                     <input
@@ -236,25 +236,27 @@ export default function CalculatorPage() {
                             {/* Tobacco & Location */}
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-theme-primary flex items-center gap-2">
+                                    <div className="text-sm font-semibold text-theme-primary flex items-center gap-2">
                                         Tobacco / Smoking Status
                                         <div className="group relative">
                                             <Info className="w-3.5 h-3.5 text-theme-muted cursor-help" />
-                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-theme-primary border border-default rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
+                                            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-theme-primary border border-default rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
                                                 Smoking increases premium rates by up to 50% due to higher health risks.
                                             </div>
                                         </div>
-                                    </label>
+                                    </div>
                                     <div className="flex bg-theme-secondary p-1 rounded-xl">
                                         <button
+                                            type="button"
                                             onClick={() => setIsSmoker(false)}
-                                            className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all ${!isSmoker ? 'bg-theme-primary shadow-sm text-accent' : 'text-theme-secondary'}`}
+                                            className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${!isSmoker ? 'bg-theme-primary shadow-sm text-accent' : 'text-theme-secondary hover:text-theme-primary'}`}
                                         >
                                             Non-Smoker
                                         </button>
                                         <button
+                                            type="button"
                                             onClick={() => setIsSmoker(true)}
-                                            className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all ${isSmoker ? 'bg-theme-primary shadow-sm text-red-500' : 'text-theme-secondary'}`}
+                                            className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${isSmoker ? 'bg-theme-primary shadow-sm text-red-500' : 'text-theme-secondary hover:text-theme-primary'}`}
                                         >
                                             Smoker
                                         </button>
