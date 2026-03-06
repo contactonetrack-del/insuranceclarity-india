@@ -166,13 +166,30 @@ export default function InsuranceDirectoryPage() {
                                         </p>
 
                                         {/* Footer Metadata */}
-                                        <div className="pt-4 border-t border-default flex items-center justify-between text-xs text-theme-muted">
-                                            <div className="flex items-center gap-1.5 font-medium">
-                                                <Database className="w-3.5 h-3.5" />
-                                                Category: {item.category}
+                                        <div className="pt-4 mt-auto border-t border-default text-xs text-theme-muted space-y-2">
+                                            <div className="flex items-center justify-between font-medium">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Database className="w-3.5 h-3.5 text-accent" />
+                                                    {item.category}
+                                                </div>
+                                                <div className="font-semibold text-theme-primary bg-hover px-2 py-0.5 rounded">
+                                                    ID: {item.id}
+                                                </div>
                                             </div>
-                                            <div className="font-semibold text-theme-primary bg-hover px-2 py-0.5 rounded">
-                                                ID: {item.id}
+
+                                            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-default/50">
+                                                <div className="flex items-center gap-1 truncate" title={item.riskType}>
+                                                    <Shield className="w-3 h-3 text-rose-500" />
+                                                    <span className="truncate">{item.riskType}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1 truncate text-right justify-end" title={item.naicSector}>
+                                                    <CheckCircle className="w-3 h-3 text-blue-500" />
+                                                    <span className="truncate">NAIC: {item.naicSector}</span>
+                                                </div>
+                                                <div className="col-span-2 flex items-center gap-1 truncate text-theme-secondary">
+                                                    <ArrowRight className="w-3 h-3" />
+                                                    <span className="truncate">Purpose: {item.coveragePurpose}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </GlassCard>
