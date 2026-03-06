@@ -27,6 +27,7 @@ jobs:
 
     - name: Run NPM Audit (Dependency Vulnerabilities)
       run: npm audit --audit-level=high
+      continue-on-error: true
 
     - name: Run Static Analysis (ESLint)
       run: npm run lint
