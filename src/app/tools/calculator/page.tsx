@@ -15,7 +15,9 @@ import {
     Stethoscope,
     Zap,
     Activity,
-    Users
+    Users,
+    ChevronDown,
+    AlertTriangle
 } from 'lucide-react'
 
 // Constants for calculation
@@ -63,6 +65,7 @@ export default function CalculatorPage() {
     const [breakdown, setBreakdown] = useState({ base: 0, risk: 0, riders: 0 })
     const [isCalculating, setIsCalculating] = useState(false)
     const [confidence, setConfidence] = useState(85)
+    const [regulatoryOpen, setRegulatoryOpen] = useState(false)
 
     // Calculate premium automatically when values change (Live Updates)
     const performCalculation = useMemo(() => {
@@ -147,15 +150,14 @@ export default function CalculatorPage() {
                 </p>
             </header>
 
-            <RegulatoryDisclaimer variant="prominent" className="mb-8" />
-
+            {/* Grid Layout */}
             <div className="grid gap-8 lg:grid-cols-12">
                 {/* Left Column: Form */}
                 <div className="lg:col-span-8 space-y-6">
                     <section className="glass rounded-3xl p-8 shadow-md border border-default relative overflow-hidden">
-                        {/* Background Decor */}
-                        <div className="absolute top-0 right-0 p-4 opacity-5">
-                            <Calculator className="w-32 h-32" />
+                        {/* Background Decor — bottom-left so it never overlaps header badge */}
+                        <div className="absolute bottom-0 left-0 p-4 opacity-[0.03] pointer-events-none">
+                            <Calculator className="w-40 h-40" />
                         </div>
 
                         <div className="flex items-center justify-between mb-8">
@@ -479,7 +481,53 @@ export default function CalculatorPage() {
                         </div>
                     </div>
                 </div>
-            </div >
-        </div >
+            </div>
+
+            {/* ── Regulatory Disclaimer (Bottom Collapsible) ── */}
+            <div className="mt-10 rounded-2xl border border-amber-200 dark:border-amber-800/40 overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => setRegulatoryOpen(v => !v)}
+                    className="w-full flex items-center justify-between px-5 py-3 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                >
+                    <span className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400">
+                        <AlertTriangle className="w-4 h-4" />
+                        Important Regulatory Notice
+                    </span>
+                    <ChevronDown
+                        className={`w-4 h-4 text-amber-600 transition-transform duration-300 ${regulatoryOpen ? 'rotate-180' : ''
+                            }`}
+                    />
+                </button>
+                <AnimatePresence initial={false}>
+                    {regulatoryOpen && (
+                        <motion.div
+                            key="reg"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="overflow-hidden"
+                        >
+                            <div className="px-5 py-4 bg-amber-50/50 dark:bg-amber-900/10 text-xs text-amber-800 dark:text-amber-300 space-y-2 leading-relaxed">
+                                <p>
+                                    InsuranceClarity is an <strong>educational platform</strong> providing general information about insurance products.
+                                    We are <strong>NOT an IRDAI-licensed</strong> intermediary, agent, or broker. We do not sell, solicit, or advise on insurance policies.
+                                    All information is for educational purposes only. Please verify policy terms directly with insurers before making any decisions.
+                                </p>
+                                <p className="text-amber-700 dark:text-amber-400">
+                                    <strong>We do NOT:</strong> Advise on which policy to buy &bull; Rank policies &bull; Solicit applications &bull; Earn commissions from insurers
+                                </p>
+                                <p>
+                                    <strong>IRDAI Complaints:</strong>{' '}
+                                    <a href="https://irdai.gov.in" target="_blank" rel="noopener noreferrer" className="underline">irdai.gov.in</a>{' | '}
+                                    <a href="mailto:complaints@irdai.gov.in" className="underline">complaints@irdai.gov.in</a>{' | '}1800-425-4477
+                                </p>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+        </div>
     )
 }
