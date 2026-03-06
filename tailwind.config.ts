@@ -10,6 +10,24 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
+                // =====================================================
+                // ACCENT — wired to CSS variables for light/dark theming
+                // Light: green (#4CAF50), Dark: blue (#3B82F6)
+                // =====================================================
+                accent: {
+                    DEFAULT: 'rgb(var(--color-accent) / <alpha-value>)',
+                    hover: 'rgb(var(--color-accent-dark) / <alpha-value>)',
+                    light: 'rgb(var(--color-accent-light) / <alpha-value>)',
+                    5: 'rgb(var(--color-accent) / 0.05)',
+                    10: 'rgb(var(--color-accent) / 0.10)',
+                    20: 'rgb(var(--color-accent) / 0.20)',
+                },
+                // Theme-aware background / text tokens
+                theme: {
+                    primary: 'rgb(var(--color-bg-primary) / <alpha-value>)',
+                    secondary: 'rgb(var(--color-bg-secondary) / <alpha-value>)',
+                    tertiary: 'rgb(var(--color-bg-tertiary) / <alpha-value>)',
+                },
                 // Semantic status colors (theme-independent)
                 success: {
                     50: '#f0fdf4',
