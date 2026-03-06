@@ -7,7 +7,7 @@ import {
     Heart, Building2, Car, Home, Plane, Gem, UserCheck,
     Search, Scale, Calculator, FileText, Coffee,
     Briefcase, Network, Ship, Zap,
-    Activity, HeartPulse, UserCircle, Users, UserX, Baby
+    Activity, HeartPulse, UserCircle, Users, UserX, Baby, Bot
 } from 'lucide-react'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import { IconContainer } from '@/components/ui/Icon'
@@ -38,6 +38,7 @@ const businessTypes = [
 ]
 
 const tools = [
+    { href: '/tools/ai-advisor', label: 'AI Risk Advisor', icon: Bot, color: 'from-indigo-500 to-purple-600' },
     { href: '/tools/hidden-facts', label: 'Hidden Facts Revealer', icon: Search, color: 'from-red-500 to-rose-600' },
     { href: '/tools/compare', label: 'Policy Comparison', icon: Scale, color: 'from-blue-500 to-indigo-600' },
     { href: '/tools/calculator', label: 'Premium Calculator', icon: Calculator, color: 'from-emerald-500 to-green-600' },
