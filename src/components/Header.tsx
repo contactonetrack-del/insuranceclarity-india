@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import {
-    Menu, X, ChevronDown, Shield,
+    Menu, X, ChevronDown, Shield, Database,
     Heart, Building2, Car, Home, Plane, Gem, UserCheck,
-    Search, Scale, Calculator, FileText, Coffee
+    Search, Scale, Calculator, FileText, Coffee,
+    Briefcase, Network, Ship, Zap
 } from 'lucide-react'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import { IconContainer } from '@/components/ui/Icon'
@@ -16,8 +17,16 @@ const insuranceTypes = [
     { href: '/insurance/motor', label: 'Motor Insurance', icon: Car, color: 'from-blue-500 to-indigo-600' },
     { href: '/insurance/home', label: 'Home Insurance', icon: Home, color: 'from-amber-500 to-orange-600' },
     { href: '/insurance/travel', label: 'Travel Insurance', icon: Plane, color: 'from-purple-500 to-violet-600' },
-    { href: '/insurance/specialized', label: 'Specialized Insurance', icon: Gem, color: 'from-cyan-500 to-blue-600' },
+    { href: '/insurance/specialized', label: 'Specialized Individual', icon: Gem, color: 'from-cyan-500 to-blue-600' },
     { href: '/insurance/personal-accident', label: 'Personal Accident', icon: UserCheck, color: 'from-rose-500 to-red-600' },
+]
+
+const businessTypes = [
+    { href: '/insurance/business', label: 'Commercial Package', icon: Briefcase, color: 'from-slate-600 to-gray-800' },
+    { href: '/insurance/cyber', label: 'Cyber Security Cover', icon: Network, color: 'from-teal-500 to-emerald-600' },
+    { href: '/insurance/liability', label: 'Liability Insurance', icon: Scale, color: 'from-amber-500 to-orange-600' },
+    { href: '/insurance/marine', label: 'Marine & Aviation', icon: Ship, color: 'from-blue-500 to-cyan-600' },
+    { href: '/insurance/ev', label: 'EV & Emerging Tech', icon: Zap, color: 'from-fuchsia-500 to-purple-600' },
 ]
 
 const tools = [
@@ -25,6 +34,7 @@ const tools = [
     { href: '/tools/compare', label: 'Policy Comparison', icon: Scale, color: 'from-blue-500 to-indigo-600' },
     { href: '/tools/calculator', label: 'Premium Calculator', icon: Calculator, color: 'from-emerald-500 to-green-600' },
     { href: '/tools/claim-cases', label: 'Claim Cases', icon: FileText, color: 'from-amber-500 to-yellow-600' },
+    { href: '/insurance/directory', label: 'Global Insurance Directory', icon: Database, color: 'from-accent to-accent-hover' },
 ]
 
 export default function Header() {
@@ -71,31 +81,74 @@ export default function Header() {
                             Home
                         </Link>
 
-                        {/* Insurance Types Dropdown */}
+                        {/* Personal Insurance Dropdown */}
                         <div
                             className="relative"
-                            onMouseEnter={() => setActiveDropdown('insurance')}
+                            onMouseEnter={() => setActiveDropdown('personal-insurance')}
                             onMouseLeave={() => setActiveDropdown(null)}
                         >
                             <button
                                 className="nav-link flex items-center gap-1"
                                 aria-haspopup="true"
-                                aria-expanded={activeDropdown === 'insurance'}
+                                aria-expanded={activeDropdown === 'personal-insurance'}
                             >
-                                Insurance Types
+                                Personal Insurance
                                 <ChevronDown
                                     className={`w-4 h-4 transition-transform duration-200 
-                    ${activeDropdown === 'insurance' ? 'rotate-180' : ''}`}
+                    ${activeDropdown === 'personal-insurance' ? 'rotate-180' : ''}`}
                                 />
                             </button>
 
-                            {activeDropdown === 'insurance' && (
+                            {activeDropdown === 'personal-insurance' && (
                                 <div className="absolute top-full left-0 pt-2 w-72">
-                                    {/* Invisible bridge to prevent gap issues */}
                                     <div className="absolute top-0 left-0 w-full h-2" />
                                     <div className="p-2 rounded-xl shadow-xl animate-fade-in-up
                                       bg-white dark:bg-slate-900 border border-default">
                                         {insuranceTypes.map((item, index) => (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                className="flex items-center gap-3 px-4 py-3 rounded-lg
+                               text-theme-secondary hover:text-accent hover:bg-accent-5
+                               transition-all duration-200"
+                                                style={{ animationDelay: `${index * 50}ms` }}
+                                            >
+                                                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${item.color} 
+                                    flex items-center justify-center shadow-sm`}>
+                                                    <item.icon className="w-5 h-5 text-white" strokeWidth={2} />
+                                                </div>
+                                                <span className="font-medium">{item.label}</span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Business & Cyber Dropdown */}
+                        <div
+                            className="relative"
+                            onMouseEnter={() => setActiveDropdown('business-insurance')}
+                            onMouseLeave={() => setActiveDropdown(null)}
+                        >
+                            <button
+                                className="nav-link flex items-center gap-1"
+                                aria-haspopup="true"
+                                aria-expanded={activeDropdown === 'business-insurance'}
+                            >
+                                Business & Cyber
+                                <ChevronDown
+                                    className={`w-4 h-4 transition-transform duration-200 
+                    ${activeDropdown === 'business-insurance' ? 'rotate-180' : ''}`}
+                                />
+                            </button>
+
+                            {activeDropdown === 'business-insurance' && (
+                                <div className="absolute top-full left-0 pt-2 w-72">
+                                    <div className="absolute top-0 left-0 w-full h-2" />
+                                    <div className="p-2 rounded-xl shadow-xl animate-fade-in-up
+                                      bg-white dark:bg-slate-900 border border-default">
+                                        {businessTypes.map((item, index) => (
                                             <Link
                                                 key={item.href}
                                                 href={item.href}
@@ -216,9 +269,29 @@ export default function Header() {
 
                     <div className="py-4 border-b border-default">
                         <p className="text-sm text-accent uppercase tracking-wider mb-3 font-medium">
-                            Insurance Types
+                            Personal Insurance
                         </p>
                         {insuranceTypes.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className="flex items-center gap-3 py-3 text-theme-secondary hover:text-accent transition-colors"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} 
+                              flex items-center justify-center`}>
+                                    <item.icon className="w-4 h-4 text-white" strokeWidth={2} />
+                                </div>
+                                <span>{item.label}</span>
+                            </Link>
+                        ))}
+                    </div>
+
+                    <div className="py-4 border-b border-default">
+                        <p className="text-sm text-accent uppercase tracking-wider mb-3 font-medium">
+                            Business & Cyber
+                        </p>
+                        {businessTypes.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}

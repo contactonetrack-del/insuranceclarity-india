@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { useRef } from 'react'
 import {
     ArrowRight, Shield, Search, BarChart3, FileText, Sparkles, Scale,
-    Heart, Building2, Car, Home, Plane, Gem, Calculator, UserCheck
+    Heart, Building2, Car, Home, Plane, Gem, Calculator, UserCheck,
+    Briefcase, Network, Ship, Zap
 } from 'lucide-react'
 
 // Premium components
@@ -38,6 +39,14 @@ const insuranceCategories = [
     { href: '/insurance/travel', icon: Plane, title: 'Travel Insurance', desc: 'Domestic, International', color: 'from-purple-500 to-violet-600' },
     { href: '/insurance/specialized', icon: Gem, title: 'Specialized', desc: 'Pet, Wedding, Gadget', color: 'from-cyan-500 to-blue-600' },
     { href: '/insurance/personal-accident', icon: UserCheck, title: 'Personal Accident', desc: 'Disability, Death, Medical Cover', color: 'from-rose-500 to-red-600' },
+]
+
+const businessCategories = [
+    { href: '/insurance/business', icon: Briefcase, title: 'Commercial Package', desc: 'SME, Corporate Property, Interruption', color: 'from-slate-600 to-gray-800' },
+    { href: '/insurance/cyber', icon: Network, title: 'Cyber Security Cover', desc: 'Data Breach, Ransomware, Liability', color: 'from-teal-500 to-emerald-600' },
+    { href: '/insurance/liability', icon: Scale, title: 'Liability Insurance', desc: 'Public, Product, D&O, Professional', color: 'from-amber-500 to-orange-600' },
+    { href: '/insurance/marine', icon: Ship, title: 'Marine & Aviation', desc: 'Cargo, Hull, Freight Liability', color: 'from-blue-500 to-cyan-600' },
+    { href: '/insurance/ev', icon: Zap, title: 'EV & Emerging Tech', desc: 'Electric Vehicles, AI, Parametric', color: 'from-fuchsia-500 to-purple-600' },
 ]
 
 // Tools with semantic icons and rich data
@@ -333,6 +342,60 @@ export default function HomePage() {
 
                     <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
                         {insuranceCategories.map((cat) => (
+                            <StaggerItem key={cat.href} className="h-full">
+                                <Link href={cat.href} className="block h-full">
+                                    <TiltCard containerClassName="h-full" className="h-full">
+                                        <GlassCard
+                                            hover
+                                            glowOnHover
+                                            className="cursor-pointer group h-full min-h-[100px]"
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                <IconContainer
+                                                    icon={cat.icon}
+                                                    size="lg"
+                                                    variant="gradient"
+                                                    gradientFrom={`from-${cat.color.split(' ')[0].replace('from-', '')}`}
+                                                    gradientTo={`to-${cat.color.split(' ')[1].replace('to-', '')}`}
+                                                />
+                                                <div className="flex-1">
+                                                    <h3 className="font-display font-semibold text-lg text-theme-primary mb-1 
+                                                     group-hover:text-accent transition-colors duration-150">
+                                                        {cat.title}
+                                                    </h3>
+                                                    <p className="text-theme-secondary text-sm">{cat.desc}</p>
+                                                </div>
+                                                <ArrowRight className="w-5 h-5 text-theme-muted opacity-0 group-hover:opacity-100 
+                                                    group-hover:translate-x-1 transition-all duration-200" />
+                                            </div>
+                                        </GlassCard>
+                                    </TiltCard>
+                                </Link>
+                            </StaggerItem>
+                        ))}
+                    </StaggerContainer>
+                </div>
+            </section>
+
+            {/* Business & Emerging Insurance Categories */}
+            <section className="pb-20 px-6">
+                <div className="max-w-7xl mx-auto">
+                    <RevealOnScroll className="text-center mb-12">
+                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent 
+                           text-sm rounded-full mb-4 font-medium">
+                            <Briefcase className="w-4 h-4" />
+                            COMMERCIAL & EMERGING
+                        </span>
+                        <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary">
+                            Business & Advanced Insurance
+                        </h2>
+                        <p className="text-theme-secondary mt-4 max-w-xl mx-auto">
+                            Protect your enterprise with comprehensive coverage for modern risks, liabilities, and emerging technologies.
+                        </p>
+                    </RevealOnScroll>
+
+                    <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center" staggerDelay={0.08}>
+                        {businessCategories.map((cat) => (
                             <StaggerItem key={cat.href} className="h-full">
                                 <Link href={cat.href} className="block h-full">
                                     <TiltCard containerClassName="h-full" className="h-full">
