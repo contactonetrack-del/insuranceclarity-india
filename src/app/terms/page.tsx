@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { FileText, AlertTriangle, Mail, Phone, MapPin, Scale } from 'lucide-react'
+import { FileText, AlertTriangle, Mail, Scale } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -283,21 +283,14 @@ export default function TermsPage() {
                         <div className="bg-theme-surface rounded-lg p-4 my-4">
                             <p className="font-semibold text-theme-primary mb-3">Tier 1: Grievance Officer (Direct Contact)</p>
                             <div className="space-y-2 text-theme-secondary text-sm">
-                                <p><strong>Name:</strong> Grievance Officer, One Track</p>
+                                <p><strong>Name:</strong> Grievance Officer, InsuranceClarity India</p>
                                 <p className="flex items-center gap-2">
                                     <Mail className="w-4 h-4 text-accent" />
                                     <a href="mailto:grievance@insuranceclarity.in" className="text-accent hover:underline">
                                         grievance@insuranceclarity.in
                                     </a>
                                 </p>
-                                <p className="flex items-center gap-2">
-                                    <Phone className="w-4 h-4 text-accent" />
-                                    +91-123-456-7890 (Mocked)
-                                </p>
-                                <p className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-accent" />
-                                    Plot No. 123, Tech Park, Bangalore, Karnataka - 560001 (Mocked)
-                                </p>
+                                <p className="text-theme-muted text-sm">India — Online-only educational platform</p>
                                 <div className="mt-3 pt-3 border-t border-default">
                                     <p><strong>Response Time:</strong></p>
                                     <ul className="list-disc pl-4 mt-1">
