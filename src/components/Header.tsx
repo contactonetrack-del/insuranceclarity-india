@@ -107,24 +107,24 @@ export default function Header() {
                             </button>
 
                             {activeDropdown === 'personal-insurance' && (
-                                <div className="absolute top-full left-0 pt-2 w-72">
+                                <div className="absolute top-full left-0 pt-2 w-[520px]">
                                     <div className="absolute top-0 left-0 w-full h-2" />
-                                    <div className="p-2 rounded-xl shadow-xl animate-fade-in-up
-                                      bg-white dark:bg-slate-900 border border-default">
+                                    <div className="p-3 rounded-xl shadow-xl animate-fade-in-up
+                                      bg-white dark:bg-slate-900 border border-default grid grid-cols-2 gap-2">
                                         {insuranceTypes.map((item, index) => (
                                             <Link
                                                 key={item.href}
                                                 href={item.href}
-                                                className="flex items-center gap-3 px-4 py-3 rounded-lg
+                                                className="flex items-center gap-3 px-3 py-3 rounded-lg
                                text-theme-secondary hover:text-accent hover:bg-accent-5
                                transition-all duration-200"
-                                                style={{ animationDelay: `${index * 50}ms` }}
+                                                style={{ animationDelay: `${index * 30}ms` }}
                                             >
-                                                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${item.color} 
+                                                <div className={`w-9 h-9 shrink-0 rounded-lg bg-gradient-to-br ${item.color} 
                                     flex items-center justify-center shadow-sm`}>
                                                     <item.icon className="w-5 h-5 text-white" strokeWidth={2} />
                                                 </div>
-                                                <span className="font-medium">{item.label}</span>
+                                                <span className="font-medium text-sm">{item.label}</span>
                                             </Link>
                                         ))}
                                     </div>
