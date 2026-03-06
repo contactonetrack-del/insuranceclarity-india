@@ -27,6 +27,15 @@ const BASE_RATES = {
     'Vehicle Insurance': 3000
 }
 
+// GST Rates as per 56th GST Council ruling (effective Sept 22, 2025)
+// Individual Life & Health Insurance: GST EXEMPT (0%)
+// Vehicle / General Insurance: 18% GST continues
+const GST_RATES: Record<string, number> = {
+    'Life Insurance': 0,      // GST Exempt w.e.f. 22 Sept 2025
+    'Health Insurance': 0,    // GST Exempt w.e.f. 22 Sept 2025
+    'Vehicle Insurance': 0.18 // 18% GST continues
+}
+
 const OCCUPATIONS = [
     { label: 'Salaried / IT Professional', value: 'salaried', risk: 1.0 },
     { label: 'Self-Employed Professional', value: 'professional', risk: 1.1 },
@@ -62,6 +71,7 @@ export default function CalculatorPage() {
 
     // Display State
     const [premium, setPremium] = useState<number>(0)
+    const [gstAmount, setGstAmount] = useState<number>(0)
     const [breakdown, setBreakdown] = useState({ base: 0, risk: 0, riders: 0 })
     const [isCalculating, setIsCalculating] = useState(false)
     const [confidence, setConfidence] = useState(85)
@@ -99,10 +109,15 @@ export default function CalculatorPage() {
             }
         })
 
-        const total = totalBase + riderTotal
+        const totalBeforeGST = totalBase + riderTotal
+        const gstRate = GST_RATES[type] ?? 0
+        const gst = Math.round(totalBeforeGST * gstRate)
+        const total = Math.round(totalBeforeGST) + gst
 
         return {
-            total: Math.round(total),
+            total,
+            gst,
+            gstRate,
             breakdown: {
                 base: Math.round(profileBase + sumFactor),
                 risk: Math.round(totalBase - (profileBase + sumFactor)),
@@ -115,6 +130,7 @@ export default function CalculatorPage() {
         setIsCalculating(true)
         const timer = setTimeout(() => {
             setPremium(performCalculation.total)
+            setGstAmount(performCalculation.gst)
             setBreakdown(performCalculation.breakdown)
             setIsCalculating(false)
 
@@ -383,9 +399,17 @@ export default function CalculatorPage() {
                                 </motion.div>
                             </AnimatePresence>
 
-                            <span className="text-theme-secondary text-sm font-medium bg-theme-secondary px-3 py-1 rounded-full border border-default">
-                                GST included (approx)
-                            </span>
+                            {/* Dynamic GST Badge */}
+                            {performCalculation.gstRate === 0 ? (
+                                <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                                    <CheckCircle className="w-3.5 h-3.5" />
+                                    GST Exempt (0%) &mdash; w.e.f. Sept 22, 2025
+                                </span>
+                            ) : (
+                                <span className="text-theme-secondary text-xs font-medium bg-theme-secondary px-3 py-1 rounded-full border border-default">
+                                    Incl. 18% GST ({formatCurrency(gstAmount)} GST)
+                                </span>
+                            )}
                         </div>
 
                         {/* Premium Breakdown Visualization */}
@@ -440,6 +464,23 @@ export default function CalculatorPage() {
                                         />
                                     </div>
                                 </div>
+
+                                {/* GST Row — only shown for Vehicle/General Insurance */}
+                                {performCalculation.gstRate > 0 && (
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between text-xs font-medium">
+                                            <span className="text-amber-600 dark:text-amber-400">GST (18% – Vehicle)</span>
+                                            <span className="text-amber-600 dark:text-amber-400">{formatCurrency(gstAmount)}</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-theme-secondary rounded-full overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: premium > 0 ? `${Math.max(0, (gstAmount / premium) * 100)}%` : 0 }}
+                                                className="h-full bg-orange-400"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
