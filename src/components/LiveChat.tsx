@@ -46,7 +46,7 @@ export default function LiveChat() {
     }
 
     return (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 right-24 z-40">
             {/* Chat Window */}
             <AnimatePresence>
                 {isOpen && (
@@ -87,8 +87,8 @@ export default function LiveChat() {
                                 >
                                     <div
                                         className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${msg.sender === 'user'
-                                                ? 'bg-accent text-white rounded-tr-none'
-                                                : 'bg-white dark:bg-slate-800 text-theme-primary border border-default rounded-tl-none shadow-sm'
+                                            ? 'bg-accent text-white rounded-tr-none'
+                                            : 'bg-white dark:bg-slate-800 text-theme-primary border border-default rounded-tl-none shadow-sm'
                                             }`}
                                     >
                                         {msg.text}

@@ -87,11 +87,21 @@ export default function ClarityAdvisor() {
     const pathname = usePathname()
     const scrollRef = useRef<HTMLDivElement>(null)
 
-    // Initial Greeting
+    // Context-aware greeting based on current page
+    const getContextGreeting = () => {
+        if (pathname?.includes('/tools/calculator')) {
+            return "It looks like you're using the Premium Calculator! Need help understanding any of the fields or factors?"
+        } else if (pathname?.includes('/resources')) {
+            return "Welcome to Resources! I can help you find the right guide or PDF for your insurance needs."
+        }
+        return "Hi! I'm your Clarity Advisor. I can help you navigate through the world of insurance. What are you looking for today?"
+    }
+
+    // Initial Greeting (context-aware)
     useEffect(() => {
         if (messages.length === 0) {
             setTimeout(() => {
-                addBotMessage("Hi! I'm your Clarity Advisor. I can help you navigate through the world of insurance. What are you looking for today?", [
+                addBotMessage(getContextGreeting(), [
                     { label: 'Calculators', href: '/tools/calculator', icon: Calculator },
                     { label: 'Expert Guides', href: '/resources', icon: BookOpen },
                     { label: 'Support Us', href: 'https://buymeacoffee.com/insuranceclarity', icon: Coffee }
@@ -166,6 +176,15 @@ export default function ClarityAdvisor() {
         setIsOpen(!isOpen)
         setHasNewMessage(false)
     }
+    const clearChat = () => {
+        setMessages([])
+        setTimeout(() => {
+            addBotMessage(getContextGreeting(), [
+                { label: 'Calculators', href: '/tools/calculator', icon: Calculator },
+                { label: 'Expert Guides', href: '/resources', icon: BookOpen },
+            ])
+        }, 300)
+    }
 
     return (
         <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end">
@@ -210,14 +229,14 @@ export default function ClarityAdvisor() {
                                 <div key={msg.id} className={`flex flex-col ${msg.type === 'user' ? 'items-end' : 'items-start'} space-y-2`}>
                                     <div className={`flex gap-3 max-w-[85%] ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}>
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm border ${msg.type === 'bot'
-                                                ? 'bg-accent text-white border-accent'
-                                                : 'bg-theme-secondary text-theme-secondary border-default'
+                                            ? 'bg-accent text-white border-accent'
+                                            : 'bg-theme-secondary text-theme-secondary border-default'
                                             }`}>
                                             {msg.type === 'bot' ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
                                         </div>
                                         <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm font-medium ${msg.type === 'bot'
-                                                ? 'rounded-tl-none bg-white dark:bg-slate-800 text-theme-primary border border-default'
-                                                : 'rounded-tr-none bg-accent text-white dark:text-white'
+                                            ? 'rounded-tl-none bg-white dark:bg-slate-800 text-theme-primary border border-default'
+                                            : 'rounded-tr-none bg-accent text-white dark:text-white'
                                             }`}>
                                             {msg.text}
                                         </div>

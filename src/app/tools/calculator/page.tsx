@@ -191,8 +191,8 @@ export default function CalculatorPage() {
                                                 key={g}
                                                 onClick={() => setGender(g)}
                                                 className={`py-2 px-4 rounded-xl text-sm font-medium transition-all ${gender === g
-                                                        ? 'bg-accent text-white shadow-glow'
-                                                        : 'bg-theme-secondary text-theme-secondary hover:bg-accent-5'
+                                                    ? 'bg-accent text-white shadow-glow'
+                                                    : 'bg-theme-secondary text-theme-secondary hover:bg-accent-5'
                                                     }`}
                                             >
                                                 {g}
@@ -274,8 +274,8 @@ export default function CalculatorPage() {
                                                 key={val}
                                                 onClick={() => setSumAssured(val)}
                                                 className={`py-2 px-3 rounded-xl text-sm font-medium transition-all border ${sumAssured === val
-                                                        ? 'bg-accent-10 border-accent text-accent'
-                                                        : 'bg-theme-primary border-default text-theme-secondary hover:border-accent-20'
+                                                    ? 'bg-accent-10 border-accent text-accent'
+                                                    : 'bg-theme-primary border-default text-theme-secondary hover:border-accent-20'
                                                     }`}
                                             >
                                                 {val >= 10000000 ? '₹ 1 Crore+' : formatCurrency(val)}
@@ -310,8 +310,8 @@ export default function CalculatorPage() {
                                                 key={rider.id}
                                                 onClick={() => toggleRider(rider.id)}
                                                 className={`flex items-center justify-between p-3 rounded-xl border text-sm transition-all ${selectedRiders.includes(rider.id)
-                                                        ? 'bg-accent-5 border-accent-20'
-                                                        : 'bg-theme-secondary border-transparent'
+                                                    ? 'bg-accent-5 border-accent-20'
+                                                    : 'bg-theme-secondary border-transparent'
                                                     }`}
                                             >
                                                 <span className={selectedRiders.includes(rider.id) ? 'text-theme-primary' : 'text-theme-secondary'}>
@@ -370,7 +370,7 @@ export default function CalculatorPage() {
                                     <div className="h-2 w-full bg-theme-secondary rounded-full overflow-hidden">
                                         <motion.div
                                             initial={{ width: 0 }}
-                                            animate={{ width: premium > 0 ? `${(breakdown.base / premium) * 100}%` : 0 }}
+                                            animate={{ width: premium > 0 ? `${Math.max(0, (breakdown.base / premium) * 100)}%` : 0 }}
                                             className="h-full bg-accent"
                                         />
                                     </div>
@@ -385,7 +385,7 @@ export default function CalculatorPage() {
                                     <div className="h-2 w-full bg-theme-secondary rounded-full overflow-hidden">
                                         <motion.div
                                             initial={{ width: 0 }}
-                                            animate={{ width: premium > 0 ? `${(breakdown.risk / premium) * 100}%` : 0 }}
+                                            animate={{ width: premium > 0 ? `${Math.max(0, (breakdown.risk / premium) * 100)}%` : 0 }}
                                             className="h-full bg-amber-500"
                                         />
                                     </div>
@@ -400,7 +400,7 @@ export default function CalculatorPage() {
                                     <div className="h-2 w-full bg-theme-secondary rounded-full overflow-hidden">
                                         <motion.div
                                             initial={{ width: 0 }}
-                                            animate={{ width: premium > 0 ? `${(breakdown.riders / premium) * 100}%` : 0 }}
+                                            animate={{ width: premium > 0 ? `${Math.max(0, (breakdown.riders / premium) * 100)}%` : 0 }}
                                             className="h-full bg-blue-500"
                                         />
                                     </div>
@@ -415,10 +415,10 @@ export default function CalculatorPage() {
                             <p className="text-[10px] text-theme-secondary mt-1">Based on profile completeness</p>
                         </div>
 
-                        <button className="btn-primary w-full mt-8 group">
-                            Full Personalized Report
-                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </button>
+                        <a href="/resources" className="btn-primary w-full mt-8 group flex items-center justify-center">
+                            Explore Expert Guides
+                            <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                        </a>
                     </motion.div>
 
                     <div className="glass rounded-3xl p-6 border border-default">
