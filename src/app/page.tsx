@@ -39,12 +39,52 @@ const insuranceCategories = [
     { href: '/insurance/specialized', icon: Gem, title: 'Specialized', desc: 'Pet, Wedding, Gadget', color: 'from-cyan-500 to-blue-600' },
 ]
 
-// Tools with semantic icons
+// Tools with semantic icons and rich data
 const tools = [
-    { href: '/tools/hidden-facts', icon: Search, title: 'Hidden Facts Revealer', desc: '150+ exclusions insurers don\'t tell you', badge: '150+ Facts', color: 'from-red-500 to-rose-600' },
-    { href: '/tools/calculator', icon: Calculator, title: 'Premium Calculator', desc: 'Get instant premium estimates', badge: 'Free', color: 'from-emerald-500 to-green-600' },
-    { href: '/tools/compare', icon: Scale, title: 'Policy Comparison', desc: 'Compare features side by side', badge: 'Popular', color: 'from-blue-500 to-indigo-600' },
-    { href: '/tools/claim-cases', icon: FileText, title: 'Real Claim Cases', desc: 'Learn from real claim outcomes', badge: '30+ Cases', color: 'from-amber-500 to-yellow-600' },
+    {
+        href: '/tools/hidden-facts',
+        icon: Search,
+        title: 'Hidden Facts Revealer',
+        desc: 'Uncover hidden exclusions, sub-limits, and waiting periods that insurance companies bury in fine print.',
+        badge: '150+ Facts',
+        stat: '150+',
+        statLabel: 'Exclusions Exposed',
+        color: 'from-red-500 to-rose-600',
+        gradient: 'from-red-500/20 via-rose-500/10 to-transparent',
+    },
+    {
+        href: '/tools/calculator',
+        icon: Calculator,
+        title: 'Premium Calculator',
+        desc: 'Get instant indicative premium estimates for Life, Health, and Motor insurance based on your profile.',
+        badge: 'Free',
+        stat: '3',
+        statLabel: 'Insurance Types',
+        color: 'from-emerald-500 to-green-600',
+        gradient: 'from-emerald-500/20 via-green-500/10 to-transparent',
+    },
+    {
+        href: '/tools/compare',
+        icon: Scale,
+        title: 'Policy Comparison',
+        desc: 'Compare coverage, premiums, and benefits of different policies side by side to find the best fit.',
+        badge: 'Popular',
+        stat: '6',
+        statLabel: 'Categories',
+        color: 'from-blue-500 to-indigo-600',
+        gradient: 'from-blue-500/20 via-indigo-500/10 to-transparent',
+    },
+    {
+        href: '/tools/claim-cases',
+        icon: FileText,
+        title: 'Real Claim Cases',
+        desc: 'Learn from documented claim outcomes — what got approved, what got rejected, and why.',
+        badge: '30+ Cases',
+        stat: '30+',
+        statLabel: 'Real Cases',
+        color: 'from-amber-500 to-yellow-600',
+        gradient: 'from-amber-500/20 via-yellow-500/10 to-transparent',
+    },
 ]
 
 const stats = [
@@ -347,34 +387,55 @@ export default function HomePage() {
                     <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6" staggerDelay={0.1}>
                         {tools.map((tool) => (
                             <StaggerItem key={tool.href}>
-                                <Link href={tool.href}>
+                                <Link href={tool.href} className="block h-full">
                                     <GlassCard
                                         hover
                                         glowOnHover
-                                        className="cursor-pointer group"
+                                        padding="none"
+                                        className="cursor-pointer group h-full overflow-hidden"
                                     >
-                                        <div className="flex gap-5 items-center">
-                                            <IconContainer
-                                                icon={tool.icon}
-                                                size="xl"
-                                                variant="gradient"
-                                                gradientFrom={`from-${tool.color.split(' ')[0].replace('from-', '')}`}
-                                                gradientTo={`to-${tool.color.split(' ')[1].replace('to-', '')}`}
-                                            />
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-3 mb-1">
-                                                    <h3 className="font-display font-semibold text-lg text-theme-primary 
-                                                     group-hover:text-accent transition-colors duration-150">
-                                                        {tool.title}
-                                                    </h3>
-                                                    <span className="px-2 py-0.5 bg-accent-10 text-accent text-xs rounded-full font-medium">
-                                                        {tool.badge}
+                                        {/* Gradient accent strip at top */}
+                                        <div className={`h-1.5 w-full bg-gradient-to-r ${tool.color}`} />
+
+                                        {/* Subtle gradient background */}
+                                        <div className={`absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l ${tool.gradient} pointer-events-none opacity-60`} />
+
+                                        <div className="relative p-6">
+                                            <div className="flex gap-5">
+                                                {/* Icon + stat */}
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <IconContainer
+                                                        icon={tool.icon}
+                                                        size="xl"
+                                                        variant="gradient"
+                                                        gradientFrom={`from-${tool.color.split(' ')[0].replace('from-', '')}`}
+                                                        gradientTo={`to-${tool.color.split(' ')[1].replace('to-', '')}`}
+                                                    />
+                                                    <div className="text-center">
+                                                        <div className="text-xl font-bold text-gradient leading-none">{tool.stat}</div>
+                                                        <div className="text-[10px] text-theme-muted font-medium uppercase tracking-wide mt-0.5">{tool.statLabel}</div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Content */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <h3 className="font-display font-semibold text-lg text-theme-primary 
+                                                         group-hover:text-accent transition-colors duration-150">
+                                                            {tool.title}
+                                                        </h3>
+                                                        <span className={`px-2.5 py-0.5 text-xs rounded-full font-semibold bg-gradient-to-r ${tool.color} text-white shadow-sm`}>
+                                                            {tool.badge}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-theme-secondary text-sm leading-relaxed mb-3">{tool.desc}</p>
+                                                    <span className="inline-flex items-center gap-1.5 text-accent text-sm font-medium 
+                                                        opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
+                                                        Explore Now
+                                                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                                                     </span>
                                                 </div>
-                                                <p className="text-theme-secondary text-sm">{tool.desc}</p>
                                             </div>
-                                            <ArrowRight className="w-6 h-6 text-theme-muted opacity-0 group-hover:opacity-100 
-                                                  group-hover:translate-x-1 transition-all duration-200" />
                                         </div>
                                     </GlassCard>
                                 </Link>

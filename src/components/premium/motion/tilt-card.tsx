@@ -79,7 +79,7 @@ export function TiltCard({
     if (prefersReducedMotion) {
         return (
             <div className={cn("relative", containerClassName)}>
-                <div className={cn("relative grid place-items-center", className)}>
+                <div className={cn("relative", className)}>
                     {children}
                 </div>
             </div>
@@ -99,7 +99,7 @@ export function TiltCard({
             }}
         >
             <motion.div
-                className={cn("relative grid place-items-center", className)}
+                className={cn("relative", className)}
                 style={{
                     rotateX,
                     rotateY,
