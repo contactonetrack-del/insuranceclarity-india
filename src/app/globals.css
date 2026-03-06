@@ -644,8 +644,13 @@ body {
    SELECTION
    ============================================ */
 ::selection {
-    background: rgba(var(--color-accent), 0.2);
-    color: rgb(var(--color-text-primary));
+    background: rgb(var(--color-accent));
+    color: #ffffff;
+}
+
+::-moz-selection {
+    background: rgb(var(--color-accent));
+    color: #ffffff;
 }
 
 /* ============================================
