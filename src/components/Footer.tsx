@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Shield, Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail, Coffee, Gem, UserCheck } from 'lucide-react'
+import Image from 'next/image'
+import { Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail, Coffee, Gem, UserCheck } from 'lucide-react'
 import RegulatoryDisclaimer from './RegulatoryDisclaimer'
 
 const footerLinks = {
@@ -35,9 +36,15 @@ export default function Footer() {
                     {/* Brand */}
                     <div>
                         <Link href="/" className="flex items-center gap-3 mb-4 group">
-                            <div className="w-10 h-10 flex items-center justify-center bg-gradient-accent rounded-xl
-                            shadow-md group-hover:shadow-glow transition-all duration-300">
-                                <Shield className="w-5 h-5 text-white" strokeWidth={2} />
+                            <div className="w-10 h-10 flex items-center justify-center
+                            transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md">
+                                <Image
+                                    src="/logo.png"
+                                    alt="InsuranceClarity Logo"
+                                    width={40}
+                                    height={40}
+                                    className="object-contain"
+                                />
                             </div>
                             <span className="font-display font-bold text-lg text-theme-primary">
                                 Insurance<span className="text-gradient">Clarity</span>

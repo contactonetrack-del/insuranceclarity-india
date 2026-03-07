@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import {
-    Menu, X, ChevronDown, Shield, Database,
+    Menu, X, ChevronDown, Database,
     Heart, Building2, Car, Home, Plane, Gem, UserCheck,
     Search, Scale, Calculator, FileText, Coffee,
     Briefcase, Network, Ship, Zap,
@@ -76,9 +77,16 @@ export default function Header() {
                 <div className="flex items-center justify-between h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-11 h-11 flex items-center justify-center bg-gradient-accent rounded-xl
-                          shadow-md group-hover:shadow-glow transition-all duration-300 group-hover:scale-105">
-                            <Shield className="w-6 h-6 text-white" strokeWidth={2} />
+                        <div className="w-11 h-11 flex items-center justify-center
+                          transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md">
+                            <Image
+                                src="/logo.png"
+                                alt="InsuranceClarity Logo"
+                                width={44}
+                                height={44}
+                                className="object-contain"
+                                priority
+                            />
                         </div>
                         <span className="font-display font-bold text-xl text-theme-primary">
                             Insurance<span className="text-gradient">Clarity</span>
