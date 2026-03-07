@@ -53,11 +53,18 @@ export default function AiChatWizard() {
 
         try {
             // Process Server Action (Edge Function)
-            const nextStep = step + 1;
-            const res = await processChatStep(appState, currentInput, nextStep);
+            // By default, we expect to go to step + 1, but the server might override this
+            // if validation fails and we need to reprompt on the same step.
+            const expectedNextStep = step + 1;
+            const res = await processChatStep(appState, currentInput, expectedNextStep);
 
             setAppState(res.newState);
-            setStep(nextStep);
+            // Crucial: Use the server's overridden step if provided (e.g., failed validation)
+            if ('nextStepNumber' in res && typeof res.nextStepNumber === 'number') {
+                setStep(res.nextStepNumber);
+            } else {
+                setStep(expectedNextStep);
+            }
             setMessages(prev => [...prev, res.nextMessage]);
 
             if (res.isComplete) {
@@ -115,8 +122,8 @@ export default function AiChatWizard() {
 
                             {/* Bubble */}
                             <div className={`px-5 py-3.5 rounded-2xl ${msg.role === 'user'
-                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 rounded-tr-sm'
-                                    : 'bg-white dark:bg-slate-800 border border-default text-theme-secondary shadow-sm rounded-tl-sm'
+                                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 rounded-tr-sm'
+                                : 'bg-white dark:bg-slate-800 border border-default text-theme-secondary shadow-sm rounded-tl-sm'
                                 } ${msg.type === 'summary' ? 'ring-2 ring-accent border-transparent bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30' : ''}`}>
                                 <p className="leading-relaxed text-[15px]">{msg.content}</p>
                             </div>
