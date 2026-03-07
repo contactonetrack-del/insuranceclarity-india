@@ -36,17 +36,17 @@ export default function Footer() {
                     {/* Brand */}
                     <div>
                         <Link href="/" className="flex items-center gap-0 mb-4 group">
-                            <div className="w-16 h-16 flex items-center justify-center
-                            transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md -ml-3">
+                            <div className="w-[96px] h-[96px] flex items-center justify-center
+                            transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md -ml-4">
                                 <Image
                                     src="/logo.png"
                                     alt="InsuranceClarity Logo"
-                                    width={64}
-                                    height={64}
+                                    width={96}
+                                    height={96}
                                     className="object-contain"
                                 />
                             </div>
-                            <span className="font-display font-bold text-xl text-theme-primary -ml-2 tracking-tight">
+                            <span className="font-display font-bold text-xl text-theme-primary -ml-3 tracking-tight">
                                 Insurance<span className="text-gradient">Clarity</span>
                             </span>
                         </Link>
