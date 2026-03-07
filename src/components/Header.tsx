@@ -76,19 +76,19 @@ export default function Header() {
             <div className="max-w-7xl mx-auto px-6">
                 <div className="flex items-center justify-between h-20">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-11 h-11 flex items-center justify-center
-                          transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md">
+                    <Link href="/" className="flex items-center gap-0 group">
+                        <div className="w-[72px] h-[72px] flex items-center justify-center
+                          transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md -ml-3">
                             <Image
                                 src="/logo.png"
                                 alt="InsuranceClarity Logo"
-                                width={44}
-                                height={44}
+                                width={72}
+                                height={72}
                                 className="object-contain"
                                 priority
                             />
                         </div>
-                        <span className="font-display font-bold text-xl text-theme-primary">
+                        <span className="font-display font-bold text-2xl text-theme-primary -ml-2 tracking-tight">
                             Insurance<span className="text-gradient">Clarity</span>
                         </span>
                     </Link>

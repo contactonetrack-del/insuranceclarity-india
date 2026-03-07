@@ -35,18 +35,18 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
                     {/* Brand */}
                     <div>
-                        <Link href="/" className="flex items-center gap-3 mb-4 group">
-                            <div className="w-10 h-10 flex items-center justify-center
-                            transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md">
+                        <Link href="/" className="flex items-center gap-0 mb-4 group">
+                            <div className="w-16 h-16 flex items-center justify-center
+                            transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md -ml-3">
                                 <Image
                                     src="/logo.png"
                                     alt="InsuranceClarity Logo"
-                                    width={40}
-                                    height={40}
+                                    width={64}
+                                    height={64}
                                     className="object-contain"
                                 />
                             </div>
-                            <span className="font-display font-bold text-lg text-theme-primary">
+                            <span className="font-display font-bold text-xl text-theme-primary -ml-2 tracking-tight">
                                 Insurance<span className="text-gradient">Clarity</span>
                             </span>
                         </Link>
