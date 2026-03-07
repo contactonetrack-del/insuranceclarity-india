@@ -81,10 +81,10 @@ export default function TrackQuotePage() {
                             {isLoading ? (
                                 <Loader2 className="w-6 h-6 animate-spin" />
                             ) : (
-                                <>
+                                <span className="flex items-center justify-center gap-2 w-full">
                                     Locate Record
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </>
+                                </span>
                             )}
                         </MagicButton>
                     </form>

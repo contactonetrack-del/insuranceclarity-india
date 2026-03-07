@@ -2,7 +2,7 @@
 
 ## Overview
 
-InsuranceClarity is a Next.js 14 application using the App Router with a focus on premium UI/UX and insurance-specific functionality.
+InsuranceClarity is a Next.js 16 application using the App Router with a focus on premium UI/UX and insurance-specific functionality.
 
 ## System Architecture
 
@@ -17,7 +17,7 @@ InsuranceClarity is a Next.js 14 application using the App Router with a focus o
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                     Next.js 14 App Router                    │
+│                     Next.js 16 App Router                    │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │   Pages     │  │  Middleware │  │     API Routes      │  │
 │  │  (SSR/SSG)  │  │  (Security) │  │   (/app/api/*)      │  │
@@ -125,13 +125,21 @@ Request → Middleware → Page/API
       Unit (Vitest + RTL)
 ```
 
-- **Unit**: 43 tests (utils, hooks, components)
+- **Unit**: 46 tests (utils, hooks, components)
 - **E2E**: Homepage, navigation, tools
 - **CI**: GitHub Actions on push/PR
 
 ## Deployment
 
-Recommended: **Vercel** (optimal for Next.js)
+The current application is not compatible with static-only hosting. It now includes dynamic API routes under `src/app/api/*` and an edge security layer, so GitHub Pages-style `./out` deployments are no longer a valid production target.
+
+Recommended hosting targets:
+
+- **Vercel** for the lowest-friction managed Next.js runtime
+- **AWS App Runner / ECS / Fargate** for containerized deployment
+- **Azure App Service** or **GCP Cloud Run** for managed Node.js hosting
+
+The repository CI workflow validates lint, type-check, unit tests, build, and Playwright E2E. A production deployment workflow should be added only after the target hosting platform is chosen and its runtime, secrets, and rollout model are defined.
 
 ```bash
 # Production build

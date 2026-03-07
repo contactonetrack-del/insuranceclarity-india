@@ -125,7 +125,14 @@ export default function AiChatWizard() {
                                 ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 rounded-tr-sm'
                                 : 'bg-white dark:bg-slate-800 border border-default text-theme-secondary shadow-sm rounded-tl-sm'
                                 } ${msg.type === 'summary' ? 'ring-2 ring-accent border-transparent bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30' : ''}`}>
-                                <p className="leading-relaxed text-[15px]">{msg.content}</p>
+                                <p className="leading-relaxed text-[15px]">
+                                    {msg.content.split(/(\*\*.*?\*\*)/g).map((part, i) => {
+                                        if (part.startsWith('**') && part.endsWith('**')) {
+                                            return <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>;
+                                        }
+                                        return <span key={i}>{part}</span>;
+                                    })}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -171,12 +178,6 @@ export default function AiChatWizard() {
                         <ArrowUp className="w-5 h-5" />
                     </button>
                 </form>
-
-                {/* State Debugging (Hidden in Prod) */}
-                <div className="mt-3 text-[10px] text-theme-muted font-mono flex gap-4 justify-center">
-                    <span>STEP: {step}/5</span>
-                    <span>STATE: {JSON.stringify(appState)}</span>
-                </div>
             </div>
         </div>
     );
