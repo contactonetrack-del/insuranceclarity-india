@@ -32,10 +32,11 @@ export class QuoteService {
 
         // 3. Persist via Repository (Hexagonal Adapter)
         try {
-            const quoteData: Prisma.QuoteCreateInput = {
+            const quoteData: Prisma.QuoteCreateInput | any = {
                 insuranceType: validatedData.insuranceType,
                 coverageAmount: validatedData.coverageAmount,
                 applicantAge: validatedData.applicantAge,
+                tobaccoUser: validatedData.tobaccoUser,
                 premiumAmount: calculatedPremium,
                 status: 'PENDING',
             };
@@ -65,6 +66,10 @@ export class QuoteService {
 
     async getAllQuotes() {
         return quoteRepository.findAll();
+    }
+
+    async getQuoteById(id: string) {
+        return quoteRepository.findById(id);
     }
 
     /**

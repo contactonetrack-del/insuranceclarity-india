@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const quoteRequestSchema = z.object({
-    insuranceType: z.enum(['TERM_LIFE', 'HEALTH', 'AUTO', 'HOME', 'DISABILITY', 'CRITICAL_ILLNESS']),
+    insuranceType: z.string(),
     coverageAmount: z.number().int().positive().min(10000),
     termLengthYears: z.number().int().positive().max(50).optional(),
     applicantAge: z.number().int().min(18).max(100),

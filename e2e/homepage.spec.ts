@@ -1,12 +1,16 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 /**
  * Homepage E2E Tests
  * Critical user journey: Landing page experience
  */
+async function gotoHome(page: Page) {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+}
+
 test.describe('Homepage', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('/');
+        await gotoHome(page);
     });
 
     test('should display the hero section with main headline', async ({ page }) => {
@@ -16,98 +20,93 @@ test.describe('Homepage', () => {
     });
 
     test('should display the tagline', async ({ page }) => {
-        await expect(page.getByText("India's Most Transparent Insurance Platform")).toBeVisible();
+        await expect(page.getByText("India's Most Transparent Insurance Platform", { exact: true })).toBeVisible();
     });
 
     test('should have working CTA buttons', async ({ page }) => {
         // Primary CTA
-        const exploreCTA = page.getByRole('button', { name: /Explore Hidden Facts/i });
+        const exploreCTA = page.getByRole('button', { name: /Explore Hidden Facts/i }).first();
         await expect(exploreCTA).toBeVisible();
 
         // Secondary CTA
-        const calculatorCTA = page.getByRole('button', { name: /Calculate Premium/i });
+        const calculatorCTA = page.getByRole('button', { name: /Estimate Premium/i }).first();
         await expect(calculatorCTA).toBeVisible();
     });
 
     test('should display statistics section', async ({ page }) => {
-        await expect(page.getByText('150+')).toBeVisible();
-        await expect(page.getByText('Hidden Facts')).toBeVisible();
-        await expect(page.getByText('Insurance Types')).toBeVisible();
+        const statsSection = page.locator('section').nth(1);
+        await expect(statsSection.getByText('150+', { exact: true }).first()).toBeVisible();
+        await expect(statsSection.getByText('Hidden Facts', { exact: true })).toBeVisible();
+        await expect(statsSection.getByText('Insurance Types', { exact: true })).toBeVisible();
     });
 
     test('should display insurance categories', async ({ page }) => {
         await expect(page.getByText('Explore Insurance Types')).toBeVisible();
-        await expect(page.getByText('Life Insurance')).toBeVisible();
-        await expect(page.getByText('Health Insurance')).toBeVisible();
-        await expect(page.getByText('Motor Insurance')).toBeVisible();
+        await expect(page.getByRole('link', { name: /^Life Insurance$/ })).toBeVisible();
+        await expect(page.getByRole('link', { name: /^Health Insurance$/ })).toBeVisible();
+        await expect(page.getByRole('link', { name: /^Motor Insurance$/ })).toBeVisible();
     });
 
     test('should display tools section', async ({ page }) => {
         await expect(page.getByText('Tools to Make Better Decisions')).toBeVisible();
-        await expect(page.getByText('Hidden Facts Revealer')).toBeVisible();
-        await expect(page.getByText('Premium Calculator')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Hidden Facts Revealer' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Premium Calculator' })).toBeVisible();
     });
 
     test('should have working navigation', async ({ page }) => {
         // Check header navigation exists
         await expect(page.getByRole('navigation')).toBeVisible();
-        await expect(page.getByText('InsuranceClarity')).toBeVisible();
+        await expect(page.getByRole('banner').getByRole('link', { name: /InsuranceClarity Logo/i })).toBeVisible();
     });
 
     test('should toggle dark/light theme', async ({ page }) => {
-        // Find theme toggle button (usually has sun/moon icon)
-        const themeToggle = page.locator('button').filter({ has: page.locator('svg') }).first();
+        const themeToggle = page.getByRole('button', { name: /Switch to (dark|light) mode/i });
 
-        // Get initial state
-        const htmlElement = page.locator('html');
-        const initialClass = await htmlElement.getAttribute('class');
+        const initialDarkMode = await page.evaluate(() =>
+            document.documentElement.classList.contains('dark')
+        );
 
-        // Click to toggle
         await themeToggle.click();
-        await page.waitForTimeout(500); // Wait for theme transition
+        await page.waitForTimeout(500);
 
-        // Verify class changed (light/dark toggle)
-        const newClass = await htmlElement.getAttribute('class');
-        expect(newClass).not.toBe(initialClass);
+        const updatedDarkMode = await page.evaluate(() =>
+            document.documentElement.classList.contains('dark')
+        );
+        expect(updatedDarkMode).not.toBe(initialDarkMode);
     });
 });
 
 test.describe('Navigation', () => {
     test('should navigate to insurance category page', async ({ page }) => {
-        await page.goto('/');
+        await gotoHome(page);
 
-        // Click on Life Insurance card
-        await page.getByText('Life Insurance').first().click();
+        await page.locator('a[href="/insurance/life"]').first().click();
 
-        // Should navigate to the life insurance page
         await expect(page).toHaveURL(/\/insurance\/life/);
     });
 
     test('should navigate to tools page', async ({ page }) => {
-        await page.goto('/');
+        await gotoHome(page);
 
-        // Click on Hidden Facts tool
-        await page.getByText('Hidden Facts Revealer').first().click();
-
-        // Should navigate to the hidden facts page
+        await page.locator('a[href="/tools/hidden-facts"]').first().click();
         await expect(page).toHaveURL(/\/tools\/hidden-facts/);
     });
 });
 
 test.describe('Accessibility', () => {
     test('should have proper page title', async ({ page }) => {
-        await page.goto('/');
+        await gotoHome(page);
         await expect(page).toHaveTitle(/InsuranceClarity/);
     });
 
     test('should have meta description', async ({ page }) => {
-        await page.goto('/');
+        await gotoHome(page);
         const metaDescription = page.locator('meta[name="description"]');
         await expect(metaDescription).toHaveAttribute('content', /insurance/i);
     });
 
     test('should be keyboard navigable', async ({ page }) => {
-        await page.goto('/');
+        await gotoHome(page);
 
         // Tab through focusable elements
         await page.keyboard.press('Tab');

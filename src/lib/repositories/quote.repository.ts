@@ -25,8 +25,18 @@ export class QuoteRepository {
     /**
      * Creates a new quote record.
      */
-    async create(data: Prisma.QuoteCreateInput) {
+    async create(data: Prisma.QuoteCreateInput | any) {
         return prisma.quote.create({
+            data,
+        });
+    }
+
+    /**
+     * Updates an existing quote.
+     */
+    async update(id: string, data: Partial<Prisma.QuoteUpdateInput | any>) {
+        return prisma.quote.update({
+            where: { id },
             data,
         });
     }

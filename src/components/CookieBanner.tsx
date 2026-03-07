@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { Cookie, X, Settings, Check } from 'lucide-react'
 import Link from 'next/link'
 
-type ConsentState = 'pending' | 'accepted' | 'rejected' | 'custom'
-
 interface CookiePreferences {
     essential: boolean // Always true
     analytics: boolean
@@ -13,12 +11,45 @@ interface CookiePreferences {
 
 const CONSENT_COOKIE_NAME = 'ic_cookie_consent'
 const CONSENT_COOKIE_DAYS = 365
+const CONSENT_UPDATED_EVENT = 'ic-consent-updated'
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 /**
  * Cookie Consent Banner Component
  * Compliant with DPDP Act 2023 and IT Rules 2011
  */
 export default function CookieBanner() {
+    const getCookie = (name: string): string | null => {
+        if (typeof document === 'undefined') return null
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+        return match ? decodeURIComponent(match[2]) : null
+    }
+
+    const setCookie = (name: string, value: string, days: number) => {
+        const expires = new Date()
+        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000)
+        const secureFlag = window.location.protocol === 'https:' ? ';Secure' : ''
+        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax${secureFlag}`
+    }
+
+    const applyConsent = (prefs: CookiePreferences) => {
+        if (typeof window === 'undefined') return
+
+        if (GA_MEASUREMENT_ID) {
+            window[`ga-disable-${GA_MEASUREMENT_ID}`] = !prefs.analytics
+        }
+
+        if (!prefs.analytics) {
+            // Try to delete existing GA cookies
+            document.cookie = '_ga=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+            if (GA_MEASUREMENT_ID) {
+                document.cookie = `_ga_${GA_MEASUREMENT_ID.replace(/[^a-zA-Z0-9]/g, '')}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
+            }
+        }
+
+        window.dispatchEvent(new CustomEvent(CONSENT_UPDATED_EVENT, { detail: prefs }))
+    }
+
     const [showBanner, setShowBanner] = useState(false)
     const [showPreferences, setShowPreferences] = useState(false)
     const [preferences, setPreferences] = useState<CookiePreferences>({
@@ -43,33 +74,6 @@ export default function CookieBanner() {
             }
         }
     }, [])
-
-    const getCookie = (name: string): string | null => {
-        if (typeof document === 'undefined') return null
-        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
-        return match ? decodeURIComponent(match[2]) : null
-    }
-
-    const setCookie = (name: string, value: string, days: number) => {
-        const expires = new Date()
-        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000)
-        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`
-    }
-
-    const applyConsent = (prefs: CookiePreferences) => {
-        if (typeof window === 'undefined') return
-
-        if (prefs.analytics) {
-            // Enable GA4
-            window[`ga-disable-${process.env.NEXT_PUBLIC_GA_ID}`] = false
-        } else {
-            // Disable GA4
-            window[`ga-disable-${process.env.NEXT_PUBLIC_GA_ID}`] = true
-            // Try to delete existing GA cookies
-            document.cookie = '_ga=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-            document.cookie = '_ga_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-        }
-    }
 
     const handleAcceptAll = () => {
         const newPrefs: CookiePreferences = { essential: true, analytics: true }

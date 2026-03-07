@@ -28,7 +28,7 @@ export function AnimatedHeading({
     animation = 'wordByWord',
     staggerDelay = 0.05,
     delay = 0,
-    as: Tag = 'h1'
+    as = 'h1'
 }: AnimatedHeadingProps) {
     const containerVariants: Variants = {
         hidden: { opacity: 0 },

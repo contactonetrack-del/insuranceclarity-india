@@ -4,9 +4,9 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "prisma generate && next build",
+        "build": "next build",
         "start": "next start",
-        "lint": "next lint",
+        "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
         "test:e2e": "playwright test",
@@ -38,14 +38,17 @@
     "devDependencies": {
         "@axe-core/playwright": "^4.11.1",
         "@playwright/test": "^1.57.0",
+        "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
         "@types/node": "^20.10.5",
+        "@types/pdfkit": "^0.17.5",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
         "@vitejs/plugin-react": "^5.1.2",
+        "@vitest/coverage-v8": "^4.0.18",
         "autoprefixer": "^10.4.16",
-        "eslint": "^8.56.0",
+        "eslint": "^9.39.4",
         "eslint-config-next": "^16.1.6",
         "jsdom": "^27.4.0",
         "pdfkit": "^0.17.2",
@@ -54,6 +57,6 @@
         "tailwindcss": "^3.4.0",
         "tsx": "^4.7.0",
         "typescript": "^5.3.3",
-        "vitest": "^1.6.1"
+        "vitest": "^4.0.18"
     }
 }

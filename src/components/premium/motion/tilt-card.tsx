@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
@@ -28,7 +28,6 @@ export function TiltCard({
     scaleOnHover = 1.02,
     glareOpacity = 0.4,
     glareColor = "255, 255, 255",
-    darkGlareColor = "255, 255, 255",
 }: TiltCardProps) {
     const ref = useRef<HTMLDivElement>(null)
     const [isHovered, setIsHovered] = useState(false)
@@ -48,9 +47,8 @@ export function TiltCard({
         damping: 20
     })
 
-    // Glare position
-    const glareX = useTransform(rotateY, [-tiltMaxAngleY, tiltMaxAngleY], ['0%', '100%'])
-    const glareY = useTransform(rotateX, [tiltMaxAngleX, -tiltMaxAngleX], ['0%', '100%'])
+    const glareTranslateX = useTransform(x, [-0.5, 0.5], ['-20%', '20%'])
+    const glareTranslateY = useTransform(y, [-0.5, 0.5], ['-20%', '20%'])
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!ref.current || prefersReducedMotion) return
@@ -131,8 +129,8 @@ export function TiltCard({
                         className="absolute inset-[-100%] z-10 w-[300%] h-[300%]"
                         style={{
                             background: `radial-gradient(circle, rgba(${glareColor}, ${glareOpacity}) 0%, transparent 60%)`,
-                            x: useTransform(x, [-0.5, 0.5], ['-20%', '20%']), // Move glare opposite to rotation or with it
-                            y: useTransform(y, [-0.5, 0.5], ['-20%', '20%']),
+                            x: glareTranslateX,
+                            y: glareTranslateY,
                             left: -50 + '%',
                             top: -50 + '%'
                         }}

@@ -66,6 +66,7 @@ model Quote {
   insuranceType   String
   coverageAmount  Int
   applicantAge    Int
+  tobaccoUser     Boolean?
   premiumAmount   Float
   status          String   @default("PENDING")
   createdAt       DateTime @default(now())

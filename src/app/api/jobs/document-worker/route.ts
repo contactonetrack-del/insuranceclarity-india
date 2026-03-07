@@ -46,6 +46,8 @@ export async function POST(request: Request) {
     }
 }
 
+import { quoteRepository } from '../../../../lib/repositories/quote.repository';
+
 /**
  * Simulates a massive CPU-bound or external blocking task.
  */
@@ -55,5 +57,14 @@ async function simulateHeavyPdfGeneration(payload: JobPayload) {
     // Simulate complex PDF rendering taking 3-5 seconds
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    logger.debug({ action: 'pdfGenerationFinished', quoteId: payload.quoteId }, 'PDF Stored in S3 bucket.');
+    // Update quote status to READY in the database
+    if (payload.quoteId && !payload.quoteId.startsWith('POL-')) {
+        try {
+            await quoteRepository.update(payload.quoteId, { status: 'READY' });
+        } catch (e) {
+            logger.error({ action: 'pdfUpdateFailed', error: e });
+        }
+    }
+
+    logger.debug({ action: 'pdfGenerationFinished', quoteId: payload.quoteId }, 'PDF Stored in Virtual S3 bucket.');
 }

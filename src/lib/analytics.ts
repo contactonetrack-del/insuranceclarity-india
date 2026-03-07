@@ -98,7 +98,6 @@ function isDoNotTrackEnabled(): boolean {
         return false;
     }
 
-    // @ts-expect-error - doNotTrack may not be in Navigator type
     const dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
     return dnt === '1' || dnt === 'yes';
 }

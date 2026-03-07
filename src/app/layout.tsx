@@ -4,6 +4,7 @@ import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
+import AnalyticsBootstrap from '@/components/AnalyticsBootstrap'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import PageTransition from '@/components/PageTransition'
 import ClarityAdvisor from '@/components/ClarityAdvisor'
@@ -89,6 +90,7 @@ export default function RootLayout({
                         <main>{children}</main>
                     </PageTransition>
                     <Footer />
+                    <AnalyticsBootstrap />
                     <CookieBanner />
                     <ClarityAdvisor />
                 </ThemeProvider>
