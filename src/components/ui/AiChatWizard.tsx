@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bot, User, ArrowUp, Zap, CheckCircle2 } from 'lucide-react';
 import { processChatStep, ChatMessage, ApplicationState } from '../../app/actions/advisor-actions';
+import { cn } from '@/lib/utils';
+import { inputClasses } from './FormField';
 
 export default function AiChatWizard() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -71,6 +73,7 @@ export default function AiChatWizard() {
                 setIsComplete(true);
             }
         } catch (error) {
+            console.error('Chat processing error:', error);
             setMessages(prev => [...prev, {
                 id: crypto.randomUUID(),
                 role: 'bot',
@@ -158,25 +161,26 @@ export default function AiChatWizard() {
 
             {/* Input Area */}
             <div className="p-4 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-t border-default">
-                <form onSubmit={handleSend} className="relative flex items-center">
-                    <input
-                        type="text"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        disabled={isTyping || isComplete}
-                        placeholder={isComplete ? "Chat completed." : "Type your response..."}
-                        className="w-full pl-5 pr-14 py-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 border border-default 
-                                 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all
-                                 disabled:opacity-50 disabled:cursor-not-allowed text-theme-primary"
-                    />
-                    <button
-                        type="submit"
-                        disabled={!inputValue.trim() || isTyping || isComplete}
-                        className="absolute right-2.5 p-2.5 rounded-xl bg-accent text-white hover:bg-accent-hover 
-                                 disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors shadow-sm"
-                    >
-                        <ArrowUp className="w-5 h-5" />
-                    </button>
+                <form onSubmit={handleSend} className="relative flex items-center gap-2">
+                    <div className="relative flex-1">
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            disabled={isTyping || isComplete}
+                            placeholder={isComplete ? "Chat completed." : "Type your response..."}
+                            aria-label="Message to AI Underwriter"
+                            className={cn(inputClasses, "pr-12 py-3.5")}
+                        />
+                        <button
+                            type="submit"
+                            disabled={!inputValue.trim() || isTyping || isComplete}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-accent text-white hover:bg-accent-hover 
+                                     disabled:bg-slate-300 dark:disabled:bg-slate-700 transition-colors shadow-sm"
+                        >
+                            <ArrowUp className="w-5 h-5" />
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

@@ -42,7 +42,7 @@
 
     --color-text-primary: 15 23 42;
     --color-text-secondary: 71 85 105;
-    --color-text-muted: 148 163 184;
+    --color-text-muted: 100 116 139; /* Darkened from 148 163 184 for WCAG */
 
     --color-card-bg: 255 255 255;
     --card-opacity: 0.98;

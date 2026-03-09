@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Cookie, X, Settings, Check } from 'lucide-react'
+import { trackEvent } from '@/services/analytics.service';
 import Link from 'next/link'
 
 interface CookiePreferences {
@@ -75,24 +76,28 @@ export default function CookieBanner() {
         }
     }, [])
 
-    const handleAcceptAll = () => {
-        const newPrefs: CookiePreferences = { essential: true, analytics: true }
-        setPreferences(newPrefs)
-        setCookie(CONSENT_COOKIE_NAME, JSON.stringify(newPrefs), CONSENT_COOKIE_DAYS)
-        applyConsent(newPrefs)
+    const saveConsent = (prefs: CookiePreferences, method: string) => {
+        setPreferences(prefs)
+        setCookie(CONSENT_COOKIE_NAME, JSON.stringify(prefs), CONSENT_COOKIE_DAYS)
+        applyConsent(prefs)
         setShowBanner(false)
+        trackEvent('cookie_consent_updated', {
+            method: method,
+            analytics_enabled: prefs.analytics,
+        })
+    }
+
+    const handleAcceptAll = () => {
+        const all: CookiePreferences = { essential: true, analytics: true }
+        saveConsent(all, 'accept_all_button')
     }
 
     const handleRejectNonEssential = () => {
-        const newPrefs: CookiePreferences = { essential: true, analytics: false }
-        setPreferences(newPrefs)
-        setCookie(CONSENT_COOKIE_NAME, JSON.stringify(newPrefs), CONSENT_COOKIE_DAYS)
-        applyConsent(newPrefs)
-        setShowBanner(false)
+        const essential: CookiePreferences = { essential: true, analytics: false }
+        saveConsent(essential, 'reject_non_essential_button')
     }
 
     const handleSavePreferences = () => {
-        setCookie(CONSENT_COOKIE_NAME, JSON.stringify(preferences), CONSENT_COOKIE_DAYS)
         applyConsent(preferences)
         setShowBanner(false)
         setShowPreferences(false)
@@ -205,6 +210,9 @@ export default function CookieBanner() {
                                         </p>
                                     </div>
                                     <button
+                                        role="switch"
+                                        aria-checked={preferences.analytics}
+                                        aria-label="Toggle Analytics Cookies"
                                         onClick={() => setPreferences(p => ({ ...p, analytics: !p.analytics }))}
                                         className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${preferences.analytics ? 'bg-green-500 justify-end' : 'bg-gray-300 justify-start'
                                             }`}

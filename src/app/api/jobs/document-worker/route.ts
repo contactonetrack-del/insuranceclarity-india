@@ -1,18 +1,23 @@
 import { NextResponse } from 'next/server';
-import { logger } from '../../../../lib/logger';
-import { JobNames, JobPayload } from '../../../../lib/queue/jobs';
+
+export const dynamic = 'force-dynamic';
+
+type JobNames = 'GENERATE_QUOTE_DOCUMENT';
+type JobPayload = { quoteId?: string };
 
 /**
  * Isolated Worker Route for Async Jobs
  * 
- * This route handler acts as the receiver for our Background Job Queue.
- * It strictly processes intensive computational tasks (like PDF Generation)
- * out-of-band so the main user thread isn't blocked.
+ * All server-only imports are lazy to prevent Turbopack from evaluating
+ * BullMQ/Prisma connections during static build-time page-data collection.
  */
 export async function POST(request: Request) {
+    // Lazy imports to prevent Turbopack module-graph evaluation at build time
+    const { logger } = await import('@/lib/logger');
+
     // 1. Authenticate the Queue invocation (Prevent external abuse)
     const secret = request.headers.get('X-Queue-Secret');
-    if (secret !== (process.env.QUEUE_SECRET || 'dev-secret')) {
+    if (secret !== process.env.QUEUE_SECRET) {
         logger.error({ action: 'workerUnauthorized', error: 'Invalid Queue Secret' });
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -30,7 +35,7 @@ export async function POST(request: Request) {
         // 2. Perform the heavy lifting Based on Job Type
         switch (jobName) {
             case 'GENERATE_QUOTE_DOCUMENT':
-                await simulateHeavyPdfGeneration(payload);
+                await simulateHeavyPdfGeneration(payload, logger);
                 break;
             default:
                 logger.warn({ action: 'workerUnknownJob', jobName, jobId });
@@ -41,17 +46,11 @@ export async function POST(request: Request) {
 
     } catch (error) {
         logger.error({ action: 'workerFatalError', error }, 'Worker execution failed catastrophically');
-        // We return 500 so an external Queue system (like AWS SQS) knows to retry the message
         return NextResponse.json({ error: 'Worker Failed' }, { status: 500 });
     }
 }
 
-import { quoteRepository } from '../../../../lib/repositories/quote.repository';
-
-/**
- * Simulates a massive CPU-bound or external blocking task.
- */
-async function simulateHeavyPdfGeneration(payload: JobPayload) {
+async function simulateHeavyPdfGeneration(payload: JobPayload, logger: any) {
     logger.debug({ action: 'pdfGenerationStarted', payload }, 'Rasterizing Policy Data...');
 
     // Simulate complex PDF rendering taking 3-5 seconds
@@ -60,11 +59,12 @@ async function simulateHeavyPdfGeneration(payload: JobPayload) {
     // Update quote status to READY in the database
     if (payload.quoteId && !payload.quoteId.startsWith('POL-')) {
         try {
+            const { quoteRepository } = await import('@/repositories/quote.repository');
             await quoteRepository.update(payload.quoteId, { status: 'READY' });
         } catch (e) {
             logger.error({ action: 'pdfUpdateFailed', error: e });
         }
     }
 
-    logger.debug({ action: 'pdfGenerationFinished', quoteId: payload.quoteId }, 'PDF Stored in Virtual S3 bucket.');
+    logger.debug({ action: 'pdfGenerationFinished', quoteId: payload.quoteId }, 'PDF Stored.');
 }

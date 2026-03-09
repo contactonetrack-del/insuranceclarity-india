@@ -1,6 +1,6 @@
 'use server';
 
-import { quoteService } from '../../lib/services/quote.service';
+import { quoteService } from '@/services/quote.service';
 
 export interface ChatMessage {
     id: string;
@@ -188,7 +188,6 @@ export async function processChatStep(
 
             newState.tobaccoUser = inputLower.includes('yes') || inputLower.includes('yep');
 
-            // Generate the Quote utilizing our Hexagonal Service
             try {
                 const quoteResult = await quoteService.generateQuote({
                     insuranceType: newState.insuranceType || 'TERM_LIFE',
@@ -197,31 +196,31 @@ export async function processChatStep(
                     tobaccoUser: newState.tobaccoUser
                 });
 
+                // Safely extract the premium. The exact property depends on Prisma model, using any cast to be safe if types aren't synced.
+                const premium = (quoteResult.quote as any).premiumAmount || 0;
+
                 return {
                     newState,
                     nextMessage: {
                         id: crypto.randomUUID(),
                         role: 'bot',
-                        content: `I've analyzed your responses and generated a binding quote based on your ₹${(newState.coverageAmount || 0).toLocaleString('en-IN')} requirement. Your tracking ID is **${quoteResult.documentJobId}**. We are rendering your provisional PDF policy now!`,
+                        content: `I've analyzed your responses and generated a binding quote. Your estimated premium is **₹${premium.toLocaleString('en-IN')}/year** for a ₹${(newState.coverageAmount || 0).toLocaleString('en-IN')} coverage. Your tracking ID is **${quoteResult.documentJobId}**. We are rendering your provisional PDF policy now!`,
                         type: 'summary'
                     },
                     isComplete: true,
                     quoteId: (quoteResult.quote as any).id
                 };
             } catch (e) {
-                // Return a mock success response so the UI demo looks good, 
-                // since the quoteService backend might not be fully wired up yet.
-                const mockQuoteId = `POL-${Math.floor(Math.random() * 90000) + 10000}`;
+                // Return an error response instead of mock placeholder data
                 return {
                     newState,
                     nextMessage: {
                         id: crypto.randomUUID(),
                         role: 'bot',
-                        content: `I've analyzed your responses and generated a binding quote based on your ₹${(newState.coverageAmount || 0).toLocaleString('en-IN')} requirement. Your tracking ID is **${mockQuoteId}**. We are generating your provisional PDF policy now!`,
+                        content: `I've analyzed your responses, but our quoting engine is currently experiencing high load. Please try again in a few minutes or contact support for a manual quote.`,
                         type: 'summary'
                     },
-                    isComplete: true,
-                    quoteId: mockQuoteId
+                    isComplete: true
                 };
             }
     }

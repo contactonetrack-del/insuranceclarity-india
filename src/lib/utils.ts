@@ -27,3 +27,16 @@ export function formatCurrency(amount: number): string {
         maximumFractionDigits: 0
     }).format(amount)
 }
+
+/**
+ * Basic HTML sanitization to prevent XSS.
+ * Removes <script> tags and 'on*' attributes.
+ */
+export function sanitizeHtml(html: string): string {
+    if (!html) return '';
+    return html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/on\w+="[^"]*"/gi, '')
+        .replace(/on\w+='[^']*'/gi, '')
+        .replace(/on\w+=\w+/gi, '');
+}

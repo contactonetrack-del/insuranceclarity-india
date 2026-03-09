@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail, Coffee, Gem, UserCheck } from 'lucide-react'
+import { Heart, Building2, Car, Home, Plane, Search, Scale, Calculator, FileText, MapPin, Globe, Mail, Coffee, Gem, UserCheck, ShieldCheck, Lock } from 'lucide-react'
 import RegulatoryDisclaimer from './RegulatoryDisclaimer'
 
 const footerLinks = {
@@ -20,6 +20,7 @@ const footerLinks = {
         { href: '/tools/claim-cases', label: 'Claim Cases', icon: FileText },
     ],
     company: [
+        { href: '/hubs', label: 'Knowledge Hubs' },
         { href: '/resources', label: 'Resources & Guides' },
         { href: 'mailto:contact@insuranceclarity.in', label: 'Contact Us' },
         { href: '/privacy', label: 'Privacy Policy' },
@@ -37,7 +38,7 @@ export default function Footer() {
                     <div>
                         <Link href="/" className="flex items-center gap-0 mb-4 group">
                             <div className="w-[96px] h-[96px] flex items-center justify-center
-                            transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md -ml-4">
+                            transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md sm:-ms-4">
                                 <Image
                                     src="/logo.png"
                                     alt="InsuranceClarity Logo"
@@ -46,7 +47,7 @@ export default function Footer() {
                                     className="object-contain"
                                 />
                             </div>
-                            <span className="font-display font-bold text-xl text-theme-primary -ml-3 tracking-tight">
+                            <span className="font-display font-bold text-xl text-theme-primary sm:-ms-3 tracking-tight">
                                 Insurance<span className="text-gradient">Clarity</span>
                             </span>
                         </Link>
@@ -156,8 +157,25 @@ export default function Footer() {
                         Data sourced from IRDAI, insurer websites, and consumer reports.
                     </p>
 
+                    {/* Trust Signals & Compliance */}
+                    <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-default">
+                        <div className="flex items-center gap-2 text-theme-muted text-[10px] font-bold uppercase tracking-widest border border-default px-3 py-1.5 rounded-lg bg-theme-secondary/30">
+                            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                            256-Bit SSL Secured
+                        </div>
+                        <div className="flex items-center gap-2 text-theme-muted text-[10px] font-bold uppercase tracking-widest border border-default px-3 py-1.5 rounded-lg bg-theme-secondary/30">
+                            <Lock className="w-4 h-4 text-accent" />
+                            Encrypted Data
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4 ml-auto text-xs text-theme-muted font-medium">
+                            <span>Regulatory Links:</span>
+                            <a href="https://bimabharosa.irdai.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-accent underline decoration-accent/20">IRDAI Bima Bharosa</a>
+                            <a href="https://irdai.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-accent underline decoration-accent/20">IRDAI Official Site</a>
+                        </div>
+                    </div>
+
                     {/* Contact & Copyright */}
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-4">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-4 border-t border-default">
                         <div className="text-theme-muted text-xs space-y-1">
                             <p className="flex items-center gap-2">
                                 <Mail className="w-3 h-3" />

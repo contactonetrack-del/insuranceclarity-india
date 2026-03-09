@@ -13,6 +13,7 @@ import {
     AnimatedHeading,
     IconContainer
 } from '@/components/premium'
+import Breadcrumbs from '@/components/ui/Breadcrumbs'
 import { hiddenFactsData, severityLevels, getAllFacts, type HiddenFact, getSeverityColor, getSeverityLabel } from '@/data/hidden-facts'
 
 // Categories with SVG icons instead of emojis
@@ -75,12 +76,12 @@ export default function HiddenFactsPage() {
     return (
         <div className="min-h-screen pt-20">
             {/* Hero */}
-            {/* Hero */}
             <section className="py-16 px-6">
                 <div className="max-w-7xl mx-auto text-center">
+                    <Breadcrumbs />
                     <RevealOnScroll direction="down">
                         <span className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full 
-                             text-red-500 dark:text-red-400 text-sm mb-4 font-medium">
+                             text-red-500 dark:text-red-400 text-sm mb-4 mt-4 font-medium">
                             <AlertTriangle className="w-4 h-4" />
                             HIDDEN FACTS REVEALER
                         </span>

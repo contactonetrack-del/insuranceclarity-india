@@ -1,8 +1,12 @@
 import AiChatWizard from '@/components/ui/AiChatWizard';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 export default function InteractiveQuotePage() {
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-32 pb-20 selection:bg-accent/30">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20 selection:bg-accent/30">
+            <div className="max-w-7xl mx-auto px-6 mb-8">
+                <Breadcrumbs />
+            </div>
             <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
 
                 {/* Left: Value Proposition */}

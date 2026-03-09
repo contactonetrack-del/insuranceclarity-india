@@ -13,7 +13,7 @@ import {
     GradientText,
     IconContainer
 } from '@/components/premium'
-import { findBestMatches, type MatchResult } from '@/lib/ai-matcher'
+import { findBestMatches, type MatchResult } from '@/services/ai-matcher.service';
 
 export default function AdvisorClient() {
     const [query, setQuery] = useState('')

@@ -5,6 +5,7 @@ const config: Config = {
         './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
         './src/components/**/*.{js,ts,jsx,tsx,mdx}',
         './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+        './src/config/**/*.{js,ts,jsx,tsx,mdx}', // include navigation config for dynamic class names
     ],
     darkMode: 'class',
     theme: {
@@ -103,6 +104,13 @@ const config: Config = {
             },
         },
     },
+    safelist: [
+        'from-teal-600',
+        'to-emerald-700',
+        'from-green-600',
+        'to-green-800',
+        // include other dynamic gradient classes if added later
+    ],
     plugins: [],
 }
 export default config

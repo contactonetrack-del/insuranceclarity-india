@@ -1,8 +1,9 @@
 'use client'
 
-import { motion, type Variants, type Transition } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { type ReactNode, type HTMLAttributes, forwardRef } from 'react'
 import { cn } from '@/lib/utils'
+import { glassCardVariants, cardVariants, springTransition } from '@/lib/constants/animations'
 
 interface GlassCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> {
     children: ReactNode
@@ -10,10 +11,10 @@ interface GlassCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onAnimati
     hover?: boolean
     /** Enable animated gradient border on hover */
     animatedBorder?: boolean
-    /** Enable glow on hover */
-    glowOnHover?: boolean
     /** Padding size */
     padding?: 'sm' | 'md' | 'lg' | 'none'
+    /** Toggle subtle hover glow */
+    glowOnHover?: boolean
 }
 
 const paddingClasses = {
@@ -34,32 +35,12 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
             children,
             hover = true,
             animatedBorder = false,
-            glowOnHover = false,
             padding = 'md',
             className,
             ...props
         },
         ref
     ) {
-        const cardVariants: Variants = {
-            initial: {
-                y: 0,
-                boxShadow: 'var(--shadow-sm)'
-            },
-            hover: {
-                y: -6,
-                boxShadow: glowOnHover
-                    ? 'var(--shadow-xl), var(--glow-md)'
-                    : 'var(--shadow-xl)'
-            }
-        }
-
-        const transition: Transition = {
-            type: 'spring',
-            stiffness: 300,
-            damping: 20
-        }
-
         return (
             <motion.div
                 ref={ref}
@@ -72,8 +53,8 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
                 )}
                 initial="initial"
                 whileHover={hover ? 'hover' : undefined}
-                variants={cardVariants}
-                transition={transition}
+                variants={glassCardVariants}
+                transition={springTransition}
                 {...props}
             >
                 {/* Animated gradient border overlay */}
@@ -104,10 +85,6 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
 
 interface ElevatedCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> {
     children: ReactNode
-    /** Enable 3D tilt effect on hover */
-    tilt?: boolean
-    /** Enable image zoom on hover */
-    imageZoom?: boolean
     padding?: 'sm' | 'md' | 'lg' | 'none'
 }
 
@@ -120,25 +97,12 @@ export const ElevatedCard = forwardRef<HTMLDivElement, ElevatedCardProps>(
     function ElevatedCard(
         {
             children,
-            tilt = false,
-            imageZoom = false,
             padding = 'md',
             className,
             ...props
         },
         ref
     ) {
-        const cardVariants: Variants = {
-            initial: {
-                y: 0,
-                boxShadow: 'var(--shadow-md)'
-            },
-            hover: {
-                y: -8,
-                boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)'
-            }
-        }
-
         return (
             <motion.div
                 ref={ref}
@@ -151,11 +115,7 @@ export const ElevatedCard = forwardRef<HTMLDivElement, ElevatedCardProps>(
                 initial="initial"
                 whileHover="hover"
                 variants={cardVariants}
-                transition={{
-                    type: 'spring',
-                    stiffness: 300,
-                    damping: 20
-                }}
+                transition={springTransition}
                 {...props}
             >
                 {children}

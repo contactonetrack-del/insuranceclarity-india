@@ -1,41 +1,45 @@
 import { NextResponse } from 'next/server';
-import { quoteService } from '../../../lib/services/quote.service';
-import { ApiError } from '../../../lib/errors/api-error';
+import { queueQuoteProcessing } from '@/lib/queue/client';
+import { enforceRole } from '@/lib/auth/session';
+import { z } from 'zod';
 
-/**
- * Handle POST /api/quotes
- * Note how this routing controller contains NO business logic or DB calls.
- * It strictly acts as an HTTP Adapter in the Hexagonal Architecture.
- */
+export const dynamic = 'force-dynamic';
+
+const quoteSchema = z.object({
+    quoteId: z.string().min(1, 'Quote ID is required').max(256, 'Quote ID is too long'),
+});
+
+
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
-        const result = await quoteService.generateQuote(body);
+        // Ensure only logged in Users can ask for a quote to prevent queue spam
+        await enforceRole('USER');
 
-        return NextResponse.json(result, { status: 201 });
-    } catch (error) {
-        // Map domain errors to standard HTTP RFC 7807 responses
-        if (error instanceof ApiError) {
-            return NextResponse.json(error.toJSON(), { status: error.statusCode });
+        const jsonBody = await request.json();
+
+        // Zod Payload Validation
+        const parsed = quoteSchema.safeParse(jsonBody);
+        if (!parsed.success) {
+            return NextResponse.json({ error: 'Invalid payload format', details: parsed.error.format() }, { status: 400 });
         }
 
-        // Fallback for unexpected system errors
-        console.error('[Quotes API Error]', error);
-        return NextResponse.json(
-            { type: 'about:blank', title: 'Internal Server Error', status: 500 },
-            { status: 500 }
-        );
-    }
-}
+        const { quoteId } = parsed.data;
 
-export async function GET() {
-    try {
-        const quotes = await quoteService.getAllQuotes();
-        return NextResponse.json(quotes);
-    } catch (error) {
-        return NextResponse.json(
-            { type: 'about:blank', title: 'Failed to retrieve quotes', status: 500 },
-            { status: 500 }
-        );
+        // Add task to Redis-backed BullMQ Queue
+        const job = await queueQuoteProcessing(quoteId);
+
+        return NextResponse.json({
+            message: 'Quote processing started successfully',
+            jobId: job.id
+        });
+    } catch (error: unknown) {
+        let msg = '';
+        if (error instanceof Error) msg = error.message;
+
+        if (msg.includes('Unauthorized') || msg.includes('Forbidden')) {
+            return NextResponse.json({ error: msg }, { status: 403 });
+        }
+        console.error('Quote API Error:', error);
+        return NextResponse.json({ error: 'Failed to process quote' }, { status: 500 });
     }
 }

@@ -8,8 +8,6 @@ export { TiltCard } from './motion/tilt-card'
 export { Magnetic } from './motion/magnetic'
 
 // Button components
-export { MagicButton, GlowButton } from './buttons/magic-button'
-
 // Text animation components
 export { AnimatedHeading, AnimatedCounter, GradientText, Typewriter } from './text/animated-text'
 export { TextRoll } from './text/text-roll'

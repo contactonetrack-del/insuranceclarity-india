@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { springTransition, smoothTransition } from '@/lib/constants/animations'
 
 interface AnimatedBlobProps {
     className?: string

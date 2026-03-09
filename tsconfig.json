@@ -26,7 +26,21 @@
         "./src/*"
       ]
     },
-    "target": "ES2017"
+    "target": "ES2017",
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+      "node",
+      "eventsource",
+      "react",
+      "react-dom",
+      "react-is",
+      "hast",
+      "unist",
+      "uuid",
+      "prismjs"
+    ]
   },
   "include": [
     "next-env.d.ts",

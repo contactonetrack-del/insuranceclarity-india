@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { initWebVitalsTracking } from '@/services/analytics.service';
 import Script from 'next/script'
 
 interface CookiePreferences {
@@ -53,6 +54,10 @@ export default function AnalyticsBootstrap() {
             const nextEnabled = hasAnalyticsConsent() && !isDoNotTrackEnabled()
             window[`ga-disable-${measurementId}`] = !nextEnabled
             setEnabled(nextEnabled)
+
+            if (nextEnabled) {
+                initWebVitalsTracking().catch(console.warn)
+            }
         }
 
         syncConsent()

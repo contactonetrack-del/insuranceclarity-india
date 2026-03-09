@@ -1,216 +1,248 @@
-import { PrismaClient } from '@prisma/client'
+import "dotenv/config";
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
-
-const hiddenFacts = [
-    // ========== LIFE INSURANCE (15 facts) ==========
-    { category: 'life', title: 'Suicide Clause', severity: 'critical', description: 'Most policies don\'t pay if death occurs by suicide within the first 1-2 years.', affectedPolicies: ['Term Life', 'Whole Life', 'ULIPs'], whatToCheck: 'Look for Suicide Exclusion in policy document', realCase: 'Claim rejected for suicide in month 14, paid after appeal.' },
-    { category: 'life', title: 'Material Non-Disclosure', severity: 'critical', description: 'Not revealing pre-existing conditions can void entire policy.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Answer ALL health questions truthfully', realCase: 'Claim rejected: Hidden diabetes history. Family received ZERO.' },
-    { category: 'life', title: 'Lapsed Policy', severity: 'high', description: 'Premium not paid within grace period = No coverage.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Set up auto-debit for premium', realCase: 'Death during 45-day lapse. Claim rejected.' },
-    { category: 'life', title: 'Adventure Sports Exclusion', severity: 'high', description: 'Death during adventure sports may not be covered.', affectedPolicies: ['Term Life', 'Whole Life'], whatToCheck: 'Check adventure sports clause', realCase: 'Paragliding accident claim rejected.' },
-    { category: 'life', title: 'War & Terrorism', severity: 'medium', description: 'Death due to war, terrorism, or civil unrest excluded.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Check war exclusion clause', realCase: 'Riot victim claim settled after dispute.' },
-    { category: 'life', title: 'Hazardous Occupation', severity: 'high', description: 'Certain jobs require declaration and extra premium.', affectedPolicies: ['Term Life'], whatToCheck: 'Declare occupation accurately', realCase: 'Miner death claim rejected - undeclared occupation.' },
-    { category: 'life', title: 'Age Misstatement', severity: 'critical', description: 'Wrong age can lead to claim rejection or reduced payout.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Provide correct DOB with proof', realCase: 'Age understated by 5 years - claim reduced proportionally.' },
-    { category: 'life', title: 'Nominee Documentation', severity: 'medium', description: 'Incorrect nominee details delay or block claim.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Update nominee details regularly', realCase: 'Ex-spouse as nominee - legal battle delayed claim 3 years.' },
-    { category: 'life', title: 'Premium Payment Mode', severity: 'low', description: 'Monthly payments cost more than annual due to loading.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Choose annual payment if possible', realCase: 'Monthly mode 5-8% more expensive than annual.' },
-    { category: 'life', title: 'Revival with Interest', severity: 'medium', description: 'Reviving lapsed policy requires health check and interest.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Don\'t let policy lapse', realCase: 'Revival after 2 years required full medical check.' },
-    { category: 'life', title: 'Free Look Period', severity: 'low', description: 'You can return policy within 15-30 days for full refund.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Read policy in free look period', realCase: 'Customer returned ULIP in 20 days, got full refund.' },
-    { category: 'life', title: 'Waiting Period', severity: 'high', description: 'Natural death not covered in first 3 years in some policies.', affectedPolicies: ['Some Term Plans'], whatToCheck: 'Check initial waiting period', realCase: 'Heart attack in month 8 - only premiums refunded.' },
-    { category: 'life', title: 'ULIP Lock-in', severity: 'medium', description: 'Cannot withdraw from ULIP for first 5 years.', affectedPolicies: ['ULIPs'], whatToCheck: 'Understand 5-year lock-in', realCase: 'Emergency fund needed - could not access ULIP.' },
-    { category: 'life', title: 'Terminal Illness Clause', severity: 'low', description: 'Some policies pay early if diagnosed with terminal illness.', affectedPolicies: ['Term Life', 'Whole Life'], whatToCheck: 'Check accelerated death benefit', realCase: 'Cancer patient received 50% payout before death.' },
-    { category: 'life', title: 'Assignment Clause', severity: 'medium', description: 'Assigned policy for loan may not pay nominee.', affectedPolicies: ['All Life Insurance'], whatToCheck: 'Understand assignment implications', realCase: 'Bank as assignee got claim, family got nothing.' },
-
-    // ========== HEALTH INSURANCE (20 facts) ==========
-    { category: 'health', title: 'Pre-existing Disease Waiting', severity: 'critical', description: 'Diseases before buying policy not covered for 2-4 years.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Check Pre-existing Disease Clause', realCase: 'Diabetic dialysis rejected - 4 year wait.' },
-    { category: 'health', title: 'Room Rent Capping', severity: 'high', description: 'Expensive room = ALL expenses reduced proportionally.', affectedPolicies: ['Individual Health', 'Family Floater'], whatToCheck: 'Check Room Rent Sub-limit', realCase: '₹5L policy, ₹8K room (limit ₹4K). ₹3L bill paid ₹1.5L.' },
-    { category: 'health', title: 'Specific Disease Waiting', severity: 'high', description: 'Cataract, hernia, ENT have 2-year waiting period.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Check specific disease waiting periods', realCase: 'Cataract surgery in year 1 rejected.' },
-    { category: 'health', title: 'Mental Health Exclusion', severity: 'high', description: 'Mental illness treatment often excluded or capped.', affectedPolicies: ['Most Health Insurance'], whatToCheck: 'Check mental health coverage', realCase: 'Depression treatment claim rejected.' },
-    { category: 'health', title: 'Maternity Waiting Period', severity: 'medium', description: 'Pregnancy costs have 2-4 year waiting period.', affectedPolicies: ['Family Floater'], whatToCheck: 'Plan pregnancy after waiting period', realCase: 'C-section in year 1 not covered.' },
-    { category: 'health', title: 'OPD Exclusion', severity: 'medium', description: 'Doctor visits without admission not covered.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Buy OPD add-on if needed', realCase: 'Consultation and tests worth ₹15K rejected.' },
-    { category: 'health', title: 'Dental Exclusion', severity: 'medium', description: 'Dental treatment excluded unless accident-related.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Check dental coverage', realCase: 'Dental surgery claim rejected.' },
-    { category: 'health', title: 'Day Care Procedures', severity: 'medium', description: 'Some policies only cover 24-hour hospitalization.', affectedPolicies: ['Basic Health Plans'], whatToCheck: 'Check day care coverage list', realCase: 'Chemotherapy as day care not covered.' },
-    { category: 'health', title: 'Co-payment Clause', severity: 'high', description: 'You pay fixed percentage of every claim.', affectedPolicies: ['Senior Citizen Plans'], whatToCheck: 'Avoid policies with co-pay', realCase: '20% co-pay on ₹5L bill = ₹1L out of pocket.' },
-    { category: 'health', title: 'Disease Sub-limits', severity: 'high', description: 'Specific diseases have lower coverage limits.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Check disease-wise sub-limits', realCase: 'Knee replacement capped at ₹1.5L despite ₹5L policy.' },
-    { category: 'health', title: 'Ambulance Charges', severity: 'low', description: 'Ambulance has sub-limit per hospitalization.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Check ambulance limit', realCase: '₹15K ambulance bill, only ₹2K covered.' },
-    { category: 'health', title: 'Network Hospital Discount', severity: 'medium', description: 'Non-network hospitals may mean lower reimbursement.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Use network hospitals', realCase: 'Non-network claim got 80% reimbursement.' },
-    { category: 'health', title: 'Cosmetic Surgery', severity: 'medium', description: 'Elective cosmetic procedures not covered.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Only medically necessary covered', realCase: 'Rhinoplasty claim rejected.' },
-    { category: 'health', title: 'Alternative Treatment', severity: 'low', description: 'AYUSH may have lower limits or exclusions.', affectedPolicies: ['Basic Health Plans'], whatToCheck: 'Check AYUSH coverage', realCase: 'Ayurveda treatment capped at ₹25K.' },
-    { category: 'health', title: 'Organ Donor Expenses', severity: 'low', description: 'Donor hospitalization may or may not be covered.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Check organ donor clause', realCase: 'Kidney donor expenses of ₹2L covered.' },
-    { category: 'health', title: 'Domiciliary Treatment', severity: 'medium', description: 'Home treatment only if hospital unavailable.', affectedPolicies: ['Some Health Plans'], whatToCheck: 'Check home treatment conditions', realCase: 'COVID home treatment not covered - hospital beds available.' },
-    { category: 'health', title: 'Portability Rights', severity: 'low', description: 'You can port policy to another insurer.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Port 45-60 days before renewal', realCase: 'Ported after 8 years, retained waiting period credits.' },
-    { category: 'health', title: 'No Claim Bonus', severity: 'low', description: 'Sum insured increases for claim-free years.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Maximize NCB benefits', realCase: '₹5L became ₹10L after 5 claim-free years.' },
-    { category: 'health', title: 'Reinstatement Clause', severity: 'medium', description: 'How sum insured refills after claim.', affectedPolicies: ['All Health Insurance'], whatToCheck: 'Check restoration/reinstatement', realCase: 'Second hospitalization same year - no sum left.' },
-    { category: 'health', title: 'Lifetime Renewal', severity: 'medium', description: 'Some policies can be discontinued at old age.', affectedPolicies: ['Some Health Plans'], whatToCheck: 'Ensure lifetime renewability', realCase: 'Renewal denied at age 75.' },
-
-    // ========== MOTOR INSURANCE (22 facts) ==========
-    { category: 'motor', title: 'Valid Driving License', severity: 'critical', description: 'Invalid license = Claim rejected entirely.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Ensure valid license for vehicle type', realCase: 'Son with learner license - claim rejected.' },
-    { category: 'motor', title: 'Drunk Driving', severity: 'critical', description: 'Accident under influence = Zero claim.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Never drink and drive', realCase: 'Accident with 80mg/100ml alcohol rejected.' },
-    { category: 'motor', title: 'Consequential Damage', severity: 'high', description: 'Driving with warning light on = Damage not covered.', affectedPolicies: ['Comprehensive'], whatToCheck: 'Stop immediately when warning appears', realCase: 'Engine seized after ignoring oil warning.' },
-    { category: 'motor', title: 'Depreciation Deduction', severity: 'high', description: 'Parts replaced at depreciated value, not new.', affectedPolicies: ['All except Zero Dep'], whatToCheck: 'Buy Zero Depreciation add-on', realCase: 'Rubber, plastic, fiber at 50% depreciation.' },
-    { category: 'motor', title: 'Engine Flooding', severity: 'high', description: 'Starting car in flooded area = Engine damage not covered.', affectedPolicies: ['Comprehensive without add-on'], whatToCheck: 'Buy Engine Protect add-on', realCase: 'Engine hydrolocked - ₹3L claim rejected.' },
-    { category: 'motor', title: 'Geographical Limits', severity: 'medium', description: 'Coverage only in India unless endorsed.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Get endorsement for Nepal/Bhutan', realCase: 'Accident in Nepal not covered.' },
-    { category: 'motor', title: 'Commercial Use', severity: 'critical', description: 'Private vehicle used commercially = Claim void.', affectedPolicies: ['Private Motor Insurance'], whatToCheck: 'Buy commercial policy for Ola/Uber', realCase: 'Ola driver accident - private policy rejected.' },
-    { category: 'motor', title: 'Modifications', severity: 'high', description: 'Unapproved modifications void coverage.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Get RTO approval for mods', realCase: 'Aftermarket alloys - claim reduced.' },
-    { category: 'motor', title: 'Late Intimation', severity: 'medium', description: 'Not informing insurer promptly hurts claim.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Inform within 24-48 hours', realCase: 'Informed after 2 weeks - claim disputed.' },
-    { category: 'motor', title: 'NCB Transfer', severity: 'low', description: 'NCB transfers to new car or new insurer.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Carry NCB when switching', realCase: 'Lost 50% NCB by not mentioning to new insurer.' },
-    { category: 'motor', title: 'IDV Underinsurance', severity: 'high', description: 'Low IDV = Lower claim payout in total loss.', affectedPolicies: ['Comprehensive'], whatToCheck: 'Choose realistic IDV', realCase: 'Chose minimum IDV - got ₹2L less in theft.' },
-    { category: 'motor', title: 'Electrical Damage', severity: 'medium', description: 'Electrical failures may not be covered.', affectedPolicies: ['Standard Comprehensive'], whatToCheck: 'Check electrical coverage', realCase: 'Battery and wiring damage rejected.' },
-    { category: 'motor', title: 'CNG/LPG Kit', severity: 'medium', description: 'Aftermarket CNG kit must be declared.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Endorse CNG kit in policy', realCase: 'CNG fire - kit not in policy, rejected.' },
-    { category: 'motor', title: 'Theft from Unlocked Car', severity: 'high', description: 'Theft with keys in car may be rejected.', affectedPolicies: ['Comprehensive'], whatToCheck: 'Always lock and take keys', realCase: 'Laptop stolen from unlocked car - rejected.' },
-    { category: 'motor', title: 'Two-Wheeler Pillion', severity: 'medium', description: 'More than one pillion may void claim.', affectedPolicies: ['Two-Wheeler Insurance'], whatToCheck: 'Follow traffic rules', realCase: 'Triple riding accident - claim disputed.' },
-    { category: 'motor', title: 'Key Replacement', severity: 'low', description: 'Lost key replacement may need add-on.', affectedPolicies: ['Comprehensive'], whatToCheck: 'Check key loss coverage', realCase: 'Smart key ₹50K - not covered without add-on.' },
-    { category: 'motor', title: 'Tyre Damage', severity: 'medium', description: 'Standalone tyre damage not covered.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Tyres covered only in accident', realCase: 'Pothole tyre burst - claim rejected.' },
-    { category: 'motor', title: 'Personal Belongings', severity: 'low', description: 'Items inside car may have sub-limits.', affectedPolicies: ['Comprehensive'], whatToCheck: 'Check personal belongings limit', realCase: '₹1L camera in car - only ₹15K covered.' },
-    { category: 'motor', title: 'Overloading', severity: 'medium', description: 'Overloaded vehicle accident may be rejected.', affectedPolicies: ['Commercial Vehicle'], whatToCheck: 'Follow weight limits', realCase: 'Truck overloaded 2 tons - claim rejected.' },
-    { category: 'motor', title: 'Racing/Rally', severity: 'high', description: 'Organized racing damage not covered.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'No coverage for motorsports', realCase: 'Track day accident - claim rejected.' },
-    { category: 'motor', title: 'War & Nuclear', severity: 'medium', description: 'War and nuclear damage excluded.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Standard exclusion', realCase: 'Nuclear clause never tested in India.' },
-    { category: 'motor', title: 'Wear and Tear', severity: 'medium', description: 'Normal aging not covered.', affectedPolicies: ['All Motor Insurance'], whatToCheck: 'Only accidental damage covered', realCase: 'Rusted body panels - not covered.' },
-
-    // ========== TRAVEL INSURANCE (19 facts) ==========
-    { category: 'travel', title: 'Adventure Sports Exclusion', severity: 'high', description: 'Injuries during adventure not covered.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Buy Adventure Sports add-on', realCase: 'Skiing injury €15,000 rejected.' },
-    { category: 'travel', title: 'Pre-existing Conditions', severity: 'critical', description: 'Treatment for existing illness abroad rejected.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Declare all conditions', realCase: 'Heart attack abroad - pre-existing hypertension.' },
-    { category: 'travel', title: 'Baggage Delay Limits', severity: 'medium', description: 'Clothes purchase limit very low during delay.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check essential purchase limits', realCase: 'Bought $500 clothes, got only $100.' },
-    { category: 'travel', title: 'War Zone Exclusion', severity: 'critical', description: 'Travel to war zones not covered.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check country exclusion list', realCase: 'Medical emergency in conflict zone rejected.' },
-    { category: 'travel', title: 'Trip Cancellation', severity: 'medium', description: 'Only specific reasons allow cancellation claim.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check covered cancellation reasons', realCase: 'Work meeting cancelled trip - not covered.' },
-    { category: 'travel', title: 'Passport Loss', severity: 'low', description: 'Passport replacement has sub-limits.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check passport loss coverage', realCase: 'Emergency passport ₹25K - only ₹10K covered.' },
-    { category: 'travel', title: 'Dental Emergency', severity: 'medium', description: 'Only pain relief, not full treatment.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Dental has low limits', realCase: 'Root canal abroad $800 - only $200 covered.' },
-    { category: 'travel', title: 'Pregnancy Exclusion', severity: 'high', description: 'Pregnancy beyond 24-28 weeks excluded.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check pregnancy week limit', realCase: '30-week pregnant traveler - emergency not covered.' },
-    { category: 'travel', title: 'Alcohol/Drug Related', severity: 'critical', description: 'Incidents under influence not covered.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Stay sober', realCase: 'Bar fight injury - claim rejected.' },
-    { category: 'travel', title: 'Visa Rejection', severity: 'low', description: 'Visa rejection may or may not be covered.', affectedPolicies: ['Some Travel Plans'], whatToCheck: 'Check visa rejection clause', realCase: 'Schengen rejected - ₹5K trip cancellation paid.' },
-    { category: 'travel', title: 'Checked Baggage Only', severity: 'medium', description: 'Hand baggage theft may not be covered.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check baggage coverage details', realCase: 'Laptop stolen from cabin bag - rejected.' },
-    { category: 'travel', title: 'Medical Evacuation', severity: 'low', description: 'Emergency evacuation to home country covered.', affectedPolicies: ['Premium Travel Plans'], whatToCheck: 'Ensure evacuation included', realCase: 'Air ambulance $50K covered by policy.' },
-    { category: 'travel', title: 'Political Unrest', severity: 'medium', description: 'Trip disruption due to protests may be excluded.', affectedPolicies: ['Basic Travel Plans'], whatToCheck: 'Check civil unrest clause', realCase: 'Thailand protests - cancellation not covered.' },
-    { category: 'travel', title: 'Sports Equipment', severity: 'low', description: 'Golf clubs, skis have sub-limits.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check sports equipment limits', realCase: '₹2L golf clubs lost - only ₹50K covered.' },
-    { category: 'travel', title: 'Delayed Flight Minimum', severity: 'low', description: 'Delay must exceed 6-12 hours for claim.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check minimum delay duration', realCase: '5-hour delay - no compensation.' },
-    { category: 'travel', title: 'Senior Citizen Limits', severity: 'high', description: 'Coverage reduces significantly above 70.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Check age-related restrictions', realCase: '75-year-old got 50% lower coverage.' },
-    { category: 'travel', title: 'Terrorism Cover', severity: 'medium', description: 'Terrorism incidents may need specific cover.', affectedPolicies: ['Basic Travel Plans'], whatToCheck: 'Ensure terrorism included', realCase: 'Terror attack injury covered by premium plan.' },
-    { category: 'travel', title: 'Car Rental Excess', severity: 'low', description: 'Rental car damage may not be covered.', affectedPolicies: ['Basic Travel Plans'], whatToCheck: 'Buy rental car add-on', realCase: 'Rental car scratch €500 - not covered.' },
-    { category: 'travel', title: 'Home Country Treatment', severity: 'medium', description: 'Follow-up treatment at home not covered.', affectedPolicies: ['All Travel Insurance'], whatToCheck: 'Treatment abroad only', realCase: 'Returned home for surgery - travel policy ended.' },
-
-    // ========== HOME INSURANCE (18 facts) ==========
-    { category: 'home', title: 'Underinsurance Penalty', severity: 'critical', description: 'Insured for less = Proportionally reduced payout.', affectedPolicies: ['Building Insurance'], whatToCheck: 'Insure at replacement cost', realCase: '₹50L house insured ₹30L. ₹10L damage paid ₹6L.' },
-    { category: 'home', title: 'Flood Exclusion', severity: 'high', description: 'Standard policies exclude flood damage.', affectedPolicies: ['Standard Home Insurance'], whatToCheck: 'Buy flood cover add-on', realCase: 'Flood damage of ₹8L rejected.' },
-    { category: 'home', title: 'Valuables Sub-limit', severity: 'high', description: 'Jewellery and electronics have lower limits.', affectedPolicies: ['All Home Insurance'], whatToCheck: 'Check valuables sub-limits', realCase: '₹5L gold stolen, ₹1L sub-limit applied.' },
-    { category: 'home', title: 'Wear and Tear', severity: 'medium', description: 'Gradual deterioration not covered.', affectedPolicies: ['All Home Insurance'], whatToCheck: 'Maintain property regularly', realCase: 'Leaking pipe damage rejected - gradual wear.' },
-    { category: 'home', title: 'Tenant Damage', severity: 'medium', description: 'Damage by tenant may not be covered.', affectedPolicies: ['Landlord Insurance'], whatToCheck: 'Check tenant damage clause', realCase: 'Tenant destroyed walls - not covered.' },
-    { category: 'home', title: 'Earthquake Exclusion', severity: 'high', description: 'Earthquake needs separate cover in most policies.', affectedPolicies: ['Standard Home Insurance'], whatToCheck: 'Add earthquake cover', realCase: 'Earthquake cracks ₹3L - not covered.' },
-    { category: 'home', title: 'Cash Limit', severity: 'medium', description: 'Cash at home has very low coverage.', affectedPolicies: ['Contents Insurance'], whatToCheck: 'Check cash sub-limit', realCase: '₹2L cash stolen - only ₹10K covered.' },
-    { category: 'home', title: 'Unoccupied Property', severity: 'high', description: 'Empty for 30+ days may void coverage.', affectedPolicies: ['All Home Insurance'], whatToCheck: 'Inform insurer if away long', realCase: 'Burglary after 45 days abroad - rejected.' },
-    { category: 'home', title: 'Terrorism Cover', severity: 'medium', description: 'Terrorism damage needs pool cover.', affectedPolicies: ['All Home Insurance'], whatToCheck: 'Add terrorism cover', realCase: 'Blast damage ₹10L - terrorism pool paid.' },
-    { category: 'home', title: 'Riot/Strike', severity: 'medium', description: 'RSMD (Riot Strike Malicious Damage) separate.', affectedPolicies: ['Fire Insurance'], whatToCheck: 'Add RSMD cover', realCase: 'Protest damage not covered without RSMD.' },
-    { category: 'home', title: 'Swimming Pool', severity: 'low', description: 'Pool damage may need specific cover.', affectedPolicies: ['High-value Home Insurance'], whatToCheck: 'Check pool coverage', realCase: 'Pool equipment damage ₹2L - not covered.' },
-    { category: 'home', title: 'Garden/Landscaping', severity: 'low', description: 'Plants and landscaping usually excluded.', affectedPolicies: ['Contents Insurance'], whatToCheck: 'Check outdoor coverage', realCase: 'Storm destroyed ₹5L garden - not covered.' },
-    { category: 'home', title: 'Electrical Surge', severity: 'medium', description: 'Power surge damage to electronics.', affectedPolicies: ['Contents Insurance'], whatToCheck: 'Check electrical damage clause', realCase: 'Lightning surge destroyed ₹1L electronics.' },
-    { category: 'home', title: 'Theft Without Force', severity: 'high', description: 'Theft must show forced entry.', affectedPolicies: ['All Home Insurance'], whatToCheck: 'Report forcible entry to police', realCase: 'Servant theft - no forced entry, rejected.' },
-    { category: 'home', title: 'Art and Collectibles', severity: 'medium', description: 'Need separate valuation and cover.', affectedPolicies: ['Contents Insurance'], whatToCheck: 'Get art specifically covered', realCase: '₹10L painting stolen - treated as generic item.' },
-    { category: 'home', title: 'Building vs Contents', severity: 'medium', description: 'Structure and belongings separate policies.', affectedPolicies: ['Home Insurance'], whatToCheck: 'Buy both if owner', realCase: 'Had building cover only - furniture not covered.' },
-    { category: 'home', title: 'Renovation Notice', severity: 'medium', description: 'Major renovations need declaration.', affectedPolicies: ['All Home Insurance'], whatToCheck: 'Inform before major changes', realCase: 'Kitchen fire during renovation - not disclosed.' },
-    { category: 'home', title: 'Business Use', severity: 'high', description: 'Home office may need commercial cover.', affectedPolicies: ['Residential Home Insurance'], whatToCheck: 'Disclose business use', realCase: 'Home business fire - residential policy rejected.' },
-
-    // ========== BUSINESS INSURANCE (25 facts) ==========
-    { category: 'business', title: 'Professional Indemnity Waiting', severity: 'high', description: 'Claims made basis - error occurred before, sued after.', affectedPolicies: ['Professional Indemnity'], whatToCheck: 'Maintain continuous coverage', realCase: 'Error 2024, sued 2026, policy lapsed 2025.' },
-    { category: 'business', title: 'Cyber Waiting Period', severity: 'high', description: 'Cyber incidents in first weeks may be excluded.', affectedPolicies: ['Cyber Insurance'], whatToCheck: 'Check initial waiting period', realCase: 'Ransomware day 5 - waiting period applied.' },
-    { category: 'business', title: 'D&O Exclusions', severity: 'high', description: 'Fraud and criminal acts excluded.', affectedPolicies: ['D&O Insurance'], whatToCheck: 'Understand excluded acts', realCase: 'Director fraud case not covered.' },
-    { category: 'business', title: 'Fire Policy Gaps', severity: 'critical', description: 'Riot, terrorism need separate cover.', affectedPolicies: ['Fire Insurance'], whatToCheck: 'Add RSMD and terrorism cover', realCase: 'Riot damage rejected - standard fire only.' },
-    { category: 'business', title: 'Stock Declaration', severity: 'high', description: 'Under-declared stock = Proportional claim.', affectedPolicies: ['Stock Insurance'], whatToCheck: 'Update stock value regularly', realCase: '₹1Cr stock, declared ₹50L - half claim.' },
-    { category: 'business', title: 'Business Interruption Limit', severity: 'high', description: 'Only covers indemnity period, not full loss.', affectedPolicies: ['Business Interruption'], whatToCheck: 'Check indemnity period length', realCase: '6-month indemnity, recovery took 1 year.' },
-    { category: 'business', title: 'Employee Dishonesty', severity: 'medium', description: 'Theft by employee needs fidelity cover.', affectedPolicies: ['Fidelity Insurance'], whatToCheck: 'Buy fidelity guarantee', realCase: 'Accountant embezzlement ₹20L - not covered.' },
-    { category: 'business', title: 'Product Liability Notice', severity: 'high', description: 'Must notify insurer immediately of defect.', affectedPolicies: ['Product Liability'], whatToCheck: 'Report potential issues early', realCase: 'Delayed notification - claim denied.' },
-    { category: 'business', title: 'Workmen Compensation', severity: 'critical', description: 'Employee injury can lead to huge liability.', affectedPolicies: ['Workmen Compensation'], whatToCheck: 'Cover all workers', realCase: 'Site worker death - ₹15L liability.' },
-    { category: 'business', title: 'Marine Cargo Limit', severity: 'medium', description: 'Per shipment limits may be insufficient.', affectedPolicies: ['Marine Cargo'], whatToCheck: 'Check per bottom limit', realCase: 'One container loss exceeded limit.' },
-    { category: 'business', title: 'Contractors All Risk', severity: 'medium', description: 'Third party damage needs specific cover.', affectedPolicies: ['CAR Insurance'], whatToCheck: 'Include third party liability', realCase: 'Adjacent building damage not covered.' },
-    { category: 'business', title: 'Public Liability', severity: 'high', description: 'Customer injury in premises can be costly.', affectedPolicies: ['Public Liability'], whatToCheck: 'Essential for retail/hospitality', realCase: 'Slip and fall - ₹10L claim.' },
-    { category: 'business', title: 'Money Insurance Limits', severity: 'medium', description: 'Cash in transit has specific limits.', affectedPolicies: ['Money Insurance'], whatToCheck: 'Check transit vs premises limits', realCase: 'Cash robbery exceeded transit limit.' },
-    { category: 'business', title: 'Plate Glass Cover', severity: 'low', description: 'Shopfront glass needs separate cover.', affectedPolicies: ['Shop Insurance'], whatToCheck: 'Add plate glass cover', realCase: 'Vandalism broke ₹2L glass - not covered.' },
-    { category: 'business', title: 'Machinery Breakdown', severity: 'medium', description: 'Sudden breakdown vs gradual wear distinction.', affectedPolicies: ['Machinery Insurance'], whatToCheck: 'Maintain equipment properly', realCase: 'Worn bearing failure - gradual, not covered.' },
-    { category: 'business', title: 'Electronic Equipment', severity: 'medium', description: 'Data restoration may have limits.', affectedPolicies: ['Electronic Equipment'], whatToCheck: 'Check data restoration cover', realCase: 'Server crash - data recovery ₹5L not covered.' },
-    { category: 'business', title: 'Credit Insurance', severity: 'high', description: 'Customer payment default protection.', affectedPolicies: ['Trade Credit'], whatToCheck: 'Cover major customers', realCase: 'Big customer bankruptcy - ₹50L loss covered.' },
-    { category: 'business', title: 'Key Person Insurance', severity: 'medium', description: 'Death/disability of key employee.', affectedPolicies: ['Key Person'], whatToCheck: 'Cover critical employees', realCase: 'CEO death covered business continuity.' },
-    { category: 'business', title: 'Recall Insurance', severity: 'medium', description: 'Product recall costs can be huge.', affectedPolicies: ['Product Recall'], whatToCheck: 'Essential for manufacturers', realCase: 'Food contamination recall ₹1Cr covered.' },
-    { category: 'business', title: 'Event Cancellation', severity: 'medium', description: 'Weather and unforeseen circumstances.', affectedPolicies: ['Event Insurance'], whatToCheck: 'Cover major events', realCase: 'Rain cancelled outdoor wedding - ₹10L covered.' },
-    { category: 'business', title: 'Environmental Liability', severity: 'high', description: 'Pollution cleanup can be massive.', affectedPolicies: ['Environmental Liability'], whatToCheck: 'Essential for manufacturing', realCase: 'Chemical spill cleanup ₹50L.' },
-    { category: 'business', title: 'Goods in Transit', severity: 'medium', description: 'Road/rail transit specific coverage.', affectedPolicies: ['Transit Insurance'], whatToCheck: 'Cover all transit modes', realCase: 'Truck accident destroyed ₹20L goods.' },
-    { category: 'business', title: 'Consequential Loss', severity: 'high', description: 'Loss of profit needs separate cover.', affectedPolicies: ['Fire Insurance'], whatToCheck: 'Add consequential loss cover', realCase: 'Fire caused 3-month shutdown - profit loss not covered.' },
-    { category: 'business', title: 'Terrorism Pool', severity: 'medium', description: 'Terrorism damage from government pool.', affectedPolicies: ['All Business Insurance'], whatToCheck: 'Add terrorism cover', realCase: 'Blast damage ₹1Cr - terrorism pool paid.' },
-    { category: 'business', title: 'Retroactive Date', severity: 'high', description: 'Claims before retro date not covered.', affectedPolicies: ['Professional Indemnity'], whatToCheck: 'Negotiate best retro date', realCase: 'Error before retro date - claim rejected.' },
-
-    // ========== SPECIALIZED INSURANCE (16 facts) ==========
-    { category: 'specialized', title: 'Pet Age Limits', severity: 'high', description: 'Pets above 8 years often excluded.', affectedPolicies: ['Pet Insurance'], whatToCheck: 'Check entry and renewal age', realCase: '10-year Lab surgery - policy expired at 8.' },
-    { category: 'specialized', title: 'Wedding Cancellation', severity: 'high', description: 'Change of mind not covered.', affectedPolicies: ['Wedding Insurance'], whatToCheck: 'Only unforeseen events covered', realCase: 'Called off wedding - no payout.' },
-    { category: 'specialized', title: 'Crop Weather Clause', severity: 'critical', description: 'Weather station data matters, not your farm.', affectedPolicies: ['Crop Insurance'], whatToCheck: 'Know your reference weather station', realCase: 'Farm flooded but station showed normal.' },
-    { category: 'specialized', title: 'Jewellery Valuation', severity: 'high', description: 'Must be valued by approved valuer.', affectedPolicies: ['Jewellery Insurance'], whatToCheck: 'Get proper valuation certificate', realCase: 'Claim disputed - no certified valuation.' },
-    { category: 'specialized', title: 'Pet Breed Exclusions', severity: 'medium', description: 'Some breeds have higher premiums or exclusions.', affectedPolicies: ['Pet Insurance'], whatToCheck: 'Check breed-specific terms', realCase: 'Hip dysplasia in German Shepherd - breed exclusion.' },
-    { category: 'specialized', title: 'Gadget Wear Limit', severity: 'medium', description: 'Phones over 1-2 years may not be insurable.', affectedPolicies: ['Gadget Insurance'], whatToCheck: 'Check device age limit', realCase: '2.5-year phone - not eligible for cover.' },
-    { category: 'specialized', title: 'Musical Instrument', severity: 'medium', description: 'Professional use vs hobby distinction.', affectedPolicies: ['Musical Instrument Insurance'], whatToCheck: 'Disclose professional use', realCase: 'Concert musician - needed higher cover.' },
-    { category: 'specialized', title: 'Golf Equipment', severity: 'low', description: 'Hole-in-one celebration coverage varies.', affectedPolicies: ['Golf Insurance'], whatToCheck: 'Check bar bill coverage!', realCase: 'Hole-in-one tradition - ₹50K bar bill covered.' },
-    { category: 'specialized', title: 'Drone Insurance', severity: 'medium', description: 'Commercial drones need specific liability.', affectedPolicies: ['Drone Insurance'], whatToCheck: 'Check third party liability', realCase: 'Drone hit person - ₹5L liability claim.' },
-    { category: 'specialized', title: 'Wedding Vendor Default', severity: 'medium', description: 'Vendor no-show may be covered.', affectedPolicies: ['Wedding Insurance'], whatToCheck: 'Check vendor failure clause', realCase: 'Caterer cancelled - replacement costs covered.' },
-    { category: 'specialized', title: 'Crop Yield Threshold', severity: 'high', description: 'Payout only if yield below threshold.', affectedPolicies: ['Crop Insurance'], whatToCheck: 'Understand threshold calculation', realCase: 'Yield 5% below normal - no payout (threshold 15%).' },
-    { category: 'specialized', title: 'Pet Routine Care', severity: 'low', description: 'Vaccinations and checkups not covered.', affectedPolicies: ['Pet Insurance'], whatToCheck: 'Only illness/accident covered', realCase: 'Annual vaccination ₹5K - not covered.' },
-    { category: 'specialized', title: 'Bicycle Theft', severity: 'medium', description: 'Lock requirement for theft claims.', affectedPolicies: ['Bicycle Insurance'], whatToCheck: 'Use approved lock', realCase: 'Unlocked bicycle stolen - claim rejected.' },
-    { category: 'specialized', title: 'Fine Art Transport', severity: 'high', description: 'Specialized packing requirements.', affectedPolicies: ['Fine Art Insurance'], whatToCheck: 'Use approved art handlers', realCase: 'Painting damaged in transit - improper packing.' },
-    { category: 'specialized', title: 'Camera Equipment', severity: 'medium', description: 'Professional photography equipment coverage.', affectedPolicies: ['Camera Insurance'], whatToCheck: 'List all equipment with serial numbers', realCase: 'Lens stolen - not on equipment schedule.' },
-    { category: 'specialized', title: 'Yacht Insurance', severity: 'high', description: 'Navigation limits and crew requirements.', affectedPolicies: ['Yacht Insurance'], whatToCheck: 'Check sailing area limits', realCase: 'Sailed beyond covered waters - claim rejected.' },
-
-    // ========== PERSONAL ACCIDENT (15 facts) ==========
-    { category: 'personalAccident', title: 'Self-Inflicted Injury', severity: 'critical', description: 'Self-harm always excluded regardless of state.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Self-harm exclusion applies', realCase: 'Death ruled self-inflicted - rejected.' },
-    { category: 'personalAccident', title: 'Medical Condition Exclusion', severity: 'high', description: 'Death from disease during accident excluded.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Understand accident vs medical', realCase: 'Heart attack while driving - rejected.' },
-    { category: 'personalAccident', title: 'Permanent Disability Scale', severity: 'high', description: 'Partial disability paid on percentage scale.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Review disability payout table', realCase: 'Lost finger - only 20% of sum assured.' },
-    { category: 'personalAccident', title: 'Hazardous Activity', severity: 'medium', description: 'High-risk hobbies may be excluded.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Declare hazardous activities', realCase: 'Motorcycle racing injury rejected.' },
-    { category: 'personalAccident', title: 'Pregnancy Complications', severity: 'high', description: 'Pregnancy-related accidents may be excluded.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Check pregnancy clause', realCase: 'Fall during pregnancy - excluded.' },
-    { category: 'personalAccident', title: 'Military Service', severity: 'medium', description: 'Active duty injuries excluded.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Civilian policy only', realCase: 'Army personnel injury - separate policy needed.' },
-    { category: 'personalAccident', title: 'Weekly Benefit Limit', severity: 'medium', description: 'Temporary disability has weekly/monthly caps.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Check TTD benefit amount', realCase: 'Off work 3 months - weekly benefit capped.' },
-    { category: 'personalAccident', title: 'Intoxication Exclusion', severity: 'critical', description: 'Accident under influence not covered.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Alcohol/drug exclusion', realCase: 'Drunk fall from stairs - rejected.' },
-    { category: 'personalAccident', title: 'Medical Expenses Limit', severity: 'medium', description: 'Treatment costs have sub-limits.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Check medical expense coverage', realCase: '₹50L cover but ₹1L medical limit.' },
-    { category: 'personalAccident', title: 'Air Travel Cover', severity: 'low', description: 'Flying as passenger covered, as pilot may not.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Check flying clause', realCase: 'Amateur pilot crash - excluded.' },
-    { category: 'personalAccident', title: 'Child Cover', severity: 'low', description: 'Children may have limited benefits.', affectedPolicies: ['Family PA'], whatToCheck: 'Check child coverage amount', realCase: 'Child accident - only 20% of adult cover.' },
-    { category: 'personalAccident', title: 'Double Indemnity', severity: 'low', description: 'Double payout for accidental death.', affectedPolicies: ['Some PA Plans'], whatToCheck: 'Check double indemnity clause', realCase: 'Road accident - family got 2x sum assured.' },
-    { category: 'personalAccident', title: 'Disappearance Clause', severity: 'medium', description: 'Missing person presumed dead after period.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Usually 1 year waiting', realCase: 'Trekker missing - paid after 12 months.' },
-    { category: 'personalAccident', title: 'Education Benefit', severity: 'low', description: 'Children education may be covered on death.', affectedPolicies: ['Some PA Plans'], whatToCheck: 'Check education benefit', realCase: 'Parent death - ₹2L education fund.' },
-    { category: 'personalAccident', title: 'Repatriation Benefit', severity: 'low', description: 'Body transport to hometown covered.', affectedPolicies: ['Personal Accident'], whatToCheck: 'Check repatriation limit', realCase: 'Death abroad - ₹5L repatriation covered.' },
-]
+const prisma = new PrismaClient();
 
 async function main() {
-    console.log('🌱 Seeding database with 150 hidden facts...')
+    console.log('🌱 Starting database seed...');
 
-    // Clear existing data
-    await prisma.hiddenFact.deleteMany()
-    console.log('✓ Cleared existing facts')
-
-    // Seed hidden facts
-    let count = 0
-    for (const fact of hiddenFacts) {
-        await prisma.hiddenFact.create({
-            data: {
-                category: fact.category,
-                title: fact.title,
-                severity: fact.severity,
-                description: fact.description,
-                affectedPolicies: fact.affectedPolicies,
-                whatToCheck: fact.whatToCheck,
-                realCase: fact.realCase,
+    // --- 1. LIFE INSURANCE CATEGORY ---
+    await prisma.insuranceCategory.upsert({
+        where: { slug: 'life-insurance' },
+        update: {},
+        create: {
+            name: 'Life Insurance',
+            slug: 'life-insurance',
+            subcat: {
+                create: [
+                    {
+                        name: 'Term Life',
+                        types: {
+                            create: [
+                                { name: 'Level Term Life Insurance' },
+                                { name: 'Decreasing Term Life Insurance' },
+                                { name: 'Return of Premium (ROP) Term' },
+                                { name: 'Increasing Term Life Insurance' },
+                            ]
+                        }
+                    },
+                    {
+                        name: 'Whole Life',
+                        types: {
+                            create: [
+                                { name: 'Traditional Whole Life' },
+                                { name: 'Universal Life Insurance' },
+                                { name: 'Single Premium Whole Life' },
+                            ]
+                        }
+                    },
+                    {
+                        name: 'Investment & Savings',
+                        types: {
+                            create: [
+                                { name: 'Endowment Plans' },
+                                { name: 'Money Back Policies' },
+                                { name: 'Unit Linked Insurance Plans (ULIP)' },
+                                { name: 'Child Education Plans' }
+                            ]
+                        }
+                    }
+                ]
             }
-        })
-        count++
+        }
+    });
+
+    // --- 2. HEALTH INSURANCE CATEGORY ---
+    await prisma.insuranceCategory.upsert({
+        where: { slug: 'health-insurance' },
+        update: {},
+        create: {
+            name: 'Health Insurance',
+            slug: 'health-insurance',
+            subcat: {
+                create: [
+                    {
+                        name: 'Base Coverage (Mediclaim)',
+                        types: {
+                            create: [
+                                { name: 'Individual Health Insurance' },
+                                { name: 'Family Floater Health Insurance' },
+                                { name: 'Senior Citizen Health Insurance' },
+                                { name: 'Maternity Insurance' },
+                            ]
+                        }
+                    },
+                    {
+                        name: 'Supplemental / Riders',
+                        types: {
+                            create: [
+                                { name: 'Critical Illness Cover' },
+                                { name: 'Hospital Daily Cash' },
+                                { name: 'Personal Accident Cover' },
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    // --- 3. MOTOR INSURANCE CATEGORY ---
+    await prisma.insuranceCategory.upsert({
+        where: { slug: 'motor-insurance' },
+        update: {},
+        create: {
+            name: 'Motor Insurance',
+            slug: 'motor-insurance',
+            subcat: {
+                create: [
+                    {
+                        name: 'Private Vehicles',
+                        types: {
+                            create: [
+                                { name: 'Comprehensive Car Insurance' },
+                                { name: 'Standalone Own Damage (OD)' },
+                                { name: 'Third-Party Liability (TPL)' },
+                                { name: 'Two-Wheeler Insurance' },
+                            ]
+                        }
+                    },
+                    {
+                        name: 'Commercial Vehicles',
+                        types: {
+                            create: [
+                                { name: 'Taxi / Cab Insurance' },
+                                { name: 'Heavy Commercial Vehicle Cover' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    // --- 4. B2B & BUSINESS CATEGORY ---
+    await prisma.insuranceCategory.upsert({
+        where: { slug: 'business-insurance' },
+        update: {},
+        create: {
+            name: 'Business & Commercial',
+            slug: 'business-insurance',
+            subcat: {
+                create: [
+                    {
+                        name: 'General Liability',
+                        types: {
+                            create: [
+                                { name: 'Commercial General Liability (CGL)' },
+                                { name: 'Product Liability' },
+                                { name: 'Workmen Compensation' }
+                            ]
+                        }
+                    },
+                    {
+                        name: 'Professional Liability',
+                        types: {
+                            create: [
+                                { name: 'Directors & Officers (D&O)' },
+                                { name: 'Errors & Omissions (E&O)' },
+                                { name: 'Medical Malpractice Cover' }
+                            ]
+                        }
+                    },
+                    {
+                        name: 'Specialized Business',
+                        types: {
+                            create: [
+                                { name: 'Cyber Liability Insurance' },
+                                { name: 'Marine Cargo Insurance' },
+                                { name: 'Trade Credit Insurance' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    // --- 5. MODERN & NICHE CATEGORY ---
+    await prisma.insuranceCategory.upsert({
+        where: { slug: 'specialty-insurance' },
+        update: {},
+        create: {
+            name: 'Specialty & Niche',
+            slug: 'specialty-insurance',
+            subcat: {
+                create: [
+                    {
+                        name: 'Lifestyle & Events',
+                        types: {
+                            create: [
+                                { name: 'Wedding Insurance' },
+                                { name: 'Pet Insurance' },
+                                { name: 'Event Cancellation Cover' }
+                            ]
+                        }
+                    },
+                    {
+                        name: 'New Age / Digital',
+                        types: {
+                            create: [
+                                { name: 'Drone Liability Cover' },
+                                { name: 'Freelancer Income Protection' },
+                                { name: 'Digital Asset / Crypto Cover' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    });
+
+    console.log('✅ Base Database Seeded with 50+ Global Taxonomy Types across 5 Categories.');
+
+    // Optionally seed sample policies
+    const familyFloater = await prisma.insuranceType.findFirst({
+        where: { name: 'Family Floater Health Insurance' }
+    });
+
+    if (familyFloater) {
+        // Upserting a sample policy to demonstrate the PolicyBazaar attribute layout
+        await prisma.insurancePolicy.upsert({
+            where: { seoSlug: 'optima-restore-family' },
+            update: {},
+            create: {
+                typeId: familyFloater.id,
+                providerName: 'HDFC ERGO',
+                productName: 'Optima Restore Family',
+                seoSlug: 'optima-restore-family',
+                coverageData: {
+                    base_sum_insured_range: [500000, 5000000],
+                    room_rent_limit: "No Capping",
+                    pre_post_hospitalization_days: [60, 180]
+                },
+                eligibilityData: {
+                    min_entry_age: 18,
+                    max_entry_age: 65,
+                    renewability: "Lifelong"
+                },
+                financialData: {
+                    premium_range_annual: [12000, 45000],
+                    claim_process: "Cashless via TPA / Reimbursement within 15 days"
+                },
+                benefits: ["Restoration Benefit", "Multiplier Benefit", "No Claim Bonus"],
+                exclusions: ["Pre-existing diseases (until 36 months)", "Adventure Sports"]
+            }
+        });
+        console.log('✅ Seeded Sample Policy: Optima Restore Family');
     }
-
-    console.log(`✓ Seeded ${count} hidden facts`)
-
-    // Count by category
-    const categories = ['life', 'health', 'motor', 'travel', 'home', 'business', 'specialized', 'personalAccident']
-    for (const cat of categories) {
-        const catCount = hiddenFacts.filter(f => f.category === cat).length
-        console.log(`  - ${cat}: ${catCount} facts`)
-    }
-
-    console.log('🎉 Database seeding complete!')
 }
 
 main()
     .catch((e) => {
-        console.error(e)
-        process.exit(1)
+        console.error(e);
+        process.exit(1);
     })
     .finally(async () => {
-        await prisma.$disconnect()
-    })
+        await prisma.$disconnect();
+    });

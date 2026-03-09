@@ -1,116 +1,147 @@
 'use client'
 
-import { LucideIcon } from 'lucide-react'
+import { motion, type Variants, type Transition } from 'framer-motion'
+import { type ReactNode, type ButtonHTMLAttributes, forwardRef } from 'react'
+import { type LucideIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
-  size?: 'sm' | 'md' | 'lg'
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
+export type ButtonSize = 'sm' | 'md' | 'lg'
+
+export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> {
+  children: ReactNode
+  variant?: ButtonVariant
+  size?: ButtonSize
   icon?: LucideIcon
   iconPosition?: 'left' | 'right'
-  loading?: boolean
   glow?: boolean
-  children: React.ReactNode
+  loading?: boolean
 }
 
-const iconSizes = {
-  sm: 16,
-  md: 18,
-  lg: 20,
+const sizeClasses: Record<ButtonSize, string> = {
+  sm: 'px-4 py-2 text-sm gap-1.5',
+  md: 'px-5 py-2.5 text-base gap-2',
+  lg: 'px-7 py-3.5 text-lg gap-2.5'
 }
 
-export default function Button({
-  variant = 'primary',
-  size = 'md',
-  icon: Icon,
-  iconPosition = 'left',
-  loading = false,
-  glow = false,
-  className = '',
-  children,
-  disabled,
-  ...props
-}: ButtonProps) {
-  const baseStyles = `
-    inline-flex items-center justify-center gap-2 font-medium
-    transition-all active:scale-[0.98]
-    disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
-    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent
-  `
+const iconSizes: Record<ButtonSize, string> = {
+  sm: 'w-4 h-4',
+  md: 'w-5 h-5',
+  lg: 'w-6 h-6'
+}
 
-  const variants = {
-    primary: `
-      bg-gradient-accent text-white rounded-xl shadow-md
-      hover:shadow-glow hover:-translate-y-0.5
-      focus:ring-[rgb(var(--color-accent))]
-      ${glow ? 'hero-glow' : ''}
-    `,
-    secondary: `
-      glass text-theme-primary rounded-xl
-      hover:border-hover hover:-translate-y-0.5
-      focus:ring-[rgb(var(--color-accent))]
-    `,
-    outline: `
-      bg-transparent border border-default text-theme-primary rounded-xl
-      hover:bg-accent-5 hover:border-hover hover:-translate-y-0.5
-      focus:ring-[rgb(var(--color-accent))]
-    `,
-    ghost: `
-      bg-transparent text-theme-secondary rounded-lg
-      hover:text-accent hover:bg-accent-5
-      focus:ring-[rgb(var(--color-accent))]
-    `,
-    danger: `
-      bg-red-500 text-white rounded-xl shadow-md
-      hover:bg-red-600 hover:shadow-lg hover:-translate-y-0.5
-      focus:ring-red-500
-    `,
-  }
+/**
+ * Universally merged Button Component
+ * Supports standard enterprise variants (primary, secondary, outline, danger)
+ * while inheriting Framer Motion physics and glow effects from the premium UI kit.
+ */
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button(
+    {
+      children,
+      variant = 'primary',
+      size = 'md',
+      icon: Icon,
+      iconPosition = 'left',
+      glow = false,
+      loading = false,
+      className,
+      disabled,
+      ...props
+    },
+    ref
+  ) {
+    const isDisabled = disabled || loading
 
-  const sizes = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3',
-    lg: 'px-8 py-4 text-lg',
-  }
+    const baseClasses = cn(
+      'relative inline-flex items-center justify-center font-semibold rounded-xl',
+      'transition-colors duration-200',
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+      'disabled:opacity-60 disabled:cursor-not-allowed',
+      sizeClasses[size]
+    )
 
-  const iconSize = iconSizes[size]
+    const variantClasses: Record<ButtonVariant, string> = {
+      primary: cn(
+        'bg-gradient-accent text-white',
+        'focus-visible:ring-[rgb(var(--color-accent))]',
+        glow && 'shadow-glow hover:shadow-glow-lg hero-glow'
+      ),
+      secondary: cn(
+        'glass text-theme-primary',
+        'hover:border-hover hover:bg-theme-secondary/50',
+        'focus-visible:ring-[rgb(var(--color-accent))]'
+      ),
+      outline: cn(
+        'bg-transparent border border-default text-theme-primary',
+        'hover:bg-accent-5 hover:border-[rgb(var(--color-accent))]',
+        'focus-visible:ring-[rgb(var(--color-accent))]'
+      ),
+      ghost: cn(
+        'bg-transparent text-theme-primary',
+        'hover:bg-accent-10',
+        'focus-visible:ring-[rgb(var(--color-accent))]'
+      ),
+      danger: cn(
+        'bg-red-500 text-white shadow-md',
+        'hover:bg-red-600',
+        'focus-visible:ring-red-500'
+      )
+    }
 
-  return (
-    <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-      disabled={disabled || loading}
-      {...props}
-    >
-      {loading ? (
-        <svg
-          className="animate-spin"
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
+    const buttonVariants: Variants = {
+      initial: { scale: 1 },
+      hover: { scale: 1.02, y: -2 },
+      tap: { scale: 0.98, y: 0 }
+    }
+
+    const springTransition: Transition = {
+      type: 'spring',
+      stiffness: 400,
+      damping: 17
+    }
+
+    const iconVariants: Variants = {
+      initial: { x: 0, opacity: 1 },
+      hover: iconPosition === 'right' ? { x: 3 } : { x: -3 }
+    }
+
+    return (
+      <motion.button
+        ref={ref}
+        className={cn(baseClasses, variantClasses[variant], className)}
+        disabled={isDisabled}
+        initial="initial"
+        whileHover={!isDisabled ? 'hover' : undefined}
+        whileTap={!isDisabled ? 'tap' : undefined}
+        variants={buttonVariants}
+        transition={springTransition}
+        {...props}
+      >
+        {loading && (
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            className={cn('border-2 border-current border-t-transparent rounded-full', iconSizes[size])}
           />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          />
-        </svg>
-      ) : Icon && iconPosition === 'left' ? (
-        <Icon size={iconSize} strokeWidth={2} />
-      ) : null}
+        )}
 
-      {children}
+        {!loading && Icon && iconPosition === 'left' && (
+          <motion.span variants={iconVariants} transition={springTransition}>
+            <Icon className={iconSizes[size]} strokeWidth={2} />
+          </motion.span>
+        )}
 
-      {!loading && Icon && iconPosition === 'right' && (
-        <Icon size={iconSize} strokeWidth={2} />
-      )}
-    </button>
-  )
-}
+        {!loading && <span>{children}</span>}
+
+        {!loading && Icon && iconPosition === 'right' && (
+          <motion.span variants={iconVariants} transition={springTransition}>
+            <Icon className={iconSizes[size]} strokeWidth={2} />
+          </motion.span>
+        )}
+      </motion.button>
+    )
+  }
+)
+
+export default Button

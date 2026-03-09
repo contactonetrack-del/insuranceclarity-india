@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { processChatStep, ApplicationState } from './advisor-actions';
 
 // Mock the quoteService since we don't want to hit the DB during unit tests
-vi.mock('../../lib/services/quote.service', () => ({
+vi.mock('@/services/quote.service', () => ({
     quoteService: {
         generateQuote: vi.fn().mockResolvedValue({
             quote: { id: 'POL-MOCK-123' },

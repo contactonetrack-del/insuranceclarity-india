@@ -6,7 +6,7 @@
  */
 
 import pino from 'pino';
-import { maskEmail, maskPhone, maskAadhaar, maskPAN, maskPolicyNo } from './pii-mask';
+import { maskEmail, maskPhone, maskAadhaar, maskPAN, maskPolicyNo } from '@/services/security.service';
 
 // Determine log level based on environment
 const LOG_LEVEL = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug');

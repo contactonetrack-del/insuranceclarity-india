@@ -2,15 +2,13 @@
 
 import Link from 'next/link'
 import { Download, FileText, BookOpen, Video, ExternalLink, HelpCircle, Phone, Scale, Search, ArrowRight } from 'lucide-react'
-import {
-    RevealOnScroll,
+import { RevealOnScroll,
     StaggerContainer,
     StaggerItem,
     TiltCard,
     GlassCard,
-    MagicButton,
-    AnimatedHeading
-} from '@/components/premium'
+    AnimatedHeading } from '@/components/premium'
+import { Button } from '@/components/ui/Button'
 
 interface ResourceItem {
     title: string;
@@ -181,14 +179,14 @@ export default function ResourcesPage() {
                             </p>
                             <div className="flex flex-wrap justify-center gap-4">
                                 <a href="https://igms.irda.gov.in" target="_blank">
-                                    <MagicButton variant="secondary" icon={ExternalLink}>
+                                    <Button variant="secondary" icon={ExternalLink}>
                                         IRDAI Grievance Portal
-                                    </MagicButton>
+                                    </Button>
                                 </a>
                                 <Link href="/tools/hidden-facts">
-                                    <MagicButton icon={Search} glow>
+                                    <Button icon={Search} glow>
                                         View Hidden Facts
-                                    </MagicButton>
+                                    </Button>
                                 </Link>
                             </div>
                         </div>

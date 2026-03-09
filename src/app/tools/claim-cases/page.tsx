@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { ArrowRight, AlertTriangle, CheckCircle, XCircle, FileText, Lightbulb, Search } from 'lucide-react'
 import Card from '@/components/ui/Card'
+import Breadcrumbs from '@/components/ui/Breadcrumbs'
+
+export const revalidate = 86400; // Cache for 1 day
 
 type Verdict = 'approved' | 'rejected' | 'partial'
 
@@ -309,8 +312,9 @@ export default function ClaimCasesPage() {
         <div className="min-h-screen pt-20">
             <section className="py-12 px-6">
                 <div className="max-w-4xl mx-auto text-center">
+                    <Breadcrumbs />
                     <span className="inline-flex items-center gap-2 px-4 py-2 glass border-primary-500/30 
-                         text-primary-500 text-sm rounded-full mb-4 font-medium">
+                         text-primary-500 text-sm rounded-full mb-4 mt-4 font-medium">
                         📋 REAL CLAIM CASES
                     </span>
                     <h1 className="font-display font-bold text-3xl text-theme-primary mb-4">

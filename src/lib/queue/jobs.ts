@@ -46,7 +46,7 @@ export class BackgroundQueue {
                 headers: {
                     'Content-Type': 'application/json',
                     // Security header to ensure only our systems invoke the worker
-                    'X-Queue-Secret': process.env.QUEUE_SECRET || 'dev-secret'
+                    'X-Queue-Secret': process.env.QUEUE_SECRET || (() => { throw new Error("QUEUE_SECRET is required"); })()
                 },
                 body: JSON.stringify({
                     jobId,

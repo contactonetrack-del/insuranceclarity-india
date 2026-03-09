@@ -3,11 +3,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
-import RegulatoryDisclaimer from '@/components/RegulatoryDisclaimer'
+import { trackCalculatorUsed } from '@/services/analytics.service'
+import Link from 'next/link'
+import Breadcrumbs from '@/components/ui/Breadcrumbs'
 import {
     Calculator,
     ArrowRight,
-    Shield,
     CheckCircle,
     Info,
     MapPin,
@@ -140,18 +141,26 @@ export default function CalculatorPage() {
             if (isSmoker) conf += 3
             if (policyTerm >= 20) conf += 5
             setConfidence(Math.min(97, conf))
+
+            // Analytics Tracking - safely debounced via the 300ms calculation timeout
+            trackCalculatorUsed({
+                type: type as any,
+                sum_insured: sumAssured,
+                age: age,
+                completed: true
+            })
         }, 300)
         return () => clearTimeout(timer)
-    }, [performCalculation])
+    }, [performCalculation, age, isSmoker, policyTerm, sumAssured, type])
 
     const toggleRider = (id: string) => {
         setSelectedRiders(prev =>
             prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
         )
     }
-
     return (
         <div className="container mx-auto px-4 py-8 md:py-12">
+            <Breadcrumbs />
             <header className="mb-8 text-center animate-fade-in">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-10 text-accent
                    text-sm rounded-full mb-4 font-semibold shadow-glow-sm">
@@ -491,10 +500,10 @@ export default function CalculatorPage() {
                             <p className="text-[10px] text-theme-secondary mt-1">Based on profile completeness</p>
                         </div>
 
-                        <a href="/resources" className="btn-primary w-full mt-8 group flex items-center justify-center">
+                        <Link href="/resources" className="btn-primary w-full mt-8 group flex items-center justify-center">
                             Explore Expert Guides
                             <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                        </a>
+                        </Link>
                     </motion.div>
 
                     <div className="glass rounded-3xl p-6 border border-default">

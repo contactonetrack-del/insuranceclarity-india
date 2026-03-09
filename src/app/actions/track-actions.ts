@@ -1,6 +1,6 @@
 'use server';
 
-import { quoteService } from '../../lib/services/quote.service';
+import { quoteService } from '@/services/quote.service';
 
 export async function fetchQuoteStatus(quoteId: string) {
     if (!quoteId) {

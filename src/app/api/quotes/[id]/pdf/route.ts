@@ -1,6 +1,6 @@
-import PDFDocument from 'pdfkit';
 import { NextRequest, NextResponse } from 'next/server';
-import { quoteService } from '../../../../../lib/services/quote.service';
+
+export const dynamic = 'force-dynamic';
 
 type QuoteDocument = {
     id: string;
@@ -14,13 +14,20 @@ type QuoteDocument = {
 export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
     const { id } = await context.params;
 
-    const quote = await loadQuote(id);
+    // Lazy import to prevent Prisma connection evaluation at build time
+    const { quoteService } = await import('@/services/quote.service');
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const quote = await loadQuote(id, quoteService as any);
 
     if (!quote) {
         return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
     try {
+        // Dynamic import of PDFKit to avoid Edge runtime incompatibility
+        const PDFDocument = (await import('pdfkit')).default;
+
         const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
             const doc = new PDFDocument({
                 margin: 50,
@@ -81,7 +88,11 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
     }
 }
 
-async function loadQuote(id: string): Promise<QuoteDocument | null> {
+async function loadQuote(
+    id: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    service: { getQuoteById: (id: string) => Promise<any> }
+): Promise<QuoteDocument | null> {
     if (id.startsWith('POL-')) {
         return {
             id,
@@ -93,5 +104,5 @@ async function loadQuote(id: string): Promise<QuoteDocument | null> {
         };
     }
 
-    return quoteService.getQuoteById(id).catch(() => null);
+    return service.getQuoteById(id).catch(() => null);
 }

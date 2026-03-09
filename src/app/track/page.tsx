@@ -2,34 +2,68 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, FileText, CheckCircle2, ShieldAlert, Loader2, ArrowRight, Download, Clock } from 'lucide-react';
-import { MagicButton } from '@/components/premium/buttons/magic-button';
+import { Search, CheckCircle2, ShieldAlert, Loader2, ArrowRight, Download, Clock } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/Button';
+import { FormField, inputClasses } from '@/components/ui/FormField';
 import { AnimatedHeading, GradientText } from '@/components/premium/text/animated-text';
 import { fetchQuoteStatus } from '../actions/track-actions';
+import { cn } from '@/lib/utils';
+
+const trackSchema = z.object({
+    quoteId: z.string()
+        .min(3, 'Tracking ID is too short')
+        .max(100, 'Tracking ID is too long')
+        .refine(val => val.trim().length > 0, 'Tracking ID is required')
+});
+
+type TrackFormValues = z.infer<typeof trackSchema>;
 
 export default function TrackQuotePage() {
-    const [quoteId, setQuoteId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [result, setResult] = useState<any>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [result, setResult] = useState<{
+        id?: string;
+        insuranceType: string;
+        premiumAmount: number;
+        coverageAmount: number;
+        createdAt: Date;
+        status: string;
+    } | null>(null);
+    const [serverError, setServerError] = useState<string | null>(null);
 
-    const handleSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!quoteId.trim()) return;
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        watch
+    } = useForm<TrackFormValues>({
+        resolver: zodResolver(trackSchema),
+        defaultValues: {
+            quoteId: ''
+        }
+    });
 
+    const quoteIdValue = watch('quoteId');
+
+    const onSubmit = async (data: TrackFormValues) => {
         setIsLoading(true);
-        setError(null);
+        setServerError(null);
         setResult(null);
 
         try {
-            const res = await fetchQuoteStatus(quoteId.trim());
+            const res = await fetchQuoteStatus(data.quoteId.trim());
             if (res.error) {
-                setError(res.error);
+                setServerError(res.error);
+            } else if (res.quote) {
+                setResult(res.quote as any); // Type cast as fallback if structure is identical
             } else {
-                setResult(res.quote);
+                setServerError('No record found for the provided ID.');
             }
         } catch (err) {
-            setError('Something went wrong communicating with the servers. Please try again.');
+            console.error('Tracking request failed:', err);
+            setServerError('Something went wrong communicating with the servers. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -54,43 +88,51 @@ export default function TrackQuotePage() {
                 </div>
 
                 <motion.div
-                    className="glass mt-8 p-8 md:p-12 rounded-3xl shadow-glow-sm relative -mr-0 border border-white/20 dark:border-white/10"
+                    className="glass mt-8 p-8 md:p-12 rounded-3xl shadow-glow-sm relative border border-white/20 dark:border-white/10"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                 >
-                    <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto mb-4">
-                        <div className="relative flex-1 group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-theme-secondary group-focus-within:text-[rgb(var(--color-accent))] transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="e.g. POL-12345 or Database UUID"
-                                value={quoteId}
-                                onChange={(e) => setQuoteId(e.target.value)}
-                                className="w-full pl-14 pr-6 py-4 rounded-2xl bg-theme-bg/50 border border-theme-divider focus:border-[rgb(var(--color-accent))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-accent))]/20 transition-all text-lg font-medium shadow-inner"
-                                required
-                            />
-                        </div>
-                        <MagicButton
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto mb-4 items-start">
+                        <FormField
+                            error={errors.quoteId?.message}
+                            className="flex-1"
+                        >
+                            <div className="relative group w-full">
+                                <Search className={cn(
+                                    "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors",
+                                    errors.quoteId ? "text-red-400" : "text-theme-secondary group-focus-within:text-accent"
+                                )} />
+                                <input
+                                    {...register('quoteId')}
+                                    type="text"
+                                    placeholder="e.g. POL-12345 or Database UUID"
+                                    className={cn(inputClasses, "pl-12 py-3.5 text-base font-medium")}
+                                    aria-invalid={errors.quoteId ? 'true' : 'false'}
+                                />
+                            </div>
+                        </FormField>
+
+                        <Button
                             type="submit"
                             size="lg"
-                            className="md:w-auto w-full group !py-4"
+                            className="md:w-32 w-full shrink-0 !py-3.5"
                             glow
-                            disabled={isLoading || !quoteId.trim()}
+                            disabled={isLoading || !quoteIdValue.trim()}
                         >
                             {isLoading ? (
-                                <Loader2 className="w-6 h-6 animate-spin" />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                                 <span className="flex items-center justify-center gap-2 w-full">
-                                    Locate Record
-                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    Locate
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </span>
                             )}
-                        </MagicButton>
+                        </Button>
                     </form>
 
                     <AnimatePresence mode="wait">
-                        {error && (
+                        {serverError && (
                             <motion.div
                                 key="error"
                                 initial={{ opacity: 0, height: 0 }}
@@ -99,7 +141,7 @@ export default function TrackQuotePage() {
                                 className="mt-6 flex items-start gap-3 p-4 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 max-w-2xl mx-auto"
                             >
                                 <ShieldAlert className="w-6 h-6 shrink-0 mt-0.5" />
-                                <p className="font-medium">{error}</p>
+                                <p className="font-medium">{serverError}</p>
                             </motion.div>
                         )}
 
@@ -118,11 +160,11 @@ export default function TrackQuotePage() {
                                         </div>
                                         <div>
                                             <h3 className="text-sm font-semibold text-theme-secondary uppercase tracking-wider">Quote Verified</h3>
-                                            <p className="text-xl font-bold font-mono tracking-tight">{result.id || quoteId}</p>
+                                            <p className="text-xl font-bold font-mono tracking-tight">{result.id || quoteIdValue}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-[rgb(var(--color-accent))]/10 text-[rgb(var(--color-accent))]">
+                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-accent/10 text-accent">
                                             <Clock className="w-3.5 h-3.5" />
                                             {result.status === 'PROCESSING_DOCUMENT' ? 'Generating PDF...' : result.status}
                                         </div>
@@ -165,16 +207,16 @@ export default function TrackQuotePage() {
                                         Your comprehensive document bundle is being compiled. If the status is pending, check back in a few minutes.
                                     </p>
 
-                                    <MagicButton
+                                    <Button
                                         variant="secondary"
                                         size="md"
                                         className="shrink-0 w-full sm:w-auto"
                                         disabled={result.status === 'PROCESSING_DOCUMENT'}
-                                        onClick={() => window.open(`/api/quotes/${result.id || quoteId}/pdf`, '_blank')}
+                                        onClick={() => window.open(`/api/quotes/${result.id || quoteIdValue}/pdf`, '_blank')}
                                     >
                                         <Download className="w-4 h-4 mr-2" />
                                         Download PDF
-                                    </MagicButton>
+                                    </Button>
                                 </div>
                             </motion.div>
                         )}

@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import CookieBanner from '@/components/CookieBanner'
 import AnalyticsBootstrap from '@/components/AnalyticsBootstrap'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { NextAuthProvider } from '@/components/providers/NextAuthProvider'
 import PageTransition from '@/components/PageTransition'
 import ClarityAdvisor from '@/components/ClarityAdvisor'
 
@@ -13,13 +14,13 @@ const inter = Inter({
     subsets: ['latin'],
     variable: '--font-inter',
 })
-
 const outfit = Outfit({
     subsets: ['latin'],
     variable: '--font-outfit',
 })
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://insuranceclarity.in'),
     title: 'InsuranceClarity India - Compare Insurance | Discover Hidden Facts',
     description: 'India\'s most transparent insurance platform. Compare Life, Health, Motor, Home & Travel insurance. Discover hidden exclusions and understand claim settlements.',
     keywords: 'insurance India, health insurance, life insurance, motor insurance, policy comparison, claim settlement ratio',
@@ -84,15 +85,29 @@ export default function RootLayout({
                 />
             </head>
             <body className="font-sans antialiased">
+                {/* Skip to Content — Accessibility (WCAG 2.4.1) */}
+                <a
+                    href="#main-content"
+                    className="sr-only focus:not-sr-only focus:absolute focus:z-[9999]
+                               focus:top-4 focus:left-4 focus:px-4 focus:py-2
+                               focus:bg-white dark:focus:bg-slate-900
+                               focus:text-slate-900 dark:focus:text-white
+                               focus:rounded-xl focus:shadow-lg focus:border focus:border-accent
+                               focus:font-semibold focus:text-sm"
+                >
+                    Skip to main content
+                </a>
                 <ThemeProvider>
-                    <Header />
-                    <PageTransition>
-                        <main>{children}</main>
-                    </PageTransition>
-                    <Footer />
-                    <AnalyticsBootstrap />
-                    <CookieBanner />
-                    <ClarityAdvisor />
+                    <NextAuthProvider>
+                        <Header />
+                        <PageTransition>
+                            <main id="main-content" className="pt-24">{children}</main>
+                        </PageTransition>
+                        <Footer />
+                        <AnalyticsBootstrap />
+                        <CookieBanner />
+                        <ClarityAdvisor />
+                    </NextAuthProvider>
                 </ThemeProvider>
             </body>
         </html>
