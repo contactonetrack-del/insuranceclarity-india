@@ -204,9 +204,11 @@ export default function Header() {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo */}
-                        <Link href="/" className="flex items-center group transition-transform duration-300 hover:scale-[1.02]">
-                            <span className="font-display text-2xl md:text-[28px] font-extrabold tracking-tight text-[#0F172A] dark:text-white">
-                                Insurance<span className="text-[#4CAF50]">Clarity</span>
+                        <Link href="/" className="flex items-center group transition-all duration-300 hover:scale-[1.02]">
+                            <span className="font-display text-2xl md:text-[28px] font-extrabold tracking-tight text-[#0F172A] dark:text-white flex items-center">
+                                Insurance
+                                <span className="mx-1.5 text-accent/40 dark:text-accent/60 font-mono text-xl md:text-2xl">//</span>
+                                <span className="text-[#4CAF50]">Clarity</span>
                             </span>
                         </Link>
 
