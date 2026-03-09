@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown, Coffee, User as UserIcon, LogOut, LayoutDashboard } from 'lucide-react'
@@ -205,20 +204,9 @@ export default function Header() {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex items-center justify-between h-20">
                         {/* Logo */}
-                        <Link href="/" className="flex items-center gap-0 group">
-                            <div className="w-[108px] h-[108px] flex items-center justify-center
-                                        transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md sm:-ms-5">
-                                <Image
-                                    src="/logo.png"
-                                    alt="InsuranceClarity Logo"
-                                    width={108}
-                                    height={108}
-                                    className="object-contain"
-                                    priority
-                                />
-                            </div>
-                            <span className="font-display font-bold text-2xl text-theme-primary sm:-ms-5 tracking-tight">
-                                Insurance<span className="text-gradient">Clarity</span>
+                        <Link href="/" className="flex items-center group transition-transform duration-300 hover:scale-[1.02]">
+                            <span className="font-display text-2xl md:text-[28px] font-extrabold tracking-tight text-[#0F172A] dark:text-white">
+                                Insurance<span className="text-[#4CAF50]">Clarity</span>
                             </span>
                         </Link>
 
