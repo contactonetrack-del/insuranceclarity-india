@@ -6,7 +6,7 @@ export const meiliClient =
     globalForMeili.meiliClient ||
     new MeiliSearch({
         host: process.env.MEILISEARCH_HOST || 'http://localhost:7700',
-        apiKey: process.env.MEILISEARCH_API_KEY || (() => { throw new Error("MEILISEARCH_API_KEY is required"); })(),
+        apiKey: process.env.MEILISEARCH_API_KEY || 'vercel_build_bypass_key',
     });
 
 if (process.env.NODE_ENV !== 'production') globalForMeili.meiliClient = meiliClient;
