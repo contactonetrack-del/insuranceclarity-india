@@ -33,7 +33,7 @@ export default async function DashboardPage() {
         redirect("/");
     }
 
-    const user = await (prisma.user as { findUnique: Function }).findUnique({
+    const user = await prisma.user.findUnique({
         where: { email },
         include: {
             savedQuotes: { orderBy: { createdAt: "desc" }, take: 3 },
@@ -124,11 +124,11 @@ export default async function DashboardPage() {
                                         />
                                     </div>
                                 ) : (
-                                    user?.savedQuotes.map((quote: { id: string, insuranceType: string, createdAt: Date, premiumAmount: number, coverageAmount: number, status: string }) => (
+                                    user?.savedQuotes.map((quote) => (
                                         <div key={quote.id} className="glass p-5 rounded-2xl border border-default hover:border-blue-500/20 transition-all group">
                                             <div className="flex items-center justify-between mb-4">
                                                 <span className="text-[10px] font-black uppercase text-blue-500 bg-blue-500/5 px-2 py-0.5 rounded-lg border border-blue-500/10">
-                                                    {quote.insuranceType}
+                                                    {quote.type}
                                                 </span>
                                                 <span className="text-[10px] text-theme-muted">{new Date(quote.createdAt).toLocaleDateString()}</span>
                                             </div>
@@ -136,19 +136,17 @@ export default async function DashboardPage() {
                                                 <div>
                                                     <p className="text-xs text-theme-muted mb-1 uppercase tracking-tighter">Yearly Premium</p>
                                                     <h4 className="text-2xl font-black text-theme-primary tracking-tight">
-                                                        {formatCurrency(quote.premiumAmount)}
+                                                        {formatCurrency(quote.premium)}
                                                     </h4>
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-[10px] text-theme-muted uppercase mb-1">Coverage</p>
-                                                    <p className="text-sm font-bold text-theme-secondary">{formatCurrency(quote.coverageAmount)}</p>
+                                                    <p className="text-sm font-bold text-theme-secondary">{formatCurrency(quote.coverAmount)}</p>
                                                 </div>
                                             </div>
                                             <div className="mt-4 pt-4 border-t border-default flex justify-between items-center">
-                                                <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${quote.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
-                                                    'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                                                    }`}>
-                                                    {quote.status}
+                                                <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                                                    {quote.provider}
                                                 </span>
                                                 <button className="text-xs font-bold text-accent flex items-center gap-1 group-hover:underline">
                                                     Policy Doc <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
@@ -182,7 +180,7 @@ export default async function DashboardPage() {
                                         btnHref="/tools/ai-scanner"
                                     />
                                 ) : (
-                                    user?.policyScans.map((scan: { id: string, overallScore: number, policyName: string, redFlags: any[] }) => (
+                                    user?.policyScans.map((scan) => (
                                         <div key={scan.id} className="glass hover:border-rose-500/30 transition-all p-5 rounded-2xl border border-default flex items-center justify-between group">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center font-bold text-rose-500 border border-rose-500/20">
@@ -191,7 +189,7 @@ export default async function DashboardPage() {
                                                 <div>
                                                     <h4 className="font-bold text-theme-primary">{scan.policyName}</h4>
                                                     <p className="text-xs text-theme-muted uppercase tracking-tight">
-                                                        Transparency Score • {(scan as any).redFlags.length} Red Flags Found
+                                                        Transparency Score • {Array.isArray(scan.redFlags) ? scan.redFlags.length : 0} Red Flags Found
                                                     </p>
                                                 </div>
                                             </div>

@@ -9,6 +9,12 @@ export default [
             'coverage/**',
             'playwright-report/**',
             'test-results/**',
+            // Root-level CJS config and utility scripts — not app code
+            'next.config.js',
+            'postcss.config.js',
+            'tailwind.config.js',
+            'refactor-buttons.js',
+            'scripts/**',
         ],
     },
     {
