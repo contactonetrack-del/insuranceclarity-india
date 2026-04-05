@@ -1,0 +1,334 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String            @id @default(cuid())
+  name          String?
+  email         String?           @unique
+  emailVerified DateTime?
+  image         String?
+  plan          String            @default("FREE")
+  scansUsed     Int               @default(0)
+  savedFacts    String[]
+  savedCases    String[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  planExpiresAt DateTime?
+  role          String            @default("CUSTOMER")
+  accounts      Account[]
+  chatHistory   ChatHistory[]
+  payments      Payment[]
+  savedQuotes   SavedQuote[]
+  scans         Scan[]
+  sessions      Session[]
+  subscriptions Subscription[]
+  calculations  UserCalculation[]
+
+  @@index([email])
+  @@index([plan])
+  @@index([role])
+}
+
+model Scan {
+  id          String     @id @default(cuid())
+  userId      String?
+  fileUrl     String
+  fileName    String
+  fileHash    String
+  fileSizeKb  Int
+  status      ScanStatus @default(PENDING)
+  score       Int?
+  isPaywalled Boolean    @default(true)
+  isPaid      Boolean    @default(false)
+  ipAddress   String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  payment     Payment?
+  report      Report?
+  user        User?      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([fileHash])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Report {
+  id            String   @id @default(cuid())
+  scanId        String   @unique
+  summary       String
+  score         Int
+  risks         Json
+  exclusions    Json
+  suggestions   Json
+  hiddenClauses Json
+  rawGptOutput  String?
+  tokensUsed    Int?
+  processingMs  Int?
+  createdAt     DateTime @default(now())
+  scan          Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@index([scanId])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  userId            String?
+  scanId            String        @unique
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  amount            Int
+  currency          String        @default("INR")
+  status            PaymentStatus @default(CREATED)
+  plan              String        @default("SCAN_UNLOCK")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  scan              Scan          @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  user              User?         @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([scanId])
+  @@index([razorpayOrderId])
+  @@index([status])
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  userId                 String
+  plan                   String
+  razorpaySubscriptionId String             @unique
+  razorpayPlanId         String
+  status                 SubscriptionStatus @default(CREATED)
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  cancelledAt            DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([razorpaySubscriptionId])
+  @@index([status])
+}
+
+model HiddenFact {
+  id               String   @id @default(cuid())
+  category         String
+  title            String
+  severity         String
+  description      String
+  affectedPolicies String[]
+  whatToCheck      String
+  realCase         String
+  example          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([category])
+  @@index([severity])
+}
+
+model ClaimCase {
+  id        String   @id @default(cuid())
+  category  String
+  title     String
+  status    String
+  amount    Int
+  issue     String
+  details   String
+  outcome   String
+  lesson    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+}
+
+model UserCalculation {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  inputData Json
+  result    Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model SavedQuote {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  provider    String
+  premium     Int
+  coverAmount Int
+  notes       String?
+  details     Json?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  messages  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Newsletter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Quote {
+  id             String   @id @default(uuid())
+  insuranceType  String
+  coverageAmount Int
+  applicantAge   Int
+  tobaccoUser    Boolean?
+  premiumAmount  Float
+  status         String   @default("PENDING")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+  @@index([insuranceType])
+}
+
+model InsuranceCategory {
+  id     String                 @id @default(cuid())
+  name   String                 @unique
+  slug   String                 @unique
+  subcat InsuranceSubcategory[]
+}
+
+model InsuranceSubcategory {
+  id         String            @id @default(cuid())
+  name       String
+  categoryId String
+  category   InsuranceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  types      InsuranceType[]
+}
+
+model InsuranceType {
+  id            String               @id @default(cuid())
+  name          String
+  subcategoryId String
+  policies      InsurancePolicy[]
+  subcategory   InsuranceSubcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  relatedTo     TypeRelation[]       @relation("RelatedFrom")
+  relatedFrom   TypeRelation[]       @relation("RelatedTo")
+}
+
+model TypeRelation {
+  id           String        @id @default(cuid())
+  fromId       String
+  toId         String
+  relationType String
+  fromType     InsuranceType @relation("RelatedFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  toType       InsuranceType @relation("RelatedTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId, relationType])
+}
+
+model InsurancePolicy {
+  id              String        @id @default(cuid())
+  typeId          String
+  providerName    String
+  productName     String
+  coverageData    Json
+  eligibilityData Json
+  financialData   Json
+  benefits        String[]
+  exclusions      String[]
+  seoSlug         String        @unique
+  createdAt       DateTime      @default(now())
+  type            InsuranceType @relation(fields: [typeId], references: [id], onDelete: Cascade)
+}
+
+model Lead {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  insuranceType String
+  status        String   @default("NEW")
+  source        String   @default("ORGANIC")
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([insuranceType])
+}
+
+enum ScanStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentStatus {
+  CREATED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+enum SubscriptionStatus {
+  CREATED
+  AUTHENTICATED
+  ACTIVE
+  PAUSED
+  CANCELLED
+  COMPLETED
+  EXPIRED
+}

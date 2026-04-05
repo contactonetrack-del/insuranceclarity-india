@@ -1,0 +1,495 @@
+{
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign In",
+      "signInWithGoogle": "Continue with Google",
+      "noAccount": "Don't have an account?",
+      "register": "Create one free",
+      "forgotPassword": "Forgot password?",
+      "orContinueWith": "or continue with"
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "Free forever. No credit card needed.",
+      "name": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create Account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "terms": "By creating an account you agree to our {termsLink} and {privacyLink}."
+    }
+  },
+  "header": {
+    "compare": "Compare Policies",
+    "hiddenFacts": "Hidden Facts",
+    "tools": "Tools",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "signup": "Get Started Free",
+    "scan": "Scan Policy",
+    "pricing": "Pricing",
+    "advisor": "AI Advisor"
+  },
+  "footer": {
+    "copyright": "© {year} InsuranceClarity India. All rights reserved.",
+    "tagline": "India's most transparent insurance platform.",
+    "newsletter": {
+      "title": "Insurance tips, decoded weekly.",
+      "subtitle": "No jargon. No spam. Unsubscribe anytime.",
+      "placeholder": "Enter your email",
+      "submit": "Subscribe"
+    },
+    "links": {
+      "home": "Home",
+      "pricing": "Pricing",
+      "about": "About",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "blog": "Blog"
+    }
+  },
+  "nav": {
+    "tools": {
+      "compare": "Compare Policies",
+      "hiddenFacts": "Hidden Facts",
+      "calculator": "HLV Calculator",
+      "aiScanner": "AI Policy Scanner",
+      "interactiveQuote": "Interactive Quote"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "Trusted by 10,000+ Indians",
+      "title": "Stop Being Fooled by Your Insurance Policy",
+      "subtitle": "Our AI finds the hidden traps, exclusions, and red flags in your policy — in 60 seconds.",
+      "cta": "Scan Your Policy Free",
+      "ctaSecondary": "See How It Works",
+      "freeNote": "Free forever. No credit card required."
+    },
+    "stats": {
+      "policiesScanned": "Policies Scanned",
+      "risksFound": "Hidden Risks Found",
+      "usersProtected": "Users Protected",
+      "avgRiskScore": "Avg. Risk Score"
+    },
+    "features": {
+      "title": "Why InsuranceClarity?",
+      "subtitle": "Built for the 90% of Indians who never read their policy terms.",
+      "scan": {
+        "title": "AI Policy Scanner",
+        "desc": "Upload your PDF. Our AI reads 100+ pages in 60 seconds and flags every risk."
+      },
+      "compare": {
+        "title": "Policy Comparison",
+        "desc": "Side-by-side comparison of 500+ policies across all categories."
+      },
+      "advisor": {
+        "title": "AI Insurance Advisor",
+        "desc": "Ask anything about Indian insurance. Get instant, IRDAI-accurate answers."
+      }
+    },
+    "cta": {
+      "title": "Start protecting yourself today.",
+      "subtitle": "Join 10,000+ Indians who use InsuranceClarity to make smarter insurance decisions.",
+      "button": "Get Started Free"
+    }
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Start free. Upgrade when you need full clarity.",
+    "badge": "No hidden fees",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "desc": "For individuals who want to check their policy once.",
+        "cta": "Get Started Free"
+      },
+      "pro": {
+        "name": "Pro",
+        "desc": "For families who need complete insurance clarity.",
+        "cta": "Start Pro Plan"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "desc": "For insurance agents, businesses, and power users.",
+        "cta": "Contact Sales"
+      }
+    },
+    "perMonth": "/month",
+    "free": "Free forever",
+    "billed": "or {price}/mo billed annually",
+    "save": "Save {amount}/yr",
+    "mostPopular": "Most Popular",
+    "bestValue": "Best Value",
+    "features": {
+      "scansPerMonth": "{count} AI policy scans/month",
+      "unlimitedScans": "Unlimited AI policy scans",
+      "basicRisk": "Basic risk summary",
+      "hiddenRisksPreview": "{count} hidden risks preview",
+      "allHiddenRisks": "All hidden risks revealed",
+      "saveQuotes": "Save up to {count} quotes",
+      "unlimitedQuotes": "Unlimited quotes saved",
+      "advisorChat": "Unlimited AI advisor chat",
+      "fullReport": "Full risk report unlock",
+      "pdfExport": "PDF export",
+      "comparePolicies": "Compare policies",
+      "bulkScan": "Bulk scanning (multi-policy)",
+      "prioritySupport": "Priority support",
+      "dedicatedSupport": "Dedicated priority support",
+      "fullRiskReport": "Full risk report (all risks)"
+    },
+    "trustItems": {
+      "noCreditCard": "No credit card required",
+      "refundGuarantee": "7-day refund guarantee",
+      "irdaiCompliant": "IRDAI-compliant analysis",
+      "policiesScanned": "10,000+ policies scanned"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": [
+        {
+          "q": "Can I cancel my subscription anytime?",
+          "a": "Yes, absolutely. You can cancel your Pro or Enterprise plan at any time from your dashboard settings. No hidden fees or penalties."
+        },
+        {
+          "q": "Is my insurance policy data safe?",
+          "a": "Your PDF is encrypted during upload (256-bit TLS), processed by our AI, and then permanently deleted. We only store the analysis report, never your original document."
+        },
+        {
+          "q": "What types of insurance policies can you scan?",
+          "a": "We support all major Indian insurance types: Health, Term Life, Motor (Car & Bike), Home, Travel, and Business insurance — from all IRDAI-registered insurers."
+        },
+        {
+          "q": "Do you offer refunds?",
+          "a": "Yes. If our AI finds no additional risks beyond the free preview, we offer a 100% refund within 7 days of purchase. Just email us at support@insuranceclarity.in."
+        },
+        {
+          "q": "Is there a free trial for Pro?",
+          "a": "The Free plan gives you 2 full AI scans per month to evaluate our product. Each scan report's first 3 risks are shown free — no credit card required."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Still unsure? Start with the free plan.",
+      "subtitle": "Upload your policy PDF now — no account needed for your first scan.",
+      "button": "Scan Your Policy Free"
+    }
+  },
+  "scan": {
+    "title": "AI Policy Scanner",
+    "subtitle": "Upload your insurance PDF. Get a full risk analysis in 60 seconds.",
+    "badge": "AI-Powered Analysis",
+    "upload": {
+      "title": "Upload your policy",
+      "subtitle": "PDF files only. Max 10MB. Your file is encrypted and deleted after analysis.",
+      "button": "Choose File",
+      "dragDrop": "or drag & drop here"
+    },
+    "dropzone": {
+      "dropHere": "Drop your PDF here",
+      "uploadTitle": "Upload Your Insurance Policy",
+      "dragDropText": "Drag & drop your PDF here, or",
+      "browseText": "browse to select",
+      "encrypted": "Encrypted & Secure",
+      "pdfOnly": "PDF only · Max {max}MB",
+      "freeScan": "Free scan",
+      "uploadingPlaceholder": "Uploading…",
+      "steps": {
+        "uploading": "Uploading document",
+        "extracting": "Reading policy text",
+        "analyzing": "AI analysis running",
+        "scoring": "Calculating score"
+      }
+    },
+    "processing": "Analysing your policy…",
+    "trust": {
+      "encrypted": "256-bit Encrypted",
+      "encryptedDesc": "Your documents are encrypted in transit and at rest.",
+      "autoDeleted": "Auto-Deleted",
+      "autoDeletedDesc": "Policy files are deleted after analysis. We store only the report.",
+      "fastResults": "60-Second Results",
+      "fastResultsDesc": "Our AI processes your full policy in under a minute.",
+      "indiaFirst": "India-First",
+      "indiaFirstDesc": "Trained on IRDAI regulations and Indian insurance policies."
+    },
+    "policyTypes": {
+      "heading": "Works with all Indian insurance policies",
+      "health": "Health Insurance",
+      "motor": "Motor Insurance",
+      "termLife": "Term Life",
+      "home": "Home Insurance",
+      "travel": "Travel Insurance",
+      "business": "Business Insurance"
+    },
+    "results": {
+      "title": "Risk Analysis Complete",
+      "riskScore": "Risk Score",
+      "risksFound": "{count} risks found",
+      "freePreview": "Showing {count} of {total} risks",
+      "unlockAll": "Unlock All Risks — ₹199",
+      "downloadPdf": "Download PDF Report"
+    },
+    "paywall": {
+      "title": "{count} More Hidden Risk{count, plural, =1 {} other {s}} Found",
+      "subtitle": "Unlock the full report to see all exclusions, claim traps, and expert recommendations.",
+      "price": "₹199",
+      "priceNote": "one-time · no subscription",
+      "guarantee": "100% refund if our AI finds nothing new",
+      "cta": "Unlock Full Report — ₹199",
+      "features": {
+        "allRisks": "All {count} risk items revealed",
+        "details": "Detailed explanation for every risk",
+        "suggestions": "Expert suggestions to reduce risk",
+        "pdf": "Downloadable PDF report",
+        "lifetime": "Lifetime access to this scan"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Welcome Back, {name}",
+    "subtitle": "Your insurance intelligence hub.",
+    "stats": {
+      "savedQuotes": "Saved Quotes",
+      "aiScans": "AI Scans",
+      "calculations": "Calculations",
+      "riskScore": "Risk Score"
+    },
+    "recentScans": "Recent AI Scans",
+    "savedQuotes": "Saved Insurance Quotes",
+    "viewAll": "View All",
+    "noScans": "No scans yet",
+    "noScansDesc": "Upload your first policy to get an AI risk analysis.",
+    "scanNow": "Scan a Policy"
+  },
+  "advisor": {
+    "title": "Ask InsuranceClarity AI",
+    "placeholder": "Ask about any insurance topic...",
+    "send": "Send",
+    "loading": "Thinking...",
+    "disclaimer": "AI responses are for informational purposes only. Always consult a licensed advisor for financial decisions.",
+    "suggestions": [
+      "What is term life insurance?",
+      "How do I check my claim settlement ratio?",
+      "What is not covered in my health insurance?",
+      "How much life insurance do I need?"
+    ]
+  },
+  "tools": {
+    "calculator": {
+       "badge": "PREMIUM EDITION CALCULATOR",
+       "title": "Smart Premium Advisor",
+       "subtitle": "Get a high-precision estimate powered by advanced actuarial modeling."
+    },
+    "hlv": {
+      "badge": "HUMAN LIFE VALUE (HLV)",
+      "title": "How Much Are You Worth?",
+      "subtitle": "Calculated naturally. Find out exactly how much life insurance your family needs to maintain their lifestyle if you aren't around.",
+      "annualIncome": "Annual Income (₹)",
+      "personalExpenses": "Personal Expenses (%)",
+      "personalExpensesHint": "Typically 20-35% of income goes to your personal travel, food, etc.",
+      "currentAge": "Current Age",
+      "retirementAge": "Retirement Age",
+      "loans": "Loans & Liabilities (₹)",
+      "inflation": "Expected Inflation (%)",
+      "recommendedCover": "Recommended Life Cover",
+      "yearsEstimate": "Estimated based on {years} replacement years",
+      "incomeReplacement": "Income Replacement",
+      "debtCoverage": "Debt Coverage",
+      "saveCalculation": "Save Calculation",
+      "savedToDashboard": "Saved to Dashboard",
+      "signInToSave": "Sign in to save this",
+      "signInHint": "Registered users can track HLV changes over time and get direct advisor checks.",
+      "insight": "Strategic Insight",
+      "insightRule": "The 10x Rule is often insufficient in India due to high education inflation (10-12%).",
+      "insightRevisit": "Your HLV should ideally be revisited every 5 years or after major life events like child birth or home loans.",
+      "compareTermLife": "Compare Term Life Policies"
+    },
+    "taxBenefit": {
+      "badge": "TAX OPTIMIZER FY 2024-25",
+      "title": "Old vs New Tax Check",
+      "subtitle": "See how your insurance premiums affect your tax liability under Section 80C and 80D. Find your perfect regime.",
+      "annualIncome": "Annual Gross Income (₹)",
+      "section80C": "Section 80C (Life Ins)",
+      "maxLimit": "Max Limit: ₹{amount}",
+      "section80DSelf": "80D (Health - Self)",
+      "section80DParents": "80D (Health - Parents)",
+      "seniorCitizens": "Senior Citizens?",
+      "recommendation": "Our Recommendation",
+      "chooseRegime": "Choose {regime}",
+      "oldRegimeTax": "Old Regime Tax",
+      "newRegimeTax": "New Regime Tax",
+      "annualSaving": "Potential Annual Saving",
+      "comparison": "Regime Comparison Points",
+      "newRegimeNote": "In New Regime, your insurance premiums (₹{amount}) have zero impact on tax.",
+      "oldRegimeSaving": "In Old Regime, you are currently saving ₹{min} to ₹{max} in taxes just through insurance.",
+      "budgetNote": "Budget 2024 increased New Regime slabs. If your income is above 15L and you have less than 4.5L in total deductions, New Regime is usually better."
+    },
+    "roomRent": {
+      "badge": "HIDDEN DEDUCTION TRACKER",
+      "title": "The Room Rent Trap",
+      "subtitle": "Did you know? Choosing a room above your policy limit can reduce your entire hospital bill by the same percentage. Use this tool to visualize the loss.",
+      "totalBill": "Total Hospital Bill (excluding room)",
+      "policyLimit": "Policy Rent Limit",
+      "actualRent": "Actual Room Rent",
+      "perDay": "/day",
+      "commonHint": "Commonly 1% of Sum Insured.",
+      "proportionateTitle": "What is Proportionate Deduction?",
+      "proportionateDesc": "If you occupy a room more expensive than your limit, the insurer assumes you can afford better surgery too. They then cut payables for doctors, operation theater, and tests by the same ratio.",
+      "outOfPocket": "Expected Out-of-Pocket Loss",
+      "lossDetected": "LOSS DETECTED: {percent}% BILL DEDUCTION",
+      "safe": "SAFE: NO ROOM RENT CAPPING",
+      "insurerPays": "Insurer Will Pay",
+      "youPay": "Your Pocket Pays",
+      "approvedClaim": "Approved Claim",
+      "penalty": "Proportionate Penalty",
+      "avoidLoss": "How to avoid this loss?",
+      "suggestion1Title": "Choose 'No Room Rent Limit' Policies",
+      "suggestion1Desc": "Always opt for plans like HDFC Ergo Optima Secure or Care Supreme that have no capping on room rent.",
+      "suggestion2Title": "Stick to Single Private Room",
+      "suggestion2Desc": "If your policy says 'Single Private Room', you are safe as long as you don't pick a Suite or Deluxe.",
+      "compareHealthPlans": "Compare Health Plans Now"
+    },
+    "hiddenFacts": {
+      "badge": "HIDDEN FACTS REVEALER",
+      "title": "What Insurance Companies Don't Tell You",
+      "subtitle": "Discover 150+ hidden exclusions, fine print clauses, and real claim rejection cases.",
+      "totalFacts": "Total Facts",
+      "criticalIssues": "Critical Issues",
+      "categories": "Categories",
+      "realCases": "Real Cases",
+      "searchPlaceholder": "Search facts, exclusions, or policies...",
+      "filterBySeverity": "Filter by severity:",
+      "showing": "Showing {filtered} of {total} facts",
+      "whatToCheck": "What to Check:",
+      "realCase": "Real Case:",
+      "share": "Share",
+      "noResults": "No facts found",
+      "noResultsDesc": "We couldn't find any facts matching your search. Try adjusting your filters.",
+      "categoryAll": "All Insurance",
+      "categoryLife": "Life",
+      "categoryHealth": "Health",
+      "categoryMotor": "Motor",
+      "categoryTravel": "Travel",
+      "categoryHome": "Home",
+      "categoryBusiness": "Business",
+      "categorySpecialized": "Specialized",
+      "categoryPA": "PA"
+    },
+    "claimCases": {
+      "badge": "REAL CLAIM CASES",
+      "title": "Real Insurance Claim Cases",
+      "subtitle": "Learn from actual claim approvals and rejections. Real lessons from real cases.",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "partial": "Partial",
+      "claimAmount": "Claim Amount:",
+      "lesson": "Lesson:",
+      "viewHiddenFacts": "View Hidden Facts"
+    },
+    "compare": {
+      "badge": "Policy Comparison Engine",
+      "title": "Policy Clarity Comparison",
+      "subtitle": "Analyze 100+ insurance policies side-by-side with data-driven expert analysis.",
+      "button": "Compare Plans",
+      "feature": "Core Benefits",
+      "premium": "Indicative Premium",
+      "cover": "Maximum Cover",
+      "csr": "Claim Settlement Ratio",
+      "roomRent": "Room Rent Limits",
+      "waitingPeriod": "Waiting Periods",
+      "coPayment": "Co-Payment Clause",
+      "restoration": "Sum Insured Restoration",
+      "keyFeatures": "Notable Features",
+      "pros": "Why Choose This",
+      "cons": "Potential Concerns",
+      "selectTitle": "Choose Policies to Compare",
+      "noPolicies": "No policies match your current selection filter.",
+      "methodology": {
+        "title": "How we compare policies",
+        "sources": "Data sourced directly from IRDAI public disclosures and latest insurer prospectuses.",
+        "methodology": "Weights premiums against claim settlement reliability and hidden room rent traps.",
+        "limitations": "Indicative values only; individual pricing depends on age, health, and location."
+      },
+      "insight": {
+        "title": "Clarity Verdict",
+        "subtitle": "AI-driven analysis of your chosen policies",
+        "prompt": "Comparing two or more policies? Let our AI provide an expert recommendation.",
+        "button": "Generate Clarity Verdict",
+        "loading": "Decoding policy fine print...",
+        "winnerLabel": "The Clarity Choice",
+        "whyWinner": "Key Advantages",
+        "error": "Unable to generate insight at the moment. Please try again later."
+      }
+    }
+  },
+  "about": {
+    "badge": "India's Most Transparent Insurance Platform",
+    "title": "About",
+    "brandName": "InsuranceClarity",
+    "heroDesc": "We're an independent educational platform with a simple mission: make insurance understandable for every Indian. No sales, no commissions, no jargon — just the truth about your policies.",
+    "missionTitle": "Why We Built This",
+    "missionP1": "Insurance in India is complex by design. Policies run dozens of pages. Exclusions are buried in footnotes. Premiums are pushed by commission-driven agents. And millions of Indians discover the gaps in their coverage only at claim time — when it's too late.",
+    "missionP2": "InsuranceClarity was born from frustration with this opacity. We believed there should be a platform that tells you what insurance companies don't want you to know — before you sign anything. So we built one.",
+    "missionP3": "We decode policy documents, surface hidden exclusions, track real claim outcomes, and provide tools that help you compare policies on dimensions that actually matter for claims.",
+    "valuesTitle": "Our Core Values",
+    "values": {
+      "transparency": {
+        "title": "Radical Transparency",
+        "desc": "We expose what insurance companies hide — exclusions, sub-limits, waiting periods, and conditions that affect claims."
+      },
+      "zeroBias": {
+        "title": "Zero Commission Bias",
+        "desc": "We do not receive commissions from insurers. Our analysis is purely data-driven and consumer-focused."
+      },
+      "consumerFirst": {
+        "title": "Consumer First",
+        "desc": "Our loyalty is to policyholders, not insurers. We advocate for fair treatment and informed choices."
+      },
+      "dataDriven": {
+        "title": "Data-Driven",
+        "desc": "All claims data and CSR figures are sourced from official IRDAI annual reports. We cite our sources."
+      }
+    },
+    "statsTitle": "The Numbers",
+    "stats": {
+      "policiesAnalyzed": "Insurance policies analyzed",
+      "typesCovered": "Insurance types covered",
+      "independent": "Independent — zero advertiser pressure",
+      "freeToUse": "Free to use, always"
+    },
+    "disclaimerTitle": "Legal Disclaimer",
+    "disclaimerText": "InsuranceClarity India is an educational content platform and is not an IRDAI-licensed insurance intermediary, broker, or agent. We do not sell, solicit, or negotiate insurance products. All content is for informational purposes only. Insurance is subject to IRDAI regulations. Please read all policy documents carefully and consult a licensed advisor before purchasing.",
+    "ctaTitle": "Ready to take control of your insurance?",
+    "ctaRevealFacts": "Reveal Hidden Facts",
+    "ctaContact": "Get in Touch"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "seeAll": "See All",
+    "learnMore": "Learn More",
+    "getStarted": "Get Started",
+    "viewDetails": "View Details",
+    "moreInfo": "More Information",
+    "or": "or",
+    "and": "and",
+    "free": "Free",
+    "perMonth": "/month",
+    "rupee": "₹"
+  }
+}

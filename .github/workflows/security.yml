@@ -1,0 +1,70 @@
+name: Enterprise Security Audit
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly scan
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci_db"
+      DIRECT_URL: "postgresql://ci:ci@localhost:5432/ci_db"
+      NEXTAUTH_SECRET: "ci-secret-placeholder-32-chars-long"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      MEILISEARCH_HOST: "http://localhost:7700"
+      MEILISEARCH_API_KEY: "ci_bypass_key"
+      UPSTASH_REDIS_REST_URL: "https://ci.upstash.io"
+      UPSTASH_REDIS_REST_TOKEN: "ci_token"
+      REDIS_URL: "redis://localhost:6379"
+      OPENAI_API_KEY: "sk-ci-placeholder"
+      GOOGLE_CLIENT_ID: "ci-google-client-id"
+      GOOGLE_CLIENT_SECRET: "ci-google-client-secret"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run NPM Audit (Critical Vulnerabilities Only)
+        run: npm audit --audit-level=critical
+        continue-on-error: true
+
+      - name: Run Static Analysis (ESLint)
+        run: npm run lint -- --max-warnings 200
+        continue-on-error: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+
+      - name: Autobuild (CodeQL)
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript,typescript"
+
+      - name: Secret Scanning (TruffleHog)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+        continue-on-error: true

@@ -1,0 +1,293 @@
+/* ============================================
+   ONBOARDING PRODUCT TOUR STYLES
+   ============================================ */
+
+.tour-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.tour-modal {
+    position: fixed;
+    z-index: 9999;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 520px;
+    background: rgba(var(--color-card-bg), 0.98);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(var(--color-accent), 0.2);
+    border-radius: var(--radius-2xl, 24px);
+    padding: 40px 36px 28px;
+    box-shadow: var(--shadow-2xl, 0 25px 80px rgba(0,0,0,0.4));
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tour-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(var(--color-text-muted), 0.1);
+    color: rgb(var(--color-text-muted));
+    border: none;
+    cursor: pointer;
+    transition: background var(--motion-fast, 0.15s) ease, color var(--motion-fast, 0.15s) ease;
+}
+
+.tour-close:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* Progress dots */
+.tour-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+
+.tour-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(var(--color-text-muted), 0.25);
+    border: none;
+    cursor: pointer;
+    transition: all var(--motion-medium, 0.25s) ease;
+    padding: 0;
+}
+
+.tour-dot--active {
+    width: 24px;
+    border-radius: 4px;
+    background: rgb(var(--color-accent));
+}
+
+/* Content */
+.tour-content {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeSlideIn 0.3s ease-out;
+}
+
+.tour-emoji {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.tour-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: rgb(var(--color-text-primary));
+    margin: 0 0 12px;
+    line-height: 1.3;
+}
+
+.tour-body {
+    font-size: 15px;
+    color: rgb(var(--color-text-secondary));
+    line-height: 1.7;
+    margin: 0 0 16px;
+}
+
+.tour-highlight {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: rgba(var(--color-accent), 0.08);
+    color: rgb(var(--color-accent));
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid rgba(var(--color-accent), 0.2);
+}
+
+/* Navigation */
+.tour-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.tour-nav__back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+.tour-nav__next,
+.tour-nav__cta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.tour-skip {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 13px;
+    color: rgb(var(--color-text-muted));
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color var(--motion-fast, 0.15s) ease;
+}
+
+.tour-skip:hover {
+    color: rgb(var(--color-text-secondary));
+}
+
+/* ── Newsletter component styles ── */
+.newsletter-signup {
+    text-align: center;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.newsletter-signup__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg, 12px);
+    background: rgba(var(--color-accent), 0.1);
+    color: rgb(var(--color-accent));
+    margin-bottom: 16px;
+}
+
+.newsletter-signup__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: rgb(var(--color-text-primary));
+    margin-bottom: 6px;
+}
+
+.newsletter-signup__subtitle {
+    font-size: 13px;
+    color: rgb(var(--color-text-muted));
+    margin-bottom: 20px;
+}
+
+.newsletter-signup__form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.newsletter-signup__input {
+    width: 100%;
+}
+
+.newsletter-signup__btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.newsletter-signup__legal {
+    font-size: 12px;
+    color: rgb(var(--color-text-muted));
+    margin-top: 12px;
+}
+
+/* Compact variant */
+.newsletter-compact {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.newsletter-compact__input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.newsletter-compact__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+}
+
+/* Success state */
+.newsletter-success {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: var(--radius-md, 8px);
+}
+
+.newsletter-success--compact {
+    padding: 10px 14px;
+}
+
+.newsletter-success__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgb(var(--color-text-primary));
+}
+
+.newsletter-success__desc {
+    font-size: 12px;
+    color: rgb(var(--color-text-muted));
+}
+
+.newsletter-error {
+    font-size: 13px;
+    color: #ef4444;
+}
+
+/* ── Keyframe animations ── */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translate(-50%, calc(-50% + 24px)); }
+    to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}

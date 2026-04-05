@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing / coverage outputs
+coverage/
+test-results/
+playwright-report/
+
+# Next.js and build outputs
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment files (never commit secrets)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*.local
+.env*
+!.env.example
+
+# Vercel
+.vercel/
+
+# Logs and diagnostics
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+build*.txt
+lint*.txt
+vercel*.txt
+
+# One-off migration/injection scripts
+refactor-buttons.js
+inject-metadata.js
+
+# Misc
+.DS_Store
+Thumbs.db
+*.pem
+.idea/
+.vscode/settings.json
+
+# Local Binaries and Data
+bin/
+meili_data/
+dumps/

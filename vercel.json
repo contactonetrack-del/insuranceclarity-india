@@ -1,0 +1,82 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "npm ci --legacy-peer-deps",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "functions": {
+    "src/app/api/upload/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/jobs/document-worker/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/jobs/document-worker/failure/route.ts": {
+      "maxDuration": 10
+    },
+    "src/app/api/payment/verify/route.ts": {
+      "maxDuration": 15
+    },
+    "src/app/api/subscription/webhook/route.ts": {
+      "maxDuration": 15
+    },
+    "src/app/api/result/[id]/route.ts": {
+      "maxDuration": 15
+    },
+    "src/app/api/auth/[...nextauth]/route.ts": {
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(?:js|css|png|jpg|jpeg|gif|webp|svg|ico|woff|woff2))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/scan/:path*",
+      "destination": "/scan/:path*"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/reset-scans",
+      "schedule": "0 0 1 * *"
+    },
+    {
+      "path": "/api/cron/cleanup-stale-scans",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/payment-reconciliation",
+      "schedule": "*/15 * * * *"
+    }
+  ]
+}

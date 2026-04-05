@@ -1,0 +1,12 @@
+.next
+node_modules
+coverage
+test-results
+playwright-report
+out
+dumps
+meili_data
+bin
+docs
+temp_hi.json
+*.log

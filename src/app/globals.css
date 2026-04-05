@@ -1,0 +1,231 @@
+@import "tailwindcss";
+
+/* ============================================
+   DESIGN TOKENS - Premium UI System
+   Defined as CSS variables for multi-theme support
+   ============================================ */
+
+:root {
+    /* ===== SPACING & RADIUS TOKENS ===== */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-full: 9999px;
+
+    /* ===== MOTION TOKENS ===== */
+    --motion-instant: 100ms;
+    --motion-fast: 200ms;
+    --motion-medium: 400ms;
+    --motion-slow: 800ms;
+
+    /* Premium easing curves */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* ===== LIGHT THEME TOKENS ===== */
+    --token-bg-primary: 255 255 255;
+    --token-bg-secondary: 250 250 250;
+    --token-bg-tertiary: 245 245 245;
+
+    --token-text-primary: 15 23 42;
+    --token-text-secondary: 71 85 105;
+    --token-text-muted: 100 116 139;
+
+    --token-card-bg: 255 255 255;
+    --token-card-opacity: 0.98;
+    --token-card-blur: 20px;
+
+    /* GREEN accent for Light Mode */
+    --token-accent: 76 175 80;
+    --token-accent-rgb: 76, 175, 80;
+    --token-accent-dark: 56 142 60;
+    --token-accent-light: 129 199 132;
+
+    --token-gradient-accent: linear-gradient(135deg, #4CAF50 0%, #43A047 100%);
+    --token-gradient-bg: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+
+    /* Borders */
+    --token-border-default: 226 232 240;
+}
+
+.dark {
+    /* ===== DARK THEME TOKENS ===== */
+    --token-bg-primary: 10 15 26;
+    --token-bg-secondary: 15 23 42;
+    --token-bg-tertiary: 30 41 59;
+
+    --token-text-primary: 248 250 252;
+    --token-text-secondary: 203 213 225;
+    --token-text-muted: 148 163 184;
+
+    --token-card-bg: 30 41 59;
+    --token-card-opacity: 0.85;
+    --token-card-blur: 16px;
+
+    /* BLUE accent for Dark Mode */
+    --token-accent: 59 130 246;
+    --token-accent-rgb: 59, 130, 246;
+    --token-accent-dark: 37 99 235;
+    --token-accent-light: 96 165 250;
+
+    --token-gradient-accent: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    --token-gradient-bg: linear-gradient(135deg, #0a0f1a 0%, #0f172a 50%, #1e293b 100%);
+
+    --token-border-default: 51 65 85;
+}
+
+@theme {
+  /* Colors - Non-recursive mapping */
+  --color-accent: rgb(var(--token-accent));
+  --color-accent-hover: rgb(var(--token-accent-dark));
+  --color-accent-light: rgb(var(--token-accent-light));
+  
+  --color-theme-primary: rgb(var(--token-bg-primary));
+  --color-theme-secondary: rgb(var(--token-bg-secondary));
+  --color-theme-tertiary: rgb(var(--token-bg-tertiary));
+  
+  --color-card-bg: rgb(var(--token-card-bg));
+  --color-default: rgb(var(--token-border-default));
+
+  /* Status Colors */
+  --color-success-50: #f0fdf4;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+
+  --color-warning-500: #f59e0b;
+  --color-danger-500: #ef4444;
+
+  /* Typography */
+  --font-sans: "Inter", '"system-ui"', "sans-serif";
+  --font-display: "Outfit", "Inter", "sans-serif";
+
+  /* Custom Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.6s ease-out;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out;
+  --animate-slide-in: slide-in 0.4s ease-out;
+  --animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   ANIMATIONS (Top-level for PostCSS stability)
+   ============================================ */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-in {
+  0% { transform: translateX(-10px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(76, 175, 80, 0.5); }
+}
+
+.dark {
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); }
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & BASE 
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+body {
+    color: rgb(var(--token-text-primary));
+    background: var(--token-gradient-bg);
+    min-height: 100vh;
+    transition: background var(--motion-slow) var(--ease-out-expo),
+                color var(--motion-medium) var(--ease-out-expo);
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+@layer utilities {
+    .glass {
+        background: rgba(var(--token-card-bg), var(--token-card-opacity));
+        backdrop-filter: blur(var(--token-card-blur));
+        border: 1px solid rgba(var(--token-border-default), 0.1);
+    }
+
+    .glass-strong {
+        background: rgba(var(--token-card-bg), 0.98);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(var(--token-border-default), 0.2);
+    }
+
+    .hover-lift {
+        transition: transform var(--motion-fast) var(--ease-out-expo),
+                    box-shadow var(--motion-fast) var(--ease-out-expo);
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-4px);
+    }
+
+    .text-gradient {
+        background: var(--token-gradient-accent);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+}
+
+/* ============================================
+   COMPONENTS
+   ============================================ */
+
+@layer components {
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all;
+        padding: 12px 24px;
+        background: var(--token-gradient-accent);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(var(--token-accent-rgb), 0.3);
+    }
+
+    .card {
+        @apply glass rounded-2xl p-6 transition-all;
+    }
+
+    .card-interactive:hover {
+        transform: translateY(-6px);
+        border-color: rgba(var(--token-accent-rgb), 0.4);
+    }
+}
