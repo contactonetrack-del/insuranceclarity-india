@@ -77,6 +77,14 @@
     {
       "path": "/api/cron/payment-reconciliation",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/subscription-downgrade",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/payment-cleanup",
+      "schedule": "0 2 * * *"
     }
   ]
 }

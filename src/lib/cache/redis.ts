@@ -112,6 +112,18 @@ export const redisClient = {
         }
     },
 
+    async keys(pattern: string): Promise<string[]> {
+        const client = getRedisClient();
+        if (!client) return [];
+        try {
+            return await client.keys(pattern);
+        } catch (err) {
+            logger.warn({ action: 'redis.keys.error', pattern, error: String(err) });
+            return [];
+        }
+    },
+
+
     isConfigured(): boolean {
         return Boolean(
             process.env.UPSTASH_REDIS_REST_URL &&

@@ -12,8 +12,11 @@ import Razorpay from 'razorpay';
 import { auth } from '@/auth';
 
 import { prisma } from '@/lib/prisma';
+import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
+import { validateCsrfRequest } from '@/lib/security/csrf';
 import { getRazorpayCredentials, getRazorpayPublicKeyId } from '@/lib/security/env';
+import { ErrorFactory } from '@/lib/api/error-response';
 import type { CreateOrderResponse } from '@/types/report.types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -34,8 +37,9 @@ function getClientIp(request: NextRequest): string | null {
 function canAccessScan(params: {
     isAdmin: boolean;
     sessionUserId: string | null;
-    requestIp: string | null;
     ownerUserId: string | null;
+    claimTokenValid: boolean;
+    requestIp: string | null;
     ownerIp: string | null;
 }): boolean {
     if (params.isAdmin) return true;
@@ -44,7 +48,14 @@ function canAccessScan(params: {
         return params.sessionUserId === params.ownerUserId;
     }
 
-    return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
+    if (params.claimTokenValid) return true;
+
+    // Temporary legacy fallback for pre-token scans in non-production only.
+    if (process.env.NODE_ENV !== 'production') {
+        return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
+    }
+
+    return false;
 }
 
 async function upsertScanPayment(params: {
@@ -102,16 +113,20 @@ function getRazorpayClient(): Razorpay {
 
 export async function POST(request: NextRequest) {
     try {
-        const session = await auth();
-        const userId  = (session?.user as { id?: string })?.id ?? null;
-        const role    = (session?.user as { role?: string } | undefined)?.role;
-        const requestIp = getClientIp(request);
+        const csrfError = validateCsrfRequest(request);
+        if (csrfError) return csrfError;
 
-        const body    = await request.json() as { scanId?: string };
+        const session = await auth();
+        const userId = (session?.user as { id?: string })?.id ?? null;
+        const role = (session?.user as { role?: string } | undefined)?.role;
+        const requestIp = getClientIp(request);
+        const claimToken = request.headers.get('x-claim-token');
+
+        const body = await request.json() as { scanId?: string };
         const { scanId } = body;
 
         if (!scanId || typeof scanId !== 'string') {
-            return NextResponse.json({ error: 'scanId is required.' }, { status: 400 });
+            return ErrorFactory.validationError('scanId is required.');
         }
 
         // Verify scan exists and is completed
@@ -121,39 +136,46 @@ export async function POST(request: NextRequest) {
         });
 
         if (!scan) {
-            return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
+            return ErrorFactory.notFound('Scan not found.');
+        }
+
+        let claimTokenValid = false;
+        if (claimToken && !scan.userId && redisClient.isConfigured()) {
+            const claimedScanId = await redisClient.get<string>(`scan:claim:${claimToken}`);
+            claimTokenValid = claimedScanId === scanId;
         }
 
         const isAllowed = canAccessScan({
             isAdmin: role === 'ADMIN',
             sessionUserId: userId,
-            requestIp,
             ownerUserId: scan.userId,
+            claimTokenValid,
+            requestIp,
             ownerIp: scan.ipAddress,
         });
 
         if (!isAllowed) {
             logger.warn({ action: 'payment.order.access.denied', scanId, userId: userId ?? 'anonymous' });
-            return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
+            return ErrorFactory.notFound('Scan not found.');
         }
 
         if (scan.isPaid) {
-            return NextResponse.json({ error: 'This report is already unlocked.' }, { status: 400 });
+            return ErrorFactory.validationError('This report is already unlocked.');
         }
 
         if (scan.status !== 'COMPLETED') {
-            return NextResponse.json({ error: 'Scan is not yet complete.' }, { status: 400 });
+            return ErrorFactory.validationError('Scan is not yet complete.');
         }
 
         // Create Razorpay order
         const razorpay = getRazorpayClient();
         const order = await razorpay.orders.create({
-            amount:   SCAN_UNLOCK_AMOUNT_PAISE,
+            amount: SCAN_UNLOCK_AMOUNT_PAISE,
             currency: 'INR',
-            receipt:  `scan_${scanId.slice(0, 16)}`,
+            receipt: `scan_${scanId.slice(0, 16)}`,
             notes: {
                 scanId,
-                userId:  userId ?? 'anonymous',
+                userId: userId ?? 'anonymous',
                 product: 'policy_scan_unlock',
             },
         });
@@ -176,8 +198,8 @@ export async function POST(request: NextRequest) {
         const { keyId } = getRazorpayCredentials();
         const publicKeyId = getRazorpayPublicKeyId(keyId);
         const response: CreateOrderResponse = {
-            orderId:  order.id,
-            amount:   SCAN_UNLOCK_AMOUNT_PAISE,
+            orderId: order.id,
+            amount: SCAN_UNLOCK_AMOUNT_PAISE,
             currency: 'INR',
             keyId: publicKeyId,
         };
@@ -188,9 +210,9 @@ export async function POST(request: NextRequest) {
         logger.error({ action: 'payment.order.error', error: message });
 
         if (message.toLowerCase().includes('already unlocked')) {
-            return NextResponse.json({ error: message }, { status: 400 });
+            return ErrorFactory.validationError(message);
         }
 
-        return NextResponse.json({ error: message }, { status: 500 });
+        return ErrorFactory.internalServerError(message);
     }
 }

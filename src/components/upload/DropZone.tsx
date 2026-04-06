@@ -82,9 +82,13 @@ export function DropZone() {
             formData.append('file', file);
 
             // Use XMLHttpRequest for upload progress tracking, pass CSRF token
-            const scanId = await uploadWithProgress(formData, csrfToken, (progress) => {
+            const { scanId, claimToken } = await uploadWithProgress(formData, csrfToken, (progress) => {
                 setUploadProgress(progress);
             });
+
+            if (claimToken) {
+                sessionStorage.setItem(`scan_claim_${scanId}`, claimToken);
+            }
 
             setScanId(scanId);
             setUploadProgress(100);
@@ -215,7 +219,7 @@ function uploadWithProgress(
     formData: FormData,
     csrfToken: string,
     onProgress: (pct: number) => void,
-): Promise<string> {
+): Promise<{ scanId: string; claimToken?: string }> {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
 
@@ -228,9 +232,9 @@ function uploadWithProgress(
         xhr.addEventListener('load', () => {
             if (xhr.status >= 200 && xhr.status < 300) {
                 try {
-                    const data = JSON.parse(xhr.responseText) as { scanId: string; error?: string };
+                    const data = JSON.parse(xhr.responseText) as { scanId: string; claimToken?: string; error?: string };
                     if (data.error) { reject(new Error(data.error)); return; }
-                    resolve(data.scanId);
+                    resolve({ scanId: data.scanId, claimToken: data.claimToken });
                 } catch {
                     reject(new Error('Invalid server response.'));
                 }

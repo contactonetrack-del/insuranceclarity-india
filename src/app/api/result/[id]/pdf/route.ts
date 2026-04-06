@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { redisClient } from '@/lib/cache/redis';
 import { getReport, getScanStatus } from '@/services/report.service';
 import type { FullReportResponse } from '@/types/report.types';
 
@@ -38,6 +39,7 @@ function canAccessScan(params: {
     requestIp: string | null;
     ownerUserId: string | null;
     ownerIp: string | null;
+    claimTokenValid: boolean;
 }): boolean {
     if (params.isAdmin) return true;
 
@@ -45,11 +47,14 @@ function canAccessScan(params: {
         return params.sessionUserId === params.ownerUserId;
     }
 
-    if (!params.ownerIp) {
-        return process.env.NODE_ENV !== 'production';
+    if (params.claimTokenValid) return true;
+
+    // Legacy fallback is explicitly development-only for pre-token scans.
+    if (process.env.NODE_ENV !== 'production') {
+        return Boolean(params.requestIp && params.ownerIp && params.requestIp === params.ownerIp);
     }
 
-    return Boolean(params.requestIp && params.requestIp === params.ownerIp);
+    return false;
 }
 
 function addSection(
@@ -89,6 +94,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const isAdmin = role === 'ADMIN';
         const requestIp = getClientIp(request);
         const locale = getRequestLocale(request);
+        const claimToken = request.headers.get('x-claim-token')
+            ?? request.nextUrl.searchParams.get('ct');
 
         const scanAccess = await prisma.scan.findUnique({
             where: { id: scanId },
@@ -99,6 +106,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
         }
 
+        let claimTokenValid = false;
+        if (claimToken && !scanAccess.userId && redisClient.isConfigured()) {
+            const claimedScanId = await redisClient.get<string>(`scan:claim:${claimToken}`);
+            claimTokenValid = claimedScanId === scanId;
+        }
+
         if (
             !canAccessScan({
                 isAdmin,
@@ -106,6 +119,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 requestIp,
                 ownerUserId: scanAccess.userId,
                 ownerIp: scanAccess.ipAddress,
+                claimTokenValid,
             })
         ) {
             return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });

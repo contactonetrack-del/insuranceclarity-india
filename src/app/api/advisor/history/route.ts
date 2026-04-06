@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthSession } from '@/lib/auth/session';
 import { logger } from '@/lib/logger';
+import { ErrorFactory } from '@/lib/api/error-response';
 
 /**
  * GET /api/advisor/history
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest) {
     try {
         const session = await getAuthSession();
         if (!session || !session.user || !session.user.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return ErrorFactory.unauthorized('Unauthorized');
         }
 
         const user = await prisma.user.findUnique({ 
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
         });
         
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+            return ErrorFactory.notFound('User not found');
         }
 
         const { searchParams } = new URL(req.url);
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(histories);
     } catch (error) {
         logger.error({ error, route: 'api/advisor/history' }, 'Failed to fetch chat history');
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return ErrorFactory.internalServerError('Internal server error');
     }
 }
 
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
     try {
         const session = await getAuthSession();
         if (!session || !session.user || !session.user.email) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return ErrorFactory.unauthorized('Unauthorized');
         }
 
         const user = await prisma.user.findUnique({ 
@@ -68,14 +69,14 @@ export async function POST(req: NextRequest) {
         });
         
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+            return ErrorFactory.notFound('User not found');
         }
 
         const body = await req.json();
         const { id, title, messages } = body;
 
         if (!title || !messages || !Array.isArray(messages)) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+            return ErrorFactory.validationError('Missing required fields');
         }
 
         if (id) {
@@ -101,6 +102,6 @@ export async function POST(req: NextRequest) {
         }
     } catch (error) {
         logger.error({ error, route: 'api/advisor/history' }, 'Failed to save chat history');
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return ErrorFactory.internalServerError('Internal server error');
     }
 }

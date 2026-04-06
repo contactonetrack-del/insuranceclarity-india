@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { indexes } from '@/lib/search/meilisearch';
 import { redisClient } from '@/lib/cache/redis';
-import { ensureMeilisearchProductionReady, getMeilisearchHost } from '@/lib/search/config';
+import { ensureMeilisearchProductionReady } from '@/lib/search/config';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,10 +49,10 @@ export async function GET(request: Request) {
         return NextResponse.json(results);
     } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
+        logger.error({ action: 'search.unavailable', error: msg });
         return NextResponse.json(
             {
-                error: `Search service is currently unavailable. ${msg}`,
-                host: getMeilisearchHost(),
+                error: 'Search service is currently unavailable. Please try again later.',
             },
             { status: 503 }
         );

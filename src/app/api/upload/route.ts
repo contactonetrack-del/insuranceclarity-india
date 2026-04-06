@@ -17,20 +17,21 @@ import { NextRequest, NextResponse, after } from 'next/server';
 import { auth } from '@/auth';
 import { v2 as cloudinary } from 'cloudinary';
 
-import { logger }                    from '@/lib/logger';
+import { logger } from '@/lib/logger';
 import { validatePdfBuffer } from '@/services/pdf.service';
 import { extractTextFromPdf } from '@/services/pdf-extraction.server';
 import { createScan, findExistingScan, countAnonymousScansSince } from '@/services/report.service';
-import { enqueueScanJob }            from '@/lib/queue/scan-queue';
-import { queue }                     from '@/lib/queue/jobs';
-import { enforcePlanLimit }          from '@/lib/subscriptions/enforce-plan';
-import { getLimitsForPlan }          from '@/lib/subscriptions/plan-limits';
-import { enforceAiRateLimit }        from '@/lib/security/ai-rate-limit';
-import { redisClient }               from '@/lib/cache/redis';
-import { validateCsrfRequest }       from '@/lib/security/csrf';
-import { sendScanLimitNudgeEmail }   from '@/services/email.service';
-import { trackFunnelStep }           from '@/lib/analytics/funnel';
-import type { UploadResponse }       from '@/types/report.types';
+import { enqueueScanJob } from '@/lib/queue/scan-queue';
+import { queue } from '@/lib/queue/jobs';
+import { checkAndIncrementScanLimit } from '@/lib/subscriptions/enforce-plan';
+import { getLimitsForPlan } from '@/lib/subscriptions/plan-limits';
+import { enforceAiRateLimit } from '@/lib/security/ai-rate-limit';
+import { redisClient } from '@/lib/cache/redis';
+import { validateCsrfRequest } from '@/lib/security/csrf';
+import { sendScanLimitNudgeEmail } from '@/services/email.service';
+import { trackFunnelStep } from '@/lib/analytics/funnel';
+import { ErrorFactory } from '@/lib/api/error-response';
+import type { UploadResponse } from '@/types/report.types';
 
 const ANONYMOUS_SCAN_LIMIT_PER_DAY = 3;
 const AI_SCAN_RATE_LIMIT_PER_MINUTE_AUTH = 6;
@@ -105,14 +106,14 @@ async function maybeSendScanLimitNudge(params: {
  */
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key:    process.env.CLOUDINARY_API_KEY,
+    api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure:     true,
+    secure: true,
 });
 
 async function uploadToCloudinary(buffer: Buffer, fileName: string): Promise<string> {
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const apiKey    = process.env.CLOUDINARY_API_KEY;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
     if (!cloudName || !apiKey || !apiSecret) {
@@ -233,19 +234,17 @@ export async function POST(request: NextRequest) {
             ipAddress,
         });
         if (!aiRateLimit.allowed) {
-            return NextResponse.json(
-                {
-                    error: 'Too many scan requests. Please wait a moment and try again.',
-                    retryAfterSeconds: aiRateLimit.retryAfterSeconds,
-                },
-                { status: 429 },
-            );
+            return ErrorFactory.rateLimitExceeded('Too many scan requests. Please wait a moment and try again.', {
+                retryAfterSeconds: aiRateLimit.retryAfterSeconds,
+            });
         }
 
         // 4. Enforce subscription plan limits for authenticated users
         if (userId) {
-            const guard = await enforcePlanLimit(userId, 'scan');
-            if (!guard.allowed) {
+            try {
+                await checkAndIncrementScanLimit(userId);
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Scan limit exceeded';
                 if (sessionUser?.email) {
                     await maybeSendScanLimitNudge({
                         userId,
@@ -256,7 +255,7 @@ export async function POST(request: NextRequest) {
                     });
                 }
                 return NextResponse.json(
-                    { error: guard.reason, upgradeUrl: guard.upgradeUrl },
+                    { error: errorMessage, upgradeUrl: '/pricing' },
                     { status: 402 },
                 );
             }
@@ -279,24 +278,21 @@ export async function POST(request: NextRequest) {
 
         // 4. Parse multipart form
         const formData = await request.formData();
-        const file     = formData.get('file') as File | null;
+        const file = formData.get('file') as File | null;
 
         if (!file) {
-            return NextResponse.json(
-                { error: 'No file provided. Please upload a PDF.' },
-                { status: 400 },
-            );
+            return ErrorFactory.validationError('No file provided. Please upload a PDF.');
         }
 
         // 5. Convert File to Buffer
         const arrayBuffer = await file.arrayBuffer();
-        const buffer      = Buffer.from(arrayBuffer);
-        const fileSizeKb  = Math.round(buffer.byteLength / 1024);
+        const buffer = Buffer.from(arrayBuffer);
+        const fileSizeKb = Math.round(buffer.byteLength / 1024);
 
         // 6. Validate PDF (type, size, magic bytes)
         const validation = validatePdfBuffer(buffer, file.type, file.name);
         if (!validation.valid) {
-            return NextResponse.json({ error: validation.error }, { status: 400 });
+            return ErrorFactory.validationError(validation.error || 'Invalid PDF file');
         }
 
         // 7. Extract text and hash (used for deduplication + AI analysis)
@@ -306,11 +302,23 @@ export async function POST(request: NextRequest) {
         const existingScanId = await findExistingScan(fileHash, { userId, ipAddress });
         if (existingScanId) {
             logger.info({ action: 'upload.dedup', fileHash, existingScanId });
+
+            let claimToken: string | undefined;
+            if (!userId && redisClient.isConfigured()) {
+                claimToken = crypto.randomUUID().replace(/-/g, '');
+                await redisClient.set(
+                    `scan:claim:${claimToken}`,
+                    existingScanId,
+                    { ex: 60 * 60 * 24 },
+                );
+            }
+
             const response: UploadResponse = {
-                scanId:    existingScanId,
-                fileName:  file.name,
+                scanId: existingScanId,
+                fileName: file.name,
                 fileSizeKb,
-                message:   'Your policy was already scanned. Showing existing results.',
+                message: 'Your policy was already scanned. Showing existing results.',
+                ...(claimToken ? { claimToken } : {}),
             };
             return NextResponse.json(response, { status: 200 });
         }
@@ -322,11 +330,24 @@ export async function POST(request: NextRequest) {
         const scan = await createScan({
             userId,
             fileUrl,
-            fileName:  file.name,
+            fileName: file.name,
             fileHash,
             fileSizeKb,
             ipAddress: ipAddress ?? undefined,
         });
+
+        // ── Generate anonymous claim token (replaces fragile IP-ownership check) ──
+        // For unauthenticated users, issue a short-lived signed token so the result
+        // page can prove ownership without relying on IP matching (breaks with proxies/CGNAT).
+        let claimToken: string | undefined;
+        if (!userId && redisClient.isConfigured()) {
+            claimToken = crypto.randomUUID().replace(/-/g, '');
+            await redisClient.set(
+                `scan:claim:${claimToken}`,
+                scan.id,
+                { ex: 60 * 60 * 24 }, // 24-hour TTL
+            );
+        }
 
         void trackFunnelStep('scan', {
             userId: userId ?? null,
@@ -345,21 +366,23 @@ export async function POST(request: NextRequest) {
         });
 
         logger.info({
-            action:    'upload.success',
-            scanId:    scan.id,
-            fileName:  file.name,
+            action: 'upload.success',
+            scanId: scan.id,
+            fileName: file.name,
             fileSizeKb,
-            userId:    userId ?? 'anonymous',
+            userId: userId ?? 'anonymous',
         });
 
         const response: UploadResponse = {
-            scanId:    scan.id,
-            fileName:  file.name,
+            scanId: scan.id,
+            fileName: file.name,
             fileSizeKb,
-            message:   'Upload successful. Your policy is being analyzed.',
+            message: 'Upload successful. Your policy is being analyzed.',
+            ...(claimToken ? { claimToken } : {}),
         };
 
         return NextResponse.json(response, { status: 201 });
+
 
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Upload failed';

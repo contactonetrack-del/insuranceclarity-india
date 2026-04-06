@@ -31,6 +31,7 @@ model User {
   sessions      Session[]
   subscriptions Subscription[]
   calculations  UserCalculation[]
+  auditLogs     AuditLog[]
 
   @@index([email])
   @@index([plan])
@@ -307,6 +308,24 @@ model Lead {
 
   @@index([status])
   @@index([insuranceType])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  resource    String
+  resourceId  String?
+  details     Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
 }
 
 enum ScanStatus {

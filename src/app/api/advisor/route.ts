@@ -18,6 +18,7 @@ import { validateCsrfRequest } from '@/lib/security/csrf';
 import { enforceAiRateLimit } from '@/lib/security/ai-rate-limit';
 import { formatRegulatoryContext, retrieveRegulatoryContext } from '@/services/regulatory-rag.service';
 import { z } from 'zod';
+import { handleValidationError, ErrorFactory } from '@/lib/api/error-response';
 
 const advisorSchema = z.object({
     message: z.string().min(1, 'Message is required').max(1000, 'Message is too long'),
@@ -126,7 +127,7 @@ export async function POST(req: NextRequest) {
         const jsonBody = await req.json();
         const parsed = advisorSchema.safeParse(jsonBody);
         if (!parsed.success) {
-            return NextResponse.json({ error: 'Invalid message payload', details: parsed.error.format() }, { status: 400 });
+            return handleValidationError(parsed.error);
         }
 
         const { message } = parsed.data;
@@ -143,13 +144,9 @@ export async function POST(req: NextRequest) {
         });
 
         if (!aiRateLimit.allowed) {
-            return NextResponse.json(
-                {
-                    error: 'Too many AI advisor requests. Please wait and try again.',
-                    retryAfterSeconds: aiRateLimit.retryAfterSeconds,
-                },
-                { status: 429 },
-            );
+            return ErrorFactory.rateLimitExceeded('Too many AI advisor requests', {
+                retryAfterSeconds: aiRateLimit.retryAfterSeconds,
+            });
         }
 
         const aiResult = await resolveIntentWithAi(message);
@@ -190,6 +187,6 @@ export async function POST(req: NextRequest) {
         });
     } catch (e) {
         logger.error({ action: 'advisor.error', error: e instanceof Error ? e.message : String(e) });
-        return NextResponse.json({ error: 'Failed to process message' }, { status: 500 });
+        return ErrorFactory.internalServerError('Failed to process advisor request');
     }
 }

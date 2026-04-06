@@ -46,6 +46,7 @@ inject-metadata.js
 Thumbs.db
 *.pem
 .idea/
+.git_disabled/
 .vscode/settings.json
 
 # Local Binaries and Data

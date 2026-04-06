@@ -1,3 +1,4 @@
+# Build artifacts & caches
 .next
 node_modules
 coverage
@@ -10,3 +11,16 @@ bin
 docs
 temp_hi.json
 *.log
+
+# Security: NEVER deploy secrets or local env files
+.vercel/
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+*.pem
+*.key
+*.p12
+*.pfx

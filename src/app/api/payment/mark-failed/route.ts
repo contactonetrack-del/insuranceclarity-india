@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 
 import { prisma } from '@/lib/prisma';
+import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
+import { validateCsrfRequest } from '@/lib/security/csrf';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,8 +23,9 @@ function getClientIp(request: NextRequest): string | null {
 function canAccessScan(params: {
     isAdmin: boolean;
     sessionUserId: string | null;
-    requestIp: string | null;
     ownerUserId: string | null;
+    claimTokenValid: boolean;
+    requestIp: string | null;
     ownerIp: string | null;
 }): boolean {
     if (params.isAdmin) return true;
@@ -30,23 +34,37 @@ function canAccessScan(params: {
         return params.sessionUserId === params.ownerUserId;
     }
 
-    return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
+    if (params.claimTokenValid) return true;
+
+    if (process.env.NODE_ENV !== 'production') {
+        return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
+    }
+
+    return false;
 }
+
+const markFailedSchema = z.object({
+    scanId: z.string().min(1),
+    razorpayOrderId: z.string().min(1),
+    reason: z.string().max(120).optional(),
+});
 
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json() as {
-            scanId?: string;
-            razorpayOrderId?: string;
-            reason?: string;
-        };
+        const csrfError = validateCsrfRequest(request);
+        if (csrfError) return csrfError;
 
-        if (!body.scanId || !body.razorpayOrderId) {
+        const claimToken = request.headers.get('x-claim-token');
+        const parsed = markFailedSchema.safeParse(await request.json());
+
+        if (!parsed.success) {
             return NextResponse.json(
-                { error: 'scanId and razorpayOrderId are required.' },
+                { error: parsed.error.issues[0]?.message ?? 'Invalid payload.' },
                 { status: 400 },
             );
         }
+
+        const body = parsed.data;
 
         const session = await auth();
         const sessionUserId = (session?.user as { id?: string } | undefined)?.id ?? null;
@@ -72,11 +90,18 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Payment record not found.' }, { status: 404 });
         }
 
+        let claimTokenValid = false;
+        if (claimToken && !payment.scan.userId && redisClient.isConfigured()) {
+            const claimedScanId = await redisClient.get<string>(`scan:claim:${claimToken}`);
+            claimTokenValid = claimedScanId === body.scanId;
+        }
+
         const isAllowed = canAccessScan({
             isAdmin,
             sessionUserId,
-            requestIp,
             ownerUserId: payment.scan.userId,
+            claimTokenValid,
+            requestIp,
             ownerIp: payment.scan.ipAddress,
         });
 

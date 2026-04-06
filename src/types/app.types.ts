@@ -20,6 +20,9 @@ export interface AdminDashboardStats {
     totalQuotes: number;
     totalPremium: number;
     totalCoverage: number;
+    totalTokens?: number;
+    estimatedAiCost?: number;
+    activeSubscriptions?: number;
     recentQuotes: QuoteRecord[];
 }
 

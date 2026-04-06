@@ -18,7 +18,7 @@ Upload any insurance PDF → get hidden clauses, claim risks, a smart score, and
 
 | Feature | Description |
 |---|---|
-| 🤖 **AI Policy Scan** | GPT-4.1 analyzes your PDF with IRDAI-specific context |
+| 🤖 **AI Policy Scan** | Gemini analyzes your PDF with IRDAI-specific context |
 | 🎯 **Smart Score (0–100)** | Transparency and consumer-friendliness rating |
 | ⚠️ **Risk Detection** | HIGH / MEDIUM / LOW severity risk flagging |
 | 🚫 **Exclusion Mapper** | Every exclusion clause decoded into plain language |
@@ -40,7 +40,7 @@ Browser (Next.js 16)
     └── /scan/result/[id] ← Polling result page (free → paywall → paid)
          │
 API Layer (Next.js Route Handlers)
-    ├── POST /api/upload           ← PDF validate → Cloudinary → Scan record → BullMQ
+    ├── POST /api/upload           ← PDF validate → Cloudinary → Scan record → queue dispatch
     ├── GET  /api/result/[id]      ← Paywall-gated report delivery
     ├── POST /api/payment/create-order  ← Razorpay order creation
     └── POST /api/payment/verify        ← HMAC verify → unlock report
@@ -48,15 +48,15 @@ API Layer (Next.js Route Handlers)
 Service Layer
     ├── pdf.service.ts     ← Extract text + SHA-256 hash
     ├── report.service.ts  ← Scan CRUD + paywall logic
-    └── embedding.service.ts ← Vector embeddings (Pinecone)
+    └── queue/jobs.ts      ← QStash + signed worker dispatch
          │
-Worker Process (BullMQ)
-    └── scan.worker.ts     ← OpenAI GPT-4.1 → Report → DB → Cache invalidation
+Worker Endpoint (QStash / secure HTTP trigger)
+    └── /api/jobs/document-worker ← Gemini analysis → Report → DB → Cache invalidation
          │
 Infrastructure
     ├── Neon PostgreSQL (Prisma ORM)
     ├── Upstash Redis (caching + rate limiting)
-    ├── Redis / Upstash QStash (BullMQ queue)
+    ├── Upstash QStash (serverless queue)
     ├── Cloudinary (PDF storage)
     └── Vercel (deployment, bom1 Mumbai region)
 ```
@@ -71,7 +71,7 @@ Infrastructure
 - PostgreSQL database (Neon recommended)
 - Redis (Upstash or local for dev)
 - Cloudinary account
-- OpenAI API key
+- Gemini API key
 - Razorpay account (Test mode for dev)
 
 ### 1. Clone & Install
@@ -105,9 +105,6 @@ npm run db:seed
 ```bash
 # Terminal 1 — Next.js dev server
 npm run dev
-
-# Terminal 2 — BullMQ scan worker
-npx tsx src/workers/scan.worker.ts
 ```
 
 Visit [http://localhost:3000/scan](http://localhost:3000/scan) to test the scanner.
@@ -131,7 +128,7 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ### AI (Required for Scanner)
 
 ```env
-OPENAI_API_KEY="sk-..."
+GEMINI_API_KEY="..."
 ```
 
 ### Payments (Required for full report unlock)
@@ -157,7 +154,7 @@ CLOUDINARY_API_SECRET="..."
 ```env
 UPSTASH_REDIS_REST_URL="https://..."    # For API caching
 UPSTASH_REDIS_REST_TOKEN="..."
-REDIS_URL="redis://localhost:6379"       # For BullMQ worker
+REDIS_URL="redis://localhost:6379"       # Optional local Redis usage
 ```
 
 ### Auth Providers (Optional)
@@ -179,7 +176,6 @@ npm run test             # Vitest unit tests
 npm run test:e2e         # Playwright E2E tests
 npm run db:studio        # Prisma Studio (DB GUI)
 npx prisma migrate dev   # Run DB migrations
-npx tsx src/workers/scan.worker.ts  # Start BullMQ worker
 ```
 
 ---
@@ -208,7 +204,7 @@ Scan ──── Report (1:1)
 - **HMAC SHA-256** payment signature verification (`crypto.timingSafeEqual`)
 - **Client-side PDF validation** (type + magic bytes) before upload
 - **Rate limiting** via Upstash Ratelimit on upload and payment routes
-- **CSP headers** configured in `next.config.js`
+- **CSP headers** configured in `src/proxy.ts`
 - **HSTS** + security headers on all routes
 - **Input sanitization** — no raw SQL, all queries via Prisma ORM
 
@@ -238,7 +234,7 @@ DIRECT_URL
 NEXTAUTH_SECRET
 NEXTAUTH_URL              ← set to your production domain
 NEXT_PUBLIC_APP_URL       ← set to your production domain
-OPENAI_API_KEY
+GEMINI_API_KEY
 RAZORPAY_KEY_ID           ← use live keys for production
 RAZORPAY_KEY_SECRET
 NEXT_PUBLIC_RAZORPAY_KEY_ID
@@ -251,16 +247,21 @@ UPSTASH_REDIS_REST_TOKEN
 
 ### Worker Deployment
 
-The BullMQ worker **cannot run on Vercel** (serverless). Deploy it separately:
+Queue worker processing is implemented as **signed HTTP job handlers** (`/api/jobs/document-worker`) and can run on Vercel.
 
-| Option | Command |
+If you need heavy offline/background workloads, deploy an external worker separately:
+
+| Option | Notes |
 |---|---|
-| **Railway** | `railway up` (add `REDIS_URL` env var) |
-| **Render** | Background worker service |
-| **Docker** | `docker-compose up worker` |
-| **VPS** | `pm2 start npx --name worker -- tsx src/workers/scan.worker.ts` |
+| **Railway / Render / Fly.io / VPS** | Run a dedicated worker service that calls your internal processing APIs with signed queue secrets |
+| **Docker** | Optional for self-hosted async processing workloads |
 
-> **Tip:** Use [Upstash QStash](https://upstash.com/docs/qstash/overall/getstarted) as a Vercel-compatible alternative to avoid a separate worker process.
+> **Tip:** Keep QStash signatures enabled and set `QSTASH_CURRENT_SIGNING_KEY` / `QSTASH_NEXT_SIGNING_KEY` in production.
+
+### Security note on anonymous scan access
+
+- Anonymous payment/result access should use the `X-Claim-Token` generated at upload time (`scan_claim_<scanId>` in `sessionStorage`).
+- IP matching is retained only as a non-production fallback for legacy local/dev behavior.
 
 ### Post-Deploy Checklist
 
@@ -298,7 +299,7 @@ src/
 │   │   ├── result/[id]/route.ts      ← Report delivery
 │   │   ├── payment/
 │   │   │   ├── create-order/route.ts ← Razorpay order
-│   │   │   └── verify/route.ts       ← Payment webhook
+│   │   │   └── verify/route.ts       ← Payment signature verify + unlock
 │   │   └── auth/[...nextauth]/       ← NextAuth handler
 │   ├── scan/
 │   │   ├── page.tsx                  ← Upload page
@@ -313,9 +314,8 @@ src/
 │       ├── RiskCard.tsx              ← Risk/Exclusion/Suggestion cards
 │       └── PaywallGate.tsx           ← Razorpay checkout flow
 ├── lib/
-│   ├── openai.ts                     ← OpenAI singleton
 │   ├── prisma.ts                     ← Prisma singleton
-│   ├── queue/scan-queue.ts           ← BullMQ queue client
+│   ├── queue/jobs.ts                 ← QStash dispatch + signed callbacks
 │   └── cache/redis.ts                ← Upstash Redis wrapper
 ├── services/
 │   ├── pdf.service.ts                ← PDF extraction + hashing
@@ -323,7 +323,7 @@ src/
 │   └── embedding.service.ts          ← Vector embeddings
 ├── store/scan.store.ts               ← Zustand scan state
 ├── types/report.types.ts             ← Shared TypeScript types
-└── workers/scan.worker.ts            ← BullMQ worker (standalone)
+└── app/api/jobs/document-worker      ← Secure queue worker endpoint
 ```
 
 ---

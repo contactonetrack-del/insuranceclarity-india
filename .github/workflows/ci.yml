@@ -56,7 +56,6 @@ jobs:
 
       - name: Run ESLint (warnings allowed, errors surfaced)
         run: npm run lint -- --max-warnings 200
-        continue-on-error: true
 
       - name: TypeScript type check
         run: npx tsc --noEmit
@@ -69,7 +68,6 @@ jobs:
 
       - name: Security audit
         run: npm audit --audit-level=critical
-        continue-on-error: true
 
   e2e:
     name: E2E Tests
@@ -123,7 +121,6 @@ jobs:
           npm run start &
           npx wait-on http://localhost:3000 --timeout 60000
           npm run test:e2e
-        continue-on-error: true
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

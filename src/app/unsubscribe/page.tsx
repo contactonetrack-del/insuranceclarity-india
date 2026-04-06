@@ -5,6 +5,19 @@ import { useSearchParams } from 'next/navigation';
 
 type SubmitState = 'idle' | 'loading' | 'success' | 'error';
 
+async function getCsrfToken(): Promise<string | null> {
+    const match = document.cookie.match(/(?:^|;\s*)__csrf=([^;]+)/);
+    if (match) return decodeURIComponent(match[1]);
+    try {
+        const res = await fetch('/api/csrf');
+        if (!res.ok) return null;
+        const data = await res.json() as { csrfToken?: string };
+        return data.csrfToken ?? null;
+    } catch {
+        return null;
+    }
+}
+
 export default function UnsubscribePage() {
     const searchParams = useSearchParams();
     const initialEmail = useMemo(() => searchParams.get('email') ?? '', [searchParams]);
@@ -20,9 +33,17 @@ export default function UnsubscribePage() {
         setMessage('');
 
         try {
+            const csrfToken = await getCsrfToken();
+            if (!csrfToken) {
+                throw new Error('Security token missing. Please refresh and try again.');
+            }
+
             const res = await fetch('/api/unsubscribe', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-csrf-token': csrfToken,
+                },
                 body: JSON.stringify({
                     email: email.trim(),
                     reason: reason.trim() || undefined,

@@ -3,6 +3,7 @@
  *
  * Streams a CSV export of all leads for admin users.
  * Protected by ADMIN role check.
+ * Uses pagination and streaming to handle large datasets efficiently.
  */
 
 import { NextResponse } from 'next/server';
@@ -10,8 +11,11 @@ import { auth } from '@/auth';
 
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { ErrorFactory } from '@/lib/api/error-response';
 
 export const dynamic = 'force-dynamic';
+
+const BATCH_SIZE = 1000; // Process leads in batches to avoid memory issues
 
 function toCSVRow(values: (string | number | boolean | Date | null | undefined)[]): string {
     return values.map(v => {
@@ -31,42 +35,92 @@ export async function GET() {
         const role = (session?.user as { role?: string })?.role;
 
         if (!session || role !== 'ADMIN') {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+            return ErrorFactory.forbidden('Only admins can export leads');
         }
 
-        const leads = await prisma.lead.findMany({
-            orderBy: { createdAt: 'desc' },
+        // Get total count for logging
+        const totalCount = await prisma.lead.count();
+
+        // Create a ReadableStream for streaming CSV data
+        const stream = new ReadableStream({
+            async start(controller) {
+                try {
+                    // Write CSV headers
+                    const headers = ['id', 'name', 'email', 'phone', 'insuranceType', 'status', 'source', 'notes', 'createdAt', 'updatedAt'];
+                    controller.enqueue(headers.join(',') + '\n');
+
+                    let processedCount = 0;
+                    let hasMore = true;
+                    let cursor: string | undefined;
+
+                    while (hasMore) {
+                        // Fetch leads in batches using cursor-based pagination
+                        const leads = await prisma.lead.findMany({
+                            take: BATCH_SIZE,
+                            skip: cursor ? 1 : 0, // Skip the cursor itself
+                            cursor: cursor ? { id: cursor } : undefined,
+                            orderBy: { createdAt: 'desc' },
+                        });
+
+                        if (leads.length === 0) {
+                            hasMore = false;
+                            break;
+                        }
+
+                        // Process batch and write to stream
+                        for (const lead of leads) {
+                            const row = toCSVRow([
+                                lead.id,
+                                lead.name,
+                                lead.email,
+                                lead.phone,
+                                lead.insuranceType,
+                                lead.status,
+                                lead.source,
+                                lead.notes ?? '',
+                                lead.createdAt,
+                                lead.updatedAt,
+                            ]);
+                            controller.enqueue(row + '\n');
+                            processedCount++;
+                        }
+
+                        // Set cursor for next batch (use last lead's ID)
+                        cursor = leads[leads.length - 1]?.id;
+
+                        // Check if we've processed all leads
+                        if (leads.length < BATCH_SIZE) {
+                            hasMore = false;
+                        }
+                    }
+
+                    controller.close();
+
+                    logger.info({
+                        action: 'admin.leads.export.streamed',
+                        userId: session?.user?.email,
+                        totalCount,
+                        processedCount,
+                        batchSize: BATCH_SIZE
+                    });
+
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : String(error);
+                    logger.error({ action: 'admin.leads.export.stream.error', error: message });
+                    controller.error(new Error('Export failed during streaming'));
+                }
+            }
         });
 
-        // Build CSV
-        const headers = ['id', 'name', 'email', 'phone', 'insuranceType', 'status', 'source', 'notes', 'createdAt', 'updatedAt'];
-        const rows = [
-            headers.join(','),
-            ...leads.map(lead => toCSVRow([
-                lead.id,
-                lead.name,
-                lead.email,
-                lead.phone,
-                lead.insuranceType,
-                lead.status,
-                lead.source,
-                lead.notes ?? '',
-                lead.createdAt,
-                lead.updatedAt,
-            ])),
-        ];
-
-        const csvContent = rows.join('\n');
         const filename = `leads-export-${new Date().toISOString().split('T')[0]}.csv`;
 
-        logger.info({ action: 'admin.leads.export', userId: session?.user?.email, count: leads.length });
-
-        return new NextResponse(csvContent, {
+        return new NextResponse(stream, {
             status: 200,
             headers: {
                 'Content-Type': 'text/csv; charset=utf-8',
                 'Content-Disposition': `attachment; filename="${filename}"`,
                 'Cache-Control': 'no-store',
+                'Transfer-Encoding': 'chunked', // Enable chunked transfer for streaming
             },
         });
     } catch (error) {

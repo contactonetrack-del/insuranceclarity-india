@@ -34,9 +34,21 @@ export async function generateMetadata({ params }: { params: Promise<{ clusterSl
 
     if (!cluster) return { title: 'Not Found' };
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://insuranceclarity.in';
+
     return {
         title: `${cluster.title} | InsuranceClarity`,
         description: cluster.description,
+        alternates: {
+            canonical: `${baseUrl}/${resolvedParams.clusterSlug}`,
+        },
+        openGraph: {
+            title: cluster.title,
+            description: cluster.description || '',
+            url: `${baseUrl}/${resolvedParams.clusterSlug}`,
+            siteName: 'InsuranceClarity',
+            type: 'article',
+        },
     };
 }
 
@@ -111,7 +123,7 @@ export default async function ClusterLandingPage({ params }: { params: Promise<{
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {posts.map((post: any) => (
+                            {posts.map((post: ClusterPost) => (
                                 <Link key={post._id} href={`/blog/${post.slug.current}`} className="group h-full">
                                     <div className="glass rounded-2xl overflow-hidden border border-default hover:border-accent/40 transition-all hover:shadow-xl hover:shadow-accent/5 h-full flex flex-col">
 

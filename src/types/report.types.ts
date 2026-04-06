@@ -129,6 +129,8 @@ export interface UploadResponse {
     fileName: string;
     fileSizeKb: number;
     message: string;
+    /** One-time claim token for anonymous users to prove scan ownership (24h TTL). */
+    claimToken?: string;
 }
 
 // ─── Zustand Store ────────────────────────────────────────────────────────────

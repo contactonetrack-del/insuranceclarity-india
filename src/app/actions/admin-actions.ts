@@ -31,11 +31,17 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardResult> {
     try {
         await assertAdminSession();
 
-        const [totalQuotes, quotes] = await Promise.all([
+        const [totalQuotes, quotes, reportAgg, activeSubscriptions] = await Promise.all([
             prisma.quote.count(),
             prisma.quote.findMany({
                 orderBy: { createdAt: 'desc' },
                 take: 50,
+            }),
+            prisma.report.aggregate({
+                _sum: { tokensUsed: true },
+            }),
+            prisma.subscription.count({
+                where: { status: 'ACTIVE' },
             }),
         ]);
 
@@ -44,10 +50,17 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardResult> {
         const totalPremium  = typedQuotes.reduce((acc, q) => acc + (q.premiumAmount  ?? 0), 0);
         const totalCoverage = typedQuotes.reduce((acc, q) => acc + (q.coverageAmount ?? 0), 0);
 
+        const totalTokens = reportAgg._sum.tokensUsed ?? 0;
+        // Estimate cost: gemini-2.0-flash approx $0.10 per 1M tokens (blended)
+        const estimatedAiCost = (totalTokens / 1_000_000) * 0.10;
+
         return {
             totalQuotes,
             totalPremium,
             totalCoverage,
+            totalTokens,
+            estimatedAiCost,
+            activeSubscriptions,
             recentQuotes: typedQuotes,
         };
     } catch (error) {

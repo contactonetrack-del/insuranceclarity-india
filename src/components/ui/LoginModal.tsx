@@ -6,6 +6,19 @@ import { signIn } from "next-auth/react";
 import { LogIn, Mail, X, Loader2, ShieldCheck, MailQuestion } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+async function getCsrfToken(): Promise<string | null> {
+    const match = document.cookie.match(/(?:^|;\s*)__csrf=([^;]+)/);
+    if (match) return decodeURIComponent(match[1]);
+    try {
+        const res = await fetch('/api/csrf');
+        if (!res.ok) return null;
+        const data = await res.json() as { csrfToken?: string };
+        return data.csrfToken ?? null;
+    } catch {
+        return null;
+    }
+}
+
 interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -23,22 +36,28 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const [otpPending, setOtpPending] = useState(false);
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [errorMessage, setErrorMessage] = useState("");
-    
+
     async function handleSendOtp(e: React.FormEvent) {
         e.preventDefault();
         setStatus("loading");
         setErrorMessage("");
 
         try {
+            const csrfToken = await getCsrfToken();
+            if (!csrfToken) throw new Error('Security token missing. Please refresh and try again.');
+
             const res = await fetch("/api/auth/otp/send", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    'x-csrf-token': csrfToken,
+                },
                 body: JSON.stringify({ email }),
             });
             const data = await res.json();
-            
+
             if (!res.ok) throw new Error(data.error || "Failed to send OTP");
-            
+
             setOtpPending(true);
             setStatus("idle");
         } catch (error: unknown) {
@@ -67,7 +86,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             if (result?.error) {
                 throw new Error(result.error);
             }
-            
+
             // On success, forcefully redirect since we used redirect: false
             window.location.href = result?.url || "/dashboard";
         } catch (error: unknown) {
@@ -209,7 +228,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         </div>
 
                                         {otpPending && (
-                                            <motion.div 
+                                            <motion.div
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: "auto" }}
                                                 className="space-y-2 overflow-hidden"
@@ -218,8 +237,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                     <label htmlFor="login-otp" className="text-sm font-medium text-theme-secondary">
                                                         6-Digit Code
                                                     </label>
-                                                    <button 
-                                                        type="button" 
+                                                    <button
+                                                        type="button"
                                                         onClick={() => { setOtpPending(false); setOtp(""); setErrorMessage(""); }}
                                                         className="text-xs text-accent hover:underline"
                                                     >

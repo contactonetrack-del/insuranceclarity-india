@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
+import { validateCsrfRequest } from '@/lib/security/csrf';
 import {
     suppressEmail,
     removeNewsletterSubscription,
@@ -15,6 +16,9 @@ const unsubscribeSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
+        const csrfError = validateCsrfRequest(req);
+        if (csrfError) return csrfError;
+
         const body = await req.json() as unknown;
         const parsed = unsubscribeSchema.safeParse(body);
         if (!parsed.success) {

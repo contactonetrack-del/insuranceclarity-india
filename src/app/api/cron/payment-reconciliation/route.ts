@@ -22,59 +22,71 @@ export async function GET(request: Request) {
         const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
         // Limit sweep to slightly older, preventing clash with active checkouts
-        const pendingPayments = await prisma.payment.findMany({
-            where: {
-                status: 'CREATED',
-                createdAt: { lte: thirtyMinutesAgo }
-            },
-            take: 50 // process in batches
-        });
-
-        if (pendingPayments.length === 0) {
-            return NextResponse.json({ message: 'No pending payments to reconcile' });
-        }
+        let totalSwept = 0;
+        let reconciledCount = 0;
+        const MAX_BATCH_SIZE = 50;
+        const MAX_TOTAL_SWEPT = 250; // Safety limit to avoid Vercel timeouts (10s limit on Hobby/Pro)
 
         const { keyId, keySecret } = getRazorpayCredentials();
         const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
-        let reconciledCount = 0;
 
-        for (const payment of pendingPayments) {
-            try {
-                const orderData = await razorpay.orders.fetch(payment.razorpayOrderId);
-                const orderStatus = orderData.status; // 'created', 'attempted', 'paid'
-                
-                if (orderStatus === 'paid') {
-                    // Fetch actual payment intent to mark complete
-                    const paymentsForOrder = await razorpay.orders.fetchPayments(payment.razorpayOrderId);
-                    const successfulPayment = paymentsForOrder.items.find(p => p.status === 'captured');
+        while (totalSwept < MAX_TOTAL_SWEPT) {
+            const pendingPayments = await prisma.payment.findMany({
+                where: {
+                    status: 'CREATED',
+                    createdAt: { lte: thirtyMinutesAgo }
+                },
+                take: MAX_BATCH_SIZE
+            });
 
-                    if (successfulPayment) {
-                        await prisma.$transaction([
-                            prisma.payment.update({
-                                where: { id: payment.id },
-                                data: {
-                                    status: 'CAPTURED',
-                                    razorpayPaymentId: successfulPayment.id,
-                                }
-                            }),
-                            prisma.scan.update({
-                                where: { id: payment.scanId },
-                                data: { isPaid: true }
-                            })
-                        ]);
-                        reconciledCount++;
-                        logger.info({ action: 'cron.reconcile.success', paymentId: payment.id, scanId: payment.scanId });
+            if (pendingPayments.length === 0) break;
+
+            for (const payment of pendingPayments) {
+                try {
+                    const orderData = await razorpay.orders.fetch(payment.razorpayOrderId);
+                    const orderStatus = orderData.status; // 'created', 'attempted', 'paid'
+
+                    if (orderStatus === 'paid') {
+                        // Fetch actual payment intent to mark complete
+                        const paymentsForOrder = await razorpay.orders.fetchPayments(payment.razorpayOrderId);
+                        const successfulPayment = paymentsForOrder.items.find(p => p.status === 'captured');
+
+                        if (successfulPayment) {
+                            await prisma.$transaction([
+                                prisma.payment.update({
+                                    where: { id: payment.id },
+                                    data: {
+                                        status: 'CAPTURED',
+                                        razorpayPaymentId: successfulPayment.id,
+                                    }
+                                }),
+                                prisma.scan.update({
+                                    where: { id: payment.scanId },
+                                    data: { isPaid: true }
+                                })
+                            ]);
+                            reconciledCount++;
+                            logger.info({ action: 'cron.reconcile.success', paymentId: payment.id, scanId: payment.scanId });
+                        }
+                    } else if (orderData.created_at < Math.floor(Date.now() / 1000) - (24 * 60 * 60)) {
+                        // Fail out orders older than 24 hours that were never captured
+                        await prisma.payment.update({
+                            where: { id: payment.id },
+                            data: { status: 'FAILED' }
+                        });
                     }
-                } else if (orderData.created_at < Math.floor(Date.now() / 1000) - (24 * 60 * 60)) {
-                    // Fail out orders older than 24 hours that were never captured
-                    await prisma.payment.update({
-                        where: { id: payment.id },
-                        data: { status: 'FAILED' }
-                    });
+                } catch (err) {
+                    logger.error({ action: 'cron.reconcile.sweep_error', paymentId: payment.id, error: String(err) });
                 }
-            } catch (err) {
-                logger.error({ action: 'cron.reconcile.sweep_error', paymentId: payment.id, error: String(err) });
             }
+
+            totalSwept += pendingPayments.length;
+            // If we didn't fill the batch, we're definitely done with the backlog
+            if (pendingPayments.length < MAX_BATCH_SIZE) break;
+        }
+
+        if (totalSwept === 0) {
+            return NextResponse.json({ message: 'No pending payments to reconcile' });
         }
 
         if (reconciledCount > 5) {
@@ -85,7 +97,8 @@ export async function GET(request: Request) {
             );
         }
 
-        return NextResponse.json({ message: `Reconciled ${reconciledCount} payments.`, swept: pendingPayments.length });
+        return NextResponse.json({ message: `Reconciled ${reconciledCount} payments.`, swept: totalSwept });
+
     } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         logger.error({ action: 'cron.reconcile.fatal', error: errorMsg });

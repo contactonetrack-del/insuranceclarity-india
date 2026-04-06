@@ -4,7 +4,14 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 import { logger } from '@/lib/logger'
 import { enforceAiRateLimit } from '@/lib/security/ai-rate-limit'
+import { validateCsrfRequest } from '@/lib/security/csrf'
 import { formatRegulatoryContext, retrieveRegulatoryContext } from '@/services/regulatory-rag.service'
+import { ErrorFactory } from '@/lib/api/error-response'
+import { z } from 'zod'
+
+const comparePayloadSchema = z.object({
+    policies: z.array(z.record(z.string(), z.unknown())).min(2, 'At least two policies are required for comparison.'),
+})
 
 function stripJsonCodeFence(raw: string): string {
     const trimmed = raw.trim()
@@ -29,6 +36,9 @@ function getClientIp(request: NextRequest): string | null {
 
 export async function POST(req: NextRequest) {
     try {
+        const csrfError = validateCsrfRequest(req)
+        if (csrfError) return csrfError
+
         const session = await auth()
         const userId = (session?.user as { id?: string } | undefined)?.id ?? null
         const ipAddress = getClientIp(req)
@@ -42,21 +52,20 @@ export async function POST(req: NextRequest) {
         })
 
         if (!aiRateLimit.allowed) {
-            return NextResponse.json({
-                error: 'Too many comparison requests. Please wait before trying again.',
+            return ErrorFactory.rateLimitExceeded('Too many comparison requests. Please wait before trying again.', {
                 retryAfterSeconds: aiRateLimit.retryAfterSeconds,
-            }, { status: 429 })
+            });
         }
 
-        const { policies } = await req.json()
-
-        if (!policies || !Array.isArray(policies) || policies.length < 2) {
-            return NextResponse.json({ error: 'At least two policies are required for comparison.' }, { status: 400 })
+        const parsed = comparePayloadSchema.safeParse(await req.json())
+        if (!parsed.success) {
+            return ErrorFactory.validationError('At least two policies are required for comparison.');
         }
+        const { policies } = parsed.data
 
         const geminiApiKey = process.env.GEMINI_API_KEY?.trim()
         if (!geminiApiKey) {
-            return NextResponse.json({ error: 'Gemini API key is not configured.' }, { status: 503 })
+            return ErrorFactory.serviceUnavailable('Gemini API key is not configured.');
         }
 
         const geminiModelName = process.env.GEMINI_COMPARE_MODEL ?? 'gemini-2.0-flash'
@@ -102,6 +111,6 @@ ${JSON.stringify(policies, null, 2)}
 
     } catch (error) {
         logger.error({ action: 'api.ai.compare.error', error })
-        return NextResponse.json({ error: 'Failed to generate comparison insight' }, { status: 500 })
+        return ErrorFactory.internalServerError('Failed to generate comparison insight');
     }
 }

@@ -16,10 +16,10 @@ import { useRouter } from 'next/navigation';
 async function loadRazorpayScript(): Promise<boolean> {
     if (typeof window !== 'undefined' && window.Razorpay) return true;
     return new Promise((resolve) => {
-        const script     = document.createElement('script');
-        script.src       = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.onload    = () => resolve(true);
-        script.onerror   = () => resolve(false);
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
         document.head.appendChild(script);
     });
 }
@@ -28,10 +28,19 @@ async function getCsrfToken(): Promise<string | null> {
     const match = document.cookie.match(/(?:^|;\s*)__csrf=([^;]+)/);
     if (match) return decodeURIComponent(match[1]);
     try {
-        const res  = await fetch('/api/csrf');
+        const res = await fetch('/api/csrf');
         if (!res.ok) return null;
         const data = await res.json() as { csrfToken: string };
         return data.csrfToken;
+    } catch {
+        return null;
+    }
+}
+
+function getClaimToken(scanId?: string): string | null {
+    if (!scanId) return null;
+    try {
+        return sessionStorage.getItem(`scan_claim_${scanId}`);
     } catch {
         return null;
     }
@@ -41,16 +50,16 @@ async function getCsrfToken(): Promise<string | null> {
 
 interface RazorpayCheckoutProps {
     /** For per-scan unlock — pass scanId */
-    scanId?:   string;
+    scanId?: string;
     /** For subscription plans — pass planId ('PRO' | 'ENTERPRISE') */
-    planId?:   'PRO' | 'ENTERPRISE';
+    planId?: 'PRO' | 'ENTERPRISE';
     /** Amount in paise (e.g., ₹199 = 19900). Required for per-scan unlock. */
-    amount?:   number;
-    label?:    string;
+    amount?: number;
+    label?: string;
     onSuccess?: () => void;
-    onError?:  (msg: string) => void;
+    onError?: (msg: string) => void;
     className?: string;
-    variant?:  'primary' | 'hero';
+    variant?: 'primary' | 'hero';
     /** If true, uses subscription API instead of per-scan payment */
     isSubscription?: boolean;
 }
@@ -66,9 +75,9 @@ export default function RazorpayCheckout({
     variant = 'primary',
     isSubscription = false,
 }: RazorpayCheckoutProps) {
-    const router  = useRouter();
-    const [loading, setLoading]   = useState(false);
-    const [success, setSuccess]   = useState(false);
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     // ── Per-scan unlock flow ────────────────────────────────────────────────────
@@ -83,12 +92,17 @@ export default function RazorpayCheckout({
 
         const csrfToken = await getCsrfToken();
         if (!csrfToken) throw new Error('Security token missing. Please refresh and try again.');
+        const claimToken = getClaimToken(scanId);
 
         // Create Razorpay order
         const orderRes = await fetch('/api/payment/create-order', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
-            body:    JSON.stringify({ scanId, amount }),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-csrf-token': csrfToken,
+                ...(claimToken ? { 'X-Claim-Token': claimToken } : {}),
+            },
+            body: JSON.stringify({ scanId, amount }),
         });
 
         if (!orderRes.ok) {
@@ -97,10 +111,10 @@ export default function RazorpayCheckout({
         }
 
         const orderData = await orderRes.json() as {
-            orderId:  string;
-            amount:   number;
+            orderId: string;
+            amount: number;
             currency: string;
-            keyId:    string;
+            keyId: string;
         };
 
         // Open Razorpay SDK modal — cast to avoid global Window type conflicts
@@ -108,29 +122,33 @@ export default function RazorpayCheckout({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const RazorpayCtor = (window as any).Razorpay as (new (opts: Record<string, unknown>) => { open(): void });
         const rzp = new RazorpayCtor({
-            key:         orderData.keyId,
-            amount:      orderData.amount,
-            currency:    orderData.currency,
-            name:        'InsuranceClarity',
+            key: orderData.keyId,
+            amount: orderData.amount,
+            currency: orderData.currency,
+            name: 'InsuranceClarity',
             description: 'Unlock Full Policy Report',
-            order_id:    orderData.orderId,
-            theme:       { color: '#4f46e5' },
+            order_id: orderData.orderId,
+            theme: { color: '#4f46e5' },
             modal: {
                 ondismiss: () => setLoading(false),
             },
             handler: async (response: {
                 razorpay_payment_id: string;
-                razorpay_order_id:   string;
-                razorpay_signature:  string;
+                razorpay_order_id: string;
+                razorpay_signature: string;
             }) => {
                 try {
                     const verifyRes = await fetch('/api/payment/verify', {
-                        method:  'POST',
-                        headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
-                        body:    JSON.stringify({
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-csrf-token': csrfToken,
+                            ...(claimToken ? { 'X-Claim-Token': claimToken } : {}),
+                        },
+                        body: JSON.stringify({
                             razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_order_id:   response.razorpay_order_id,
-                            razorpay_signature:  response.razorpay_signature,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
                             scanId,
                         }),
                     });
@@ -162,9 +180,9 @@ export default function RazorpayCheckout({
         if (!csrfToken) throw new Error('Security token missing. Please refresh and try again.');
 
         const res = await fetch('/api/subscription/create', {
-            method:  'POST',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
-            body:    JSON.stringify({ plan: planId }),
+            body: JSON.stringify({ plan: planId }),
         });
 
         if (!res.ok) {
@@ -174,8 +192,8 @@ export default function RazorpayCheckout({
 
         const data = await res.json() as {
             subscriptionId: string;
-            shortUrl:       string;
-            status:         string;
+            shortUrl: string;
+            status: string;
         };
 
         // Redirect to Razorpay hosted payment page (handles recurring billing UI)

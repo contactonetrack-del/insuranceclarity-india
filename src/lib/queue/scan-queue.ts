@@ -113,23 +113,10 @@ export async function processScanInline(payload: ScanJobPayload): Promise<void> 
         // 4. Persist the report + update scan status → COMPLETED (atomic transaction)
         await saveReport(scanId, result);
 
-        // 5. Increment scansUsed counter for the authenticated user
-        //    This activates the plan limit enforcement on their next upload
-        if (userId) {
-            await prisma.user.update({
-                where: { id: userId },
-                data:  { scansUsed: { increment: 1 } },
-            }).catch((err: unknown) => {
-                // Non-fatal — log and continue
-                logger.warn({
-                    action: 'scan.scansUsed.increment.failed',
-                    userId,
-                    error: String(err),
-                });
-            });
-        }
+        // Note: scansUsed counter is now incremented atomically upfront in the upload route
+        // to prevent race conditions. No separate increment needed here.
 
-        // 6. Send scan-complete notification email (fire & forget — non-blocking)
+        // 5. Send scan-complete notification email (fire & forget — non-blocking)
         if (userId) {
             const user = await prisma.user.findUnique({
                 where:  { id: userId },

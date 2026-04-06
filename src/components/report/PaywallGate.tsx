@@ -51,6 +51,27 @@ function loadRazorpayScript(): Promise<boolean> {
     });
 }
 
+async function getCsrfToken(): Promise<string | null> {
+    const match = document.cookie.match(/(?:^|;\s*)__csrf=([^;]+)/);
+    if (match) return decodeURIComponent(match[1]);
+    try {
+        const res = await fetch('/api/csrf');
+        if (!res.ok) return null;
+        const data = await res.json() as { csrfToken?: string };
+        return data.csrfToken ?? null;
+    } catch {
+        return null;
+    }
+}
+
+function getClaimToken(scanId: string): string | null {
+    try {
+        return sessionStorage.getItem(`scan_claim_${scanId}`);
+    } catch {
+        return null;
+    }
+}
+
 export function PaywallGate({
     scanId,
     message,
@@ -63,8 +84,10 @@ export function PaywallGate({
 
     const refreshPaymentStatus = useCallback(async () => {
         try {
+            const claimToken = getClaimToken(scanId);
             const res = await fetch(`/api/payment/status?scanId=${encodeURIComponent(scanId)}`, {
                 cache: 'no-store',
+                headers: claimToken ? { 'X-Claim-Token': claimToken } : undefined,
             });
 
             if (!res.ok) {
@@ -85,9 +108,16 @@ export function PaywallGate({
 
     const markAttemptFailed = useCallback(async (orderId: string, reason: string) => {
         try {
+            const csrfToken = await getCsrfToken();
+            if (!csrfToken) return;
+            const claimToken = getClaimToken(scanId);
             await fetch('/api/payment/mark-failed', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-csrf-token': csrfToken,
+                    ...(claimToken ? { 'X-Claim-Token': claimToken } : {}),
+                },
                 body: JSON.stringify({
                     scanId,
                     razorpayOrderId: orderId,
@@ -121,9 +151,20 @@ export function PaywallGate({
                 throw new Error('Payment service unavailable. Please try again.');
             }
 
+            const csrfToken = await getCsrfToken();
+            if (!csrfToken) {
+                throw new Error('Security token missing. Please refresh and try again.');
+            }
+
+            const claimToken = getClaimToken(scanId);
+
             const orderRes = await fetch('/api/payment/create-order', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-csrf-token': csrfToken,
+                    ...(claimToken ? { 'X-Claim-Token': claimToken } : {}),
+                },
                 body: JSON.stringify({ scanId }),
             });
 
@@ -162,7 +203,11 @@ export function PaywallGate({
                         try {
                             const verifyRes = await fetch('/api/payment/verify', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'x-csrf-token': csrfToken,
+                                    ...(claimToken ? { 'X-Claim-Token': claimToken } : {}),
+                                },
                                 body: JSON.stringify({
                                     scanId,
                                     razorpayOrderId: response.razorpay_order_id,

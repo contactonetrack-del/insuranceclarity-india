@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
 import { getRazorpayCredentials } from '@/lib/security/env';
+import { logAuditEvent } from '@/services/audit.service';
 
 /**
  * POST /api/payment/webhook
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
         if (eventType === 'payment.captured') {
             const payment = await prisma.payment.findUnique({
                 where: { razorpayOrderId: orderId },
-                select: { id: true, scanId: true, status: true }
+                select: { id: true, scanId: true, status: true, userId: true, amount: true }
             });
 
             if (!payment) {
@@ -102,6 +103,21 @@ export async function POST(request: NextRequest) {
                         data: { isPaid: true, isPaywalled: false }
                     })
                 ]);
+
+                // Log audit event for payment capture
+                await logAuditEvent({
+                    userId: payment.userId,
+                    action: 'payment.captured',
+                    resource: 'payment',
+                    resourceId: payment.id,
+                    details: {
+                        amount: payment.amount,
+                        scanId: payment.scanId,
+                        razorpayPaymentId: paymentData.id,
+                        razorpayOrderId: orderId,
+                    },
+                    ipAddress: request.headers.get('x-forwarded-for') || undefined,
+                });
 
                 // Invalidate cache
                 await redisClient.del(`report:${payment.scanId}`);

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Embedding Service â€” High-Resiliency Semantic Vector Generation
  *
  * Implements a hybrid provider architecture:
@@ -16,7 +16,7 @@ const GEMINI_MODEL = 'models/gemini-embedding-001';
 const LOCAL_MODEL  = 'Xenova/bge-base-en-v1.5'; // 768 dimensions (matches Gemini)
 
 // Cache for local model instance
-let _localPipeline: any = null; // Transformers pipeline
+let _localPipeline: unknown = null; // Transformers pipeline: using unknown here as xenova types are complex to import in nextjs
 
 // â”€â”€â”€ Provider Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -47,7 +47,9 @@ async function generateLocalEmbedding(text: string): Promise<number[]> {
             logger.info({ action: 'embedding.local_load_complete' });
         }
 
-        const output = await _localPipeline(text, { pooling: 'mean', normalize: true });
+        // Transformers.js pipeline is a function that returns the embedding data
+        const pipelineCall = _localPipeline as (t: string, o: object) => Promise<{ data: Float32Array }>;
+        const output = await pipelineCall(text, { pooling: 'mean', normalize: true });
         return Array.from(output.data);
     } catch (error) {
         logger.error({ action: 'embedding.local_failed', error });
@@ -70,7 +72,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
             const vector = await generateGeminiEmbedding(text);
             logger.debug({ action: 'embedding.gemini_success', ms: Date.now() - startTime });
             return vector;
-        } catch (error: any) {
+        } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             const isQuota = errorMessage.includes('429') || errorMessage.includes('quota');
             logger.warn({ 
@@ -89,6 +91,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
         return vector;
     } catch (error) {
         // 3. Last resort
+        logger.error({ action: 'embedding.all_failed', error: String(error) });
         throw new Error('All embedding providers failed or are unconfigured.');
     }
 }

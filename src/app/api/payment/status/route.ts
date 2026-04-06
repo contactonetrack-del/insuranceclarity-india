@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 
 import { prisma } from '@/lib/prisma';
+import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -20,8 +21,9 @@ function getClientIp(request: NextRequest): string | null {
 function canAccessScan(params: {
     isAdmin: boolean;
     sessionUserId: string | null;
-    requestIp: string | null;
     ownerUserId: string | null;
+    claimTokenValid: boolean;
+    requestIp: string | null;
     ownerIp: string | null;
 }): boolean {
     if (params.isAdmin) return true;
@@ -30,7 +32,13 @@ function canAccessScan(params: {
         return params.sessionUserId === params.ownerUserId;
     }
 
-    return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
+    if (params.claimTokenValid) return true;
+
+    if (process.env.NODE_ENV !== 'production') {
+        return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
+    }
+
+    return false;
 }
 
 function statusMessage(status: 'NOT_CREATED' | 'CREATED' | 'FAILED' | 'CAPTURED') {
@@ -57,6 +65,7 @@ export async function GET(request: NextRequest) {
         const sessionUserId = (session?.user as { id?: string } | undefined)?.id ?? null;
         const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'ADMIN';
         const requestIp = getClientIp(request);
+        const claimToken = request.headers.get('x-claim-token');
 
         const scan = await prisma.scan.findUnique({
             where: { id: scanId },
@@ -72,11 +81,18 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
         }
 
+        let claimTokenValid = false;
+        if (claimToken && !scan.userId && redisClient.isConfigured()) {
+            const claimedScanId = await redisClient.get<string>(`scan:claim:${claimToken}`);
+            claimTokenValid = claimedScanId === scanId;
+        }
+
         const isAllowed = canAccessScan({
             isAdmin,
             sessionUserId,
-            requestIp,
             ownerUserId: scan.userId,
+            claimTokenValid,
+            requestIp,
             ownerIp: scan.ipAddress,
         });
 

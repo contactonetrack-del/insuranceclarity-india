@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: ["main"]
   schedule:
-    - cron: '0 0 * * 0' # Weekly scan
+    - cron: "0 0 * * 0" # Weekly scan
 
 jobs:
   security-scan:
@@ -35,18 +35,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install Dependencies
         run: npm ci --legacy-peer-deps
 
       - name: Run NPM Audit (Critical Vulnerabilities Only)
         run: npm audit --audit-level=critical
-        continue-on-error: true
 
       - name: Run Static Analysis (ESLint)
         run: npm run lint -- --max-warnings 200
-        continue-on-error: true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -67,4 +65,3 @@ jobs:
           path: ./
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
-        continue-on-error: true

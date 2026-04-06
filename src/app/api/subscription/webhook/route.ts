@@ -16,33 +16,37 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { logger }                    from '@/lib/logger';
+import { logger } from '@/lib/logger';
 import {
     activateSubscription,
     verifyWebhookSignature,
 } from '@/services/subscription.service';
-import { prisma }                    from '@/lib/prisma';
-import { redisClient }               from '@/lib/cache/redis';
+import { prisma } from '@/lib/prisma';
+import { redisClient } from '@/lib/cache/redis';
+import { logAuditEvent } from '@/services/audit.service';
 
 // Razorpay webhook events we care about
 type RazorpayWebhookEvent =
+    | 'subscription.authenticated'
     | 'subscription.activated'
     | 'subscription.charged'
     | 'subscription.cancelled'
     | 'subscription.completed'
     | 'subscription.paused'
-    | 'subscription.resumed';
+    | 'subscription.resumed'
+    | 'subscription.expired';
 
 interface RazorpayWebhookPayload {
-    event:    RazorpayWebhookEvent;
+    event: RazorpayWebhookEvent;
     payload: {
         subscription: {
             entity: {
-                id:                  string;
-                status:              string;
-                current_start?:      number;
-                current_end?:        number;
-                charge_at?:          number;
+                id: string;
+                status: string;
+                plan_id?: string;
+                current_start?: number;
+                current_end?: number;
+                charge_at?: number;
             };
         };
     };
@@ -50,7 +54,7 @@ interface RazorpayWebhookPayload {
 
 export async function POST(request: NextRequest) {
     // Read raw body for signature verification (must be before any .json() calls)
-    const rawBody  = await request.text();
+    const rawBody = await request.text();
     const signature = request.headers.get('x-razorpay-signature') ?? '';
 
     // Always return 200 to Razorpay (prevents retries on our processing errors)
@@ -89,15 +93,16 @@ export async function POST(request: NextRequest) {
     }
 
     logger.info({
-        action:         'subscription.webhook.received',
+        action: 'subscription.webhook.received',
         event,
         subscriptionId: subscription.id,
-        status:         subscription.status,
+        status: subscription.status,
         razorpayEventId,
     });
 
     try {
         switch (event) {
+            case 'subscription.authenticated':
             case 'subscription.activated':
             case 'subscription.charged': {
                 // Plan upgrade — set to ACTIVE and extend period
@@ -108,38 +113,121 @@ export async function POST(request: NextRequest) {
                     ? new Date(subscription.current_end * 1000)
                     : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // +30 days
 
-                await activateSubscription(subscription.id, start, end);
+                const updatedSub = await activateSubscription(subscription.id, start, end);
+
+                // Audit log
+                await logAuditEvent({
+                    userId: updatedSub?.userId,
+                    action: `subscription.${event.split('.')[1]}`,
+                    resource: 'subscription',
+                    resourceId: updatedSub?.id,
+                    details: {
+                        razorpaySubscriptionId: subscription.id,
+                        planId: subscription.plan_id,
+                        periodStart: start.toISOString(),
+                        periodEnd: end.toISOString(),
+                    },
+                    ipAddress: request.headers.get('x-forwarded-for') || undefined,
+                });
                 break;
             }
 
             case 'subscription.cancelled': {
                 // Mark as cancelled — plan stays active until period end
+                const sub = await prisma.subscription.findUnique({
+                    where: { razorpaySubscriptionId: subscription.id },
+                    select: { id: true, userId: true, plan: true },
+                });
+
                 await prisma.subscription.update({
                     where: { razorpaySubscriptionId: subscription.id },
-                    data:  { status: 'CANCELLED', cancelledAt: new Date() },
+                    data: { status: 'CANCELLED', cancelledAt: new Date() },
                 }).catch((err: unknown) => {
                     logger.warn({ action: 'subscription.cancel.db.failed', error: String(err) });
+                });
+
+                // Audit log
+                if (sub) {
+                    await logAuditEvent({
+                        userId: sub.userId,
+                        action: 'subscription.cancelled',
+                        resource: 'subscription',
+                        resourceId: sub.id,
+                        details: {
+                            razorpaySubscriptionId: subscription.id,
+                            plan: sub.plan,
+                        },
+                        ipAddress: request.headers.get('x-forwarded-for') || undefined,
+                    });
+                }
+                break;
+            }
+
+            case 'subscription.resumed': {
+                const start = subscription.current_start
+                    ? new Date(subscription.current_start * 1000)
+                    : new Date();
+                const end = subscription.current_end
+                    ? new Date(subscription.current_end * 1000)
+                    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+                const updatedSub = await activateSubscription(subscription.id, start, end);
+
+                // Audit log
+                await logAuditEvent({
+                    userId: updatedSub?.userId,
+                    action: 'subscription.resumed',
+                    resource: 'subscription',
+                    resourceId: updatedSub?.id,
+                    details: {
+                        razorpaySubscriptionId: subscription.id,
+                        periodStart: start.toISOString(),
+                        periodEnd: end.toISOString(),
+                    },
+                    ipAddress: request.headers.get('x-forwarded-for') || undefined,
                 });
                 break;
             }
 
             case 'subscription.completed':
-            case 'subscription.paused': {
+            case 'subscription.paused':
+            case 'subscription.expired': {
                 // Downgrade user plan to FREE
                 const sub = await prisma.subscription.findUnique({
                     where: { razorpaySubscriptionId: subscription.id },
+                    select: { id: true, userId: true, plan: true },
                 });
                 if (sub) {
                     await prisma.$transaction([
                         prisma.subscription.update({
                             where: { razorpaySubscriptionId: subscription.id },
-                            data:  { status: event === 'subscription.completed' ? 'COMPLETED' : 'PAUSED' },
+                            data: {
+                                status: event === 'subscription.completed'
+                                    ? 'COMPLETED'
+                                    : event === 'subscription.expired'
+                                        ? 'EXPIRED'
+                                        : 'PAUSED',
+                            },
                         }),
                         prisma.user.update({
                             where: { id: sub.userId },
-                            data:  { plan: 'FREE', planExpiresAt: null },
+                            data: { plan: 'FREE', planExpiresAt: null },
                         }),
                     ]);
+
+                    // Audit log
+                    await logAuditEvent({
+                        userId: sub.userId,
+                        action: `subscription.${event.split('.')[1]}`,
+                        resource: 'subscription',
+                        resourceId: sub.id,
+                        details: {
+                            razorpaySubscriptionId: subscription.id,
+                            previousPlan: sub.plan,
+                            newPlan: 'FREE',
+                        },
+                        ipAddress: request.headers.get('x-forwarded-for') || undefined,
+                    });
                 }
                 break;
             }

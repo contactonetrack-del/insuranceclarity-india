@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { sendContactAlert, sendWelcomeEmail } from '@/services/email.service';
 import { logger }              from '@/lib/logger';
 import { validateCsrfRequest } from '@/lib/security/csrf';
 import { z }                   from 'zod';
+import { createSuccessResponse, handleValidationError, ErrorFactory } from '@/lib/api/error-response';
 
 const contactSchema = z.object({
     name:    z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -43,13 +44,13 @@ export async function POST(req: NextRequest) {
             .catch(() => { /* non-fatal */ });
 
         logger.info({ action: 'contact.sent', email: parsed.email });
-        return NextResponse.json({ success: true });
+        return createSuccessResponse({ success: true });
 
     } catch (error) {
         if (error instanceof z.ZodError) {
-            return NextResponse.json({ error: error.issues[0].message }, { status: 400 });
+            return handleValidationError(error);
         }
         logger.error({ action: 'contact.error', error: error instanceof Error ? error.message : String(error) });
-        return NextResponse.json({ error: 'Internal server error processing contact form' }, { status: 500 });
+        return ErrorFactory.internalServerError('Failed to process contact form');
     }
 }

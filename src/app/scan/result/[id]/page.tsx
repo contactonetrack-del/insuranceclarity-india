@@ -12,6 +12,7 @@ import { useParams } from 'next/navigation';
 import { PaywallGate } from '@/components/report/PaywallGate';
 import { RiskCard, ExclusionCard, HiddenClauseCard, SuggestionCard } from '@/components/report/RiskCard';
 import { ScoreRing } from '@/components/report/ScoreRing';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 import type {
     FreeReportResponse,
     FullReportResponse,
@@ -188,7 +189,12 @@ function ReportDisplay({
     const shareUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/scan/result/${scanId}`
         : '';
-    const pdfExportUrl = `/api/result/${scanId}/pdf`;
+    const claimToken = typeof window !== 'undefined'
+        ? sessionStorage.getItem(`scan_claim_${scanId}`)
+        : null;
+    const pdfExportUrl = claimToken
+        ? `/api/result/${scanId}/pdf?ct=${encodeURIComponent(claimToken)}`
+        : `/api/result/${scanId}/pdf`;
 
     const handleShare = useCallback(async () => {
         const text = `I scanned my insurance policy and got a ${report.score}/100 clarity score. Check yours at Insurance Clarity.`;
@@ -356,7 +362,15 @@ export default function ResultPage() {
 
     const fetchReport = useCallback(async () => {
         try {
-            const res = await fetch(`/api/result/${scanId}`);
+            const claimToken = typeof window !== 'undefined'
+                ? sessionStorage.getItem(`scan_claim_${scanId}`)
+                : null;
+
+            const res = await fetch(`/api/result/${scanId}`, {
+                headers: {
+                    ...(claimToken ? { 'X-Claim-Token': claimToken } : {}),
+                },
+            });
 
             if (res.status === 202) {
                 const data = await res.json() as { status: ScanStatus };
@@ -420,19 +434,21 @@ export default function ResultPage() {
     return (
         <main className="result-page" id="main-content">
             <div className="result-page__container">
-                {scanStatus === 'FAILED' && <ErrorScreen scanId={scanId} />}
+                <ErrorBoundary>
+                    {scanStatus === 'FAILED' && <ErrorScreen scanId={scanId} />}
 
-                {(scanStatus === 'PENDING' || scanStatus === 'PROCESSING') && !report && (
-                    <ProcessingScreen scanId={scanId} attempts={attempts} />
-                )}
+                    {(scanStatus === 'PENDING' || scanStatus === 'PROCESSING') && !report && (
+                        <ProcessingScreen scanId={scanId} attempts={attempts} />
+                    )}
 
-                {report && (
-                    <ReportDisplay
-                        report={report}
-                        scanId={scanId}
-                        onUnlocked={handleUnlocked}
-                    />
-                )}
+                    {report && (
+                        <ReportDisplay
+                            report={report}
+                            scanId={scanId}
+                            onUnlocked={handleUnlocked}
+                        />
+                    )}
+                </ErrorBoundary>
             </div>
         </main>
     );

@@ -15,6 +15,7 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { headers } from 'next/headers'
+import { ensurePlansValidated } from '@/lib/subscriptions/plan-validation'
 
 const inter = Inter({
     subsets: ['latin'],
@@ -51,6 +52,9 @@ export default async function RootLayout({
 }: {
     children: React.ReactNode
 }) {
+    // Validate subscription plan configuration at startup
+    await ensurePlansValidated();
+
     const locale = await getLocale()
     const messages = await getMessages()
     const nonce = (await headers()).get('x-nonce') || undefined;

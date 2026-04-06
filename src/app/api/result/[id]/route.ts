@@ -13,6 +13,7 @@ import { auth } from '@/auth';
 
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { redisClient } from '@/lib/cache/redis';
 import { getReport, getScanStatus } from '@/services/report.service';
 
 interface RouteParams {
@@ -45,6 +46,7 @@ function canAccessScan(params: {
     requestIp: string | null;
     ownerUserId: string | null;
     ownerIp: string | null;
+    claimTokenValid: boolean;
 }): boolean {
     if (params.isAdmin) return true;
 
@@ -52,11 +54,15 @@ function canAccessScan(params: {
         return params.sessionUserId === params.ownerUserId;
     }
 
-    if (!params.ownerIp) {
-        return process.env.NODE_ENV !== 'production';
+    // Primary: signed claim token (not susceptible to CGNAT/proxy IP spoofing)
+    if (params.claimTokenValid) return true;
+
+    // Legacy fallback is explicitly development-only for pre-token scans.
+    if (process.env.NODE_ENV !== 'production') {
+        return Boolean(params.requestIp && params.ownerIp && params.requestIp === params.ownerIp);
     }
 
-    return Boolean(params.requestIp && params.requestIp === params.ownerIp);
+    return false;
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
@@ -69,8 +75,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
         // Get session to check access/payment status
         const session = await auth();
-        const userId  = (session?.user as { id?: string })?.id ?? null;
-        const role    = (session?.user as { role?: string } | undefined)?.role;
+        const userId = (session?.user as { id?: string })?.id ?? null;
+        const role = (session?.user as { role?: string } | undefined)?.role;
         const isAdmin = role === 'ADMIN';
         const requestIp = getClientIp(request);
         const locale = getRequestLocale(request);
@@ -84,6 +90,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
         }
 
+        // Validate anonymous claim token (primary ownership proof, beats IP matching)
+        const claimToken = request.headers.get('x-claim-token');
+        let claimTokenValid = false;
+        if (claimToken && !scanAccess.userId && redisClient.isConfigured()) {
+            const claimedScanId = await redisClient.get<string>(`scan:claim:${claimToken}`);
+            claimTokenValid = claimedScanId === scanId;
+        }
+
         if (
             !canAccessScan({
                 isAdmin,
@@ -91,6 +105,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 requestIp,
                 ownerUserId: scanAccess.userId,
                 ownerIp: scanAccess.ipAddress,
+                claimTokenValid,
             })
         ) {
             logger.warn({

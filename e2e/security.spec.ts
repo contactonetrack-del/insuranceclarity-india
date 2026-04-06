@@ -50,4 +50,23 @@ test.describe('Negative Security Testing & Access Control', () => {
         expect(csp).toContain('frame-ancestors \'none\'');
     });
 
+    test.describe('Anonymous Scan Isolation (IDOR Protection)', () => {
+        test('Accessing scan result without X-Claim-Token returns 404', async ({ request }) => {
+            // We use a dummy but valid-format ULID/UUID
+            const unauthorizedResponse = await request.get(`/api/result/invalid_scan_id_here`);
+
+            // Should be 404 to avoid leaking existence + ensuring no skip-check
+            expect(unauthorizedResponse.status()).toBe(404);
+        });
+
+        test('Accessing scan result with INVALID X-Claim-Token returns 404', async ({ request }) => {
+            const dummyScanId = 'scan_e2e_test_123';
+            const response = await request.get(`/api/result/${dummyScanId}`, {
+                headers: { 'X-Claim-Token': 'invalid_token_hammer_time' }
+            });
+
+            expect(response.status()).toBe(404);
+        });
+    });
+
 });

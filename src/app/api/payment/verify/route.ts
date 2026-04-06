@@ -18,8 +18,10 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
+import { validateCsrfRequest } from '@/lib/security/csrf';
 import { getRazorpayCredentials } from '@/lib/security/env';
 import { trackFunnelStep } from '@/lib/analytics/funnel';
+import { ErrorFactory } from '@/lib/api/error-response';
 import type { VerifyPaymentRequest, VerifyPaymentResponse } from '@/types/report.types';
 
 // ─── Signature Verification ───────────────────────────────────────────────────
@@ -56,8 +58,9 @@ function getClientIp(request: NextRequest): string | null {
 function canAccessScan(params: {
     isAdmin: boolean;
     sessionUserId: string | null;
-    requestIp: string | null;
     ownerUserId: string | null;
+    claimTokenValid: boolean;
+    requestIp: string | null;
     ownerIp: string | null;
 }): boolean {
     if (params.isAdmin) return true;
@@ -66,28 +69,43 @@ function canAccessScan(params: {
         return params.sessionUserId === params.ownerUserId;
     }
 
-    return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
+    if (params.claimTokenValid) return true;
+
+    // Temporary legacy fallback for pre-token scans in non-production only.
+    if (process.env.NODE_ENV !== 'production') {
+        return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
+    }
+
+    return false;
 }
 
 // ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
     try {
+        const csrfError = validateCsrfRequest(request);
+        if (csrfError) return csrfError;
+
         const { keySecret: secret } = getRazorpayCredentials();
         const requestIp = getClientIp(request);
+        const claimToken = request.headers.get('x-claim-token');
         const session = await auth();
         const sessionUserId = (session?.user as { id?: string } | undefined)?.id ?? null;
         const isAdmin = (session?.user as { role?: string } | undefined)?.role === 'ADMIN';
 
-        const body = await request.json() as Partial<VerifyPaymentRequest>;
-        const { scanId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = body;
+        const body = await request.json() as Partial<VerifyPaymentRequest> & {
+            razorpay_order_id?: string;
+            razorpay_payment_id?: string;
+            razorpay_signature?: string;
+        };
+        const scanId = body.scanId;
+        const razorpayOrderId = body.razorpayOrderId ?? body.razorpay_order_id;
+        const razorpayPaymentId = body.razorpayPaymentId ?? body.razorpay_payment_id;
+        const razorpaySignature = body.razorpaySignature ?? body.razorpay_signature;
 
         // Validate all required fields
         if (!scanId || !razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
-            return NextResponse.json(
-                { error: 'Missing payment verification fields.' },
-                { status: 400 },
-            );
+            return ErrorFactory.validationError('Missing payment verification fields.');
         }
 
         // 1. Find payment record in DB
@@ -107,7 +125,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!payment) {
-            return NextResponse.json({ error: 'Payment record not found.' }, { status: 404 });
+            return ErrorFactory.notFound('Payment record not found.');
         }
 
         if (payment.scanId !== scanId) {
@@ -117,14 +135,21 @@ export async function POST(request: NextRequest) {
                 providedScanId: scanId,
                 razorpayOrderId,
             });
-            return NextResponse.json({ error: 'Payment does not belong to this scan.' }, { status: 400 });
+            return ErrorFactory.validationError('Payment does not belong to this scan.');
+        }
+
+        let claimTokenValid = false;
+        if (claimToken && !payment.scan.userId && redisClient.isConfigured()) {
+            const claimedScanId = await redisClient.get<string>(`scan:claim:${claimToken}`);
+            claimTokenValid = claimedScanId === scanId;
         }
 
         const isAllowed = canAccessScan({
             isAdmin,
             sessionUserId,
-            requestIp,
             ownerUserId: payment.scan.userId,
+            claimTokenValid,
+            requestIp,
             ownerIp: payment.scan.ipAddress,
         });
 
@@ -135,7 +160,7 @@ export async function POST(request: NextRequest) {
                 razorpayOrderId,
                 userId: sessionUserId ?? 'anonymous',
             });
-            return NextResponse.json({ error: 'Payment record not found.' }, { status: 404 });
+            return ErrorFactory.notFound('Payment record not found.');
         }
 
         if (payment.status === 'CAPTURED') {
@@ -168,10 +193,7 @@ export async function POST(request: NextRequest) {
                 scanId,
                 razorpayOrderId,
             });
-            return NextResponse.json(
-                { error: 'Payment verification failed. Invalid signature.' },
-                { status: 400 },
-            );
+            return ErrorFactory.validationError('Payment verification failed. Invalid signature.');
         }
 
         // 3. Update payment status and unlock scan report (atomic transaction)
@@ -179,7 +201,7 @@ export async function POST(request: NextRequest) {
             prisma.payment.update({
                 where: { razorpayOrderId },
                 data: {
-                    status:            'CAPTURED',
+                    status: 'CAPTURED',
                     razorpayPaymentId,
                     razorpaySignature,
                 },
@@ -216,6 +238,6 @@ export async function POST(request: NextRequest) {
         const message = error instanceof Error ? error.message : 'Payment verification failed';
         logger.error({ action: 'payment.verify.error', error: message });
 
-        return NextResponse.json({ error: message }, { status: 500 });
+        return ErrorFactory.internalServerError('Payment verification failed.');
     }
 }

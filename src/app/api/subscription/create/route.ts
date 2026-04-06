@@ -13,6 +13,7 @@ import { auth } from '@/auth';
 import { logger }                    from '@/lib/logger';
 import { validateCsrfRequest }       from '@/lib/security/csrf';
 import { createRazorpaySubscription } from '@/services/subscription.service';
+import { ErrorFactory }              from '@/lib/api/error-response';
 import { z }                         from 'zod';
 
 const createSchema = z.object({
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
         // Auth required for subscriptions
         const session = await auth();
         if (!session?.user) {
-            return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+            return ErrorFactory.unauthorized('Authentication required.');
         }
 
         const userId    = (session.user as { id?: string }).id;
@@ -36,17 +37,14 @@ export async function POST(request: NextRequest) {
         const userName  = session.user.name ?? 'there';
 
         if (!userId || !userEmail) {
-            return NextResponse.json({ error: 'Invalid session.' }, { status: 401 });
+            return ErrorFactory.unauthorized('Invalid session.');
         }
 
         // Validate body
         const body   = await request.json() as unknown;
         const parsed = createSchema.safeParse(body);
         if (!parsed.success) {
-            return NextResponse.json(
-                { error: 'Invalid plan. Choose PRO or ENTERPRISE.' },
-                { status: 400 },
-            );
+            return ErrorFactory.validationError('Invalid plan. Choose PRO or ENTERPRISE.');
         }
 
         const { plan } = parsed.data;
@@ -70,6 +68,6 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Failed to create subscription';
         logger.error({ action: 'subscription.create.error', error: message });
-        return NextResponse.json({ error: message }, { status: 500 });
+        return ErrorFactory.internalServerError(message);
     }
 }

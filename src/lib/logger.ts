@@ -10,6 +10,7 @@ import { maskEmail, maskPhone, maskAadhaar, maskPAN, maskPolicyNo } from '@/serv
 
 // Determine log level based on environment
 const LOG_LEVEL = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug');
+const isEdgeRuntime = typeof globalThis !== 'undefined' && 'EdgeRuntime' in globalThis;
 
 // Base logger configuration
 const baseConfig: pino.LoggerOptions = {
@@ -43,9 +44,11 @@ const prodConfig: pino.LoggerOptions = {
 };
 
 // Create the logger instance
-export const logger = process.env.NODE_ENV === 'production'
-    ? pino(prodConfig, pino.destination({ sync: false }))
-    : pino(devConfig);
+export const logger = isEdgeRuntime
+    ? pino(prodConfig)
+    : process.env.NODE_ENV === 'production'
+        ? pino(prodConfig, pino.destination({ sync: false }))
+        : pino(devConfig);
 
 // ============================================
 // SAFE LOGGING HELPERS (with PII masking)

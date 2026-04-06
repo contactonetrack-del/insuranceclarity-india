@@ -6,6 +6,19 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import type { Policy } from './CompareClient'
 
+async function getCsrfToken(): Promise<string | null> {
+    const match = document.cookie.match(/(?:^|;\s*)__csrf=([^;]+)/)
+    if (match) return decodeURIComponent(match[1])
+    try {
+        const res = await fetch('/api/csrf')
+        if (!res.ok) return null
+        const data = await res.json() as { csrfToken?: string }
+        return data.csrfToken ?? null
+    } catch {
+        return null
+    }
+}
+
 interface Verdict {
     winnerId: string
     verdict: string
@@ -22,19 +35,25 @@ export default function ComparisonInsight({ policies }: { policies: Policy[] }) 
 
     const generateVerdict = async () => {
         if (policies.length < 2) return
-        
+
         setLoading(true)
         setError(null)
-        
+
         try {
+            const csrfToken = await getCsrfToken()
+            if (!csrfToken) throw new Error('Security token missing. Please refresh and try again.')
+
             const res = await fetch('/api/ai/compare', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-csrf-token': csrfToken,
+                },
                 body: JSON.stringify({ policies })
             })
-            
+
             if (!res.ok) throw new Error('Failed to fetch verdict')
-            
+
             const data = await res.json()
             setVerdict(data)
         } catch (err) {
@@ -47,7 +66,7 @@ export default function ComparisonInsight({ policies }: { policies: Policy[] }) 
 
     // Reset verdict when policies change significantly
     const policyIds = policies.map(p => p.id).join(',')
-    
+
     useEffect(() => {
         setVerdict(null)
     }, [policyIds])
@@ -60,7 +79,7 @@ export default function ComparisonInsight({ policies }: { policies: Policy[] }) 
                 <div className="glass rounded-3xl p-8 border border-accent/20 relative overflow-hidden">
                     {/* Background Glow */}
                     <div className="absolute -top-24 -right-24 w-64 h-64 bg-accent/10 blur-[100px] rounded-full" />
-                    
+
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-2 bg-gradient-accent rounded-lg">
@@ -78,7 +97,7 @@ export default function ComparisonInsight({ policies }: { policies: Policy[] }) 
 
                         <AnimatePresence mode="wait">
                             {!verdict && !loading && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
@@ -101,7 +120,7 @@ export default function ComparisonInsight({ policies }: { policies: Policy[] }) 
                             )}
 
                             {loading && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
@@ -115,7 +134,7 @@ export default function ComparisonInsight({ policies }: { policies: Policy[] }) 
                             )}
 
                             {verdict && winner && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className="space-y-6"

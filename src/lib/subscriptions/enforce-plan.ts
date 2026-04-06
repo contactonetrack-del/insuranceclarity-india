@@ -24,6 +24,40 @@ export interface PlanGuardResult {
 const UPGRADE_URL = '/pricing';
 
 /**
+ * Atomically checks and increments scan counter to prevent race conditions.
+ * Returns the updated scansUsed count if allowed, or throws an error if limit exceeded.
+ */
+export async function checkAndIncrementScanLimit(userId: string): Promise<number> {
+  return await prisma.$transaction(async (tx) => {
+    const user = await tx.user.findUnique({
+      where: { id: userId },
+      select: { plan: true, scansUsed: true },
+    });
+
+    if (!user) {
+      throw new Error('User account not found.');
+    }
+
+    const plan = user.plan ?? 'FREE';
+    const limits = getLimitsForPlan(plan);
+
+    if (isAtScanLimit(plan, user.scansUsed)) {
+      const limit = limits.maxScansPerMonth;
+      throw new Error(`You have reached the ${limit}-scan limit for the ${plan} plan. Upgrade to Pro for 50 scans/month.`);
+    }
+
+    // Atomically increment the counter
+    const updatedUser = await tx.user.update({
+      where: { id: userId },
+      data: { scansUsed: { increment: 1 } },
+      select: { scansUsed: true },
+    });
+
+    return updatedUser.scansUsed;
+  });
+}
+
+/**
  * Enforces plan limits for a given feature.
  * Always fetches a fresh user record from the database.
  */

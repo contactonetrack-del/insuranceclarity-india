@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { ErrorFactory } from '@/lib/api/error-response';
 
 import { getFunnelSummary } from '@/lib/analytics/funnel';
 
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     const role = (session?.user as { role?: string } | undefined)?.role;
 
     if (role !== 'ADMIN') {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        return ErrorFactory.forbidden('Forbidden');
     }
 
     const daysRaw = request.nextUrl.searchParams.get('days');

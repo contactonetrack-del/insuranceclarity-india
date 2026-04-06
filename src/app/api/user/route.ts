@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from '@/auth';
+import { ErrorFactory } from '@/lib/api/error-response';
 
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +10,7 @@ export async function GET(req: Request) {
         const session = await auth();
 
         if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return ErrorFactory.unauthorized("Unauthorized");
         }
 
         return NextResponse.json({
@@ -17,9 +18,6 @@ export async function GET(req: Request) {
             message: "You have accessed a protected route.",
         });
     } catch (error) {
-        return NextResponse.json(
-            { error: "Internal Server Error" },
-            { status: 500 }
-        );
+        return ErrorFactory.internalServerError("Internal Server Error");
     }
 }

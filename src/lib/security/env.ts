@@ -172,3 +172,46 @@ export function getSanityConfig(): { projectId: string; dataset: string; isConfi
         isConfigured: false,
     };
 }
+
+/**
+ * Returns the Sanity API token.
+ * NOTE: Ensure this token only has 'Viewer' (Read-only) scope for production SSR
+ * unless write operations are explicitly required.
+ */
+export function getSanityToken(): string | null {
+    const token = process.env.SANITY_API_TOKEN?.trim() ?? '';
+    if (!token || isPlaceholderValue(token)) return null;
+
+    if (process.env.NODE_ENV === 'production' && token.length > 50) {
+        logger.warn({
+            action: 'sanity.token.scope_check',
+            message: 'SANITY_API_TOKEN detected. Verify it is restricted to READ-ONLY scope for production safety.'
+        });
+    }
+
+    return token;
+}
+
+export function validateAlertConfig(): { discord: string | null; slack: string | null } {
+    const discord = process.env.DISCORD_WEBHOOK_URL?.trim() ?? '';
+    const slack = process.env.SLACK_WEBHOOK_URL?.trim() ?? '';
+
+    const hasDiscord = Boolean(discord) && !isPlaceholderValue(discord);
+    const hasSlack = Boolean(slack) && !isPlaceholderValue(slack);
+
+    if (!hasDiscord && !hasSlack) {
+        const message = 'No monitoring webhooks (DISCORD_WEBHOOK_URL or SLACK_WEBHOOK_URL) are configured. Operational alerts will be silent.';
+
+        if (process.env.NODE_ENV === 'production') {
+            // We don't throw here to avoid blocking boot, but we log a heavy error
+            logger.error({ action: 'alerts.config.missing', message });
+        } else {
+            logger.warn({ action: 'alerts.config.missing', message });
+        }
+    }
+
+    return {
+        discord: hasDiscord ? discord : null,
+        slack: hasSlack ? slack : null,
+    };
+}

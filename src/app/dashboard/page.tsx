@@ -17,6 +17,13 @@ import { formatCurrency } from "@/lib/utils";
 
 import ScanActivityChart from '@/components/dashboard/ScanActivityChart';
 
+interface PersonalizedHint {
+    title: string;
+    description: string;
+    ctaLabel: string;
+    ctaHref: string;
+}
+
 export const dynamic = "force-dynamic";
 
 function formatCalculationPreview(result: unknown): string {
@@ -88,6 +95,68 @@ export default async function DashboardPage() {
     const riskScoreDisplay = latestRiskScore !== null ? latestRiskScore.toFixed(1) : '—';
 
     const calcCount = user?._count?.calculations ?? 0;
+
+    const personalizedHints: PersonalizedHint[] = (() => {
+        if (!user) {
+            return [
+                {
+                    title: 'Start with your first scan',
+                    description: 'Upload one policy to unlock personalized risk insights and recommendations.',
+                    ctaLabel: 'Scan Policy',
+                    ctaHref: '/scan',
+                },
+            ];
+        }
+
+        const hints: PersonalizedHint[] = [];
+        const scansCount = user.scans.length;
+        const quotesCount = user.savedQuotes.length;
+
+        if (scansCount === 0) {
+            hints.push({
+                title: 'Start with your first policy scan',
+                description: 'Scanning a policy helps us tailor exclusions, risk hotspots, and advisor guidance to your profile.',
+                ctaLabel: 'Scan First Policy',
+                ctaHref: '/scan',
+            });
+        } else if (scansCount < 3) {
+            hints.push({
+                title: 'Compare multiple policies for better clarity',
+                description: 'You have started strong. Add 1-2 more policies to unlock meaningful side-by-side comparison insights.',
+                ctaLabel: 'Compare Policies',
+                ctaHref: '/tools/compare',
+            });
+        }
+
+        if (quotesCount === 0) {
+            hints.push({
+                title: 'Generate your first smart quote',
+                description: 'Quote history improves your personalized recommendations over time.',
+                ctaLabel: 'Create Quote',
+                ctaHref: '/tools/interactive-quote',
+            });
+        }
+
+        if ((user.plan ?? 'FREE') === 'FREE') {
+            hints.push({
+                title: 'Unlock deeper personalization with Pro',
+                description: 'Pro gives higher scan limits, richer advisor context, and report exports for long-term tracking.',
+                ctaLabel: 'View Pro Plan',
+                ctaHref: '/pricing',
+            });
+        }
+
+        if (hints.length === 0) {
+            hints.push({
+                title: 'You are on track',
+                description: 'Keep scanning and reviewing insights to strengthen your insurance portfolio quality.',
+                ctaLabel: 'Go to AI Advisor',
+                ctaHref: '/tools/ai-advisor',
+            });
+        }
+
+        return hints.slice(0, 2);
+    })();
 
     // Build 30-day chart data from scan history
     const chartData = (() => {
@@ -168,6 +237,23 @@ export default async function DashboardPage() {
 
                 {/* Scan Activity Chart */}
                 <ScanActivityChart data={chartData} />
+
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="Personalized recommendations">
+                    {personalizedHints.map((hint) => (
+                        <article key={hint.title} className="glass rounded-2xl border border-default p-5">
+                            <p className="text-[10px] uppercase tracking-[0.16em] text-accent font-semibold">Personalized Recommendation</p>
+                            <h3 className="text-lg font-semibold text-theme-primary mt-2">{hint.title}</h3>
+                            <p className="text-sm text-theme-secondary mt-2">{hint.description}</p>
+                            <Link
+                                href={hint.ctaHref}
+                                className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-accent hover:underline"
+                            >
+                                {hint.ctaLabel}
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </article>
+                    ))}
+                </section>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                     {/* Main Feed */}

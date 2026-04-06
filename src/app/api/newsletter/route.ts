@@ -11,6 +11,7 @@ import { prisma }              from '@/lib/prisma';
 import { validateCsrfRequest } from '@/lib/security/csrf';
 import { logger }              from '@/lib/logger';
 import { sendWelcomeEmail }    from '@/services/email.service';
+import { ErrorFactory }        from '@/lib/api/error-response';
 import { z }                   from 'zod';
 
 const newsletterSchema = z.object({
@@ -79,12 +80,9 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         if (error instanceof z.ZodError) {
-            return NextResponse.json({
-                success: false,
-                message: error.issues[0].message,
-            }, { status: 400 });
+            return ErrorFactory.validationError(error.issues[0].message);
         }
         logger.error({ action: 'newsletter.error', error: error instanceof Error ? error.message : String(error) });
-        return NextResponse.json({ success: false, message: 'Subscription failed. Please try again.' }, { status: 500 });
+        return ErrorFactory.internalServerError('Subscription failed. Please try again.');
     }
 }

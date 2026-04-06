@@ -8,12 +8,12 @@
  * - Send confirmation emails
  */
 
-import { prisma }               from '@/lib/prisma';
-import { logger }               from '@/lib/logger';
-import { sendWelcomeEmail }     from '@/services/email.service';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
+import { sendWelcomeEmail } from '@/services/email.service';
 import { getRazorpayCredentials, getRazorpayPlanId } from '@/lib/security/env';
-import crypto                   from 'crypto';
-import { after }                from 'next/server';
+import crypto from 'crypto';
+import { after } from 'next/server';
 
 // ——— Razorpay Plan IDs (set these in your Razorpay dashboard) ——————————————————————
 // Create plans at: https://dashboard.razorpay.com/app/subscriptions/plans
@@ -21,17 +21,17 @@ import { after }                from 'next/server';
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface CreateSubscriptionInput {
-    userId:    string;
-    plan:      'PRO' | 'ENTERPRISE';
+    userId: string;
+    plan: 'PRO' | 'ENTERPRISE';
     userEmail: string;
-    userName:  string;
+    userName: string;
 }
 
 export interface SubscriptionDetails {
     subscriptionId: string;
-    planId:         string;
-    shortUrl:       string;
-    status:         string;
+    planId: string;
+    shortUrl: string;
+    status: string;
 }
 
 // â”€â”€â”€ Razorpay Client Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -42,15 +42,15 @@ function getRazorpayAuth(): string {
 }
 
 async function razorpayRequest<T>(
-    path:    string,
-    method:  string,
-    body?:   Record<string, unknown>,
+    path: string,
+    method: string,
+    body?: Record<string, unknown>,
 ): Promise<T> {
     const response = await fetch(`https://api.razorpay.com/v1${path}`, {
         method,
         headers: {
             'Authorization': getRazorpayAuth(),
-            'Content-Type':  'application/json',
+            'Content-Type': 'application/json',
         },
         body: body ? JSON.stringify(body) : undefined,
     });
@@ -74,19 +74,31 @@ export async function createRazorpaySubscription(
 ): Promise<SubscriptionDetails> {
     const { userId, plan, userEmail, userName } = input;
 
+    const existingActive = await prisma.subscription.findFirst({
+        where: {
+            userId,
+            status: { in: ['CREATED', 'AUTHENTICATED', 'ACTIVE'] },
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    if (existingActive?.status === 'ACTIVE' && existingActive.currentPeriodEnd && existingActive.currentPeriodEnd > new Date()) {
+        throw new Error('You already have an active subscription.');
+    }
+
     const planId = getRazorpayPlanId(plan);
 
     interface RazorpaySubscriptionResponse {
-        id:        string;
-        plan_id:   string;
+        id: string;
+        plan_id: string;
         short_url: string;
-        status:    string;
+        status: string;
     }
 
     const subscription = await razorpayRequest<RazorpaySubscriptionResponse>('/subscriptions', 'POST', {
-        plan_id:        planId,
-        total_count:    12,          // 12 billing cycles (1 year)
-        quantity:       1,
+        plan_id: planId,
+        total_count: 12,          // 12 billing cycles (1 year)
+        quantity: 1,
         notify_info: {
             notify_phone: '',
             notify_email: userEmail,
@@ -98,19 +110,27 @@ export async function createRazorpaySubscription(
         },
     });
 
-    // Persist to DB
-    await prisma.subscription.create({
-        data: {
+    // Persist to DB (upsert by Razorpay subscription id for idempotency)
+    await prisma.subscription.upsert({
+        where: { razorpaySubscriptionId: subscription.id },
+        create: {
             userId,
             plan,
             razorpaySubscriptionId: subscription.id,
-            razorpayPlanId:         subscription.plan_id,
-            status:                 'CREATED',
+            razorpayPlanId: subscription.plan_id,
+            status: 'CREATED',
+        },
+        update: {
+            userId,
+            plan,
+            razorpayPlanId: subscription.plan_id,
+            status: 'CREATED',
+            cancelledAt: null,
         },
     });
 
     logger.info({
-        action:         'subscription.created',
+        action: 'subscription.created',
         userId,
         plan,
         subscriptionId: subscription.id,
@@ -118,9 +138,9 @@ export async function createRazorpaySubscription(
 
     return {
         subscriptionId: subscription.id,
-        planId:         subscription.plan_id,
-        shortUrl:       subscription.short_url,
-        status:         subscription.status,
+        planId: subscription.plan_id,
+        shortUrl: subscription.short_url,
+        status: subscription.status,
     };
 }
 
@@ -132,17 +152,17 @@ export async function createRazorpaySubscription(
  */
 export async function activateSubscription(
     razorpaySubscriptionId: string,
-    currentPeriodStart:     Date,
-    currentPeriodEnd:       Date,
-): Promise<void> {
+    currentPeriodStart: Date,
+    currentPeriodEnd: Date,
+): Promise<{ id: string; userId: string } | null> {
     const subscription = await prisma.subscription.findUnique({
-        where:   { razorpaySubscriptionId },
+        where: { razorpaySubscriptionId },
         include: { user: { select: { email: true, name: true } } },
     });
 
     if (!subscription) {
         logger.warn({ action: 'subscription.activate.notfound', razorpaySubscriptionId });
-        return;
+        return null;
     }
 
     await prisma.$transaction([
@@ -150,7 +170,7 @@ export async function activateSubscription(
         prisma.subscription.update({
             where: { razorpaySubscriptionId },
             data: {
-                status:             'ACTIVE',
+                status: 'ACTIVE',
                 currentPeriodStart,
                 currentPeriodEnd,
             },
@@ -159,16 +179,16 @@ export async function activateSubscription(
         prisma.user.update({
             where: { id: subscription.userId },
             data: {
-                plan:          subscription.plan,
+                plan: subscription.plan,
                 planExpiresAt: currentPeriodEnd,
             },
         }),
     ]);
 
     logger.info({
-        action:         'subscription.activated',
-        userId:         subscription.userId,
-        plan:           subscription.plan,
+        action: 'subscription.activated',
+        userId: subscription.userId,
+        plan: subscription.plan,
         subscriptionId: razorpaySubscriptionId,
     });
 
@@ -181,6 +201,11 @@ export async function activateSubscription(
             }).catch(() => { /* non-fatal */ });
         });
     }
+
+    return {
+        id: subscription.id,
+        userId: subscription.userId,
+    };
 }
 
 // â”€â”€â”€ Cancel Subscription â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -209,7 +234,7 @@ export async function cancelSubscription(
     await prisma.subscription.update({
         where: { razorpaySubscriptionId },
         data: {
-            status:      'CANCELLED',
+            status: 'CANCELLED',
             cancelledAt: new Date(),
         },
     });
@@ -218,12 +243,12 @@ export async function cancelSubscription(
     if (!atPeriodEnd) {
         await prisma.user.update({
             where: { id: subscription.userId },
-            data:  { plan: 'FREE', planExpiresAt: null },
+            data: { plan: 'FREE', planExpiresAt: null },
         });
     }
 
     logger.info({
-        action:         'subscription.cancelled',
+        action: 'subscription.cancelled',
         subscriptionId: razorpaySubscriptionId,
         atPeriodEnd,
     });
@@ -236,7 +261,7 @@ export async function cancelSubscription(
  * Must be called before processing any webhook payload.
  */
 export function verifyWebhookSignature(
-    rawBody:   string,
+    rawBody: string,
     signature: string,
 ): boolean {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
@@ -254,4 +279,3 @@ export function verifyWebhookSignature(
         Buffer.from(signature),
     );
 }
-

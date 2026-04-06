@@ -56,7 +56,7 @@ describe('POST /api/leads', () => {
 
         expect(response.status).toBe(201);
         expect(json.success).toBe(true);
-        expect(json.leadId).toBe('lead_123');
+        expect(json.data.leadId).toBe('lead_123');
         expect(mockCreate).toHaveBeenCalledWith({
             data: {
                 name: 'John Doe',
@@ -82,7 +82,8 @@ describe('POST /api/leads', () => {
 
         expect(response.status).toBe(400);
         expect(json.success).toBe(false);
-        expect(json.errors).toHaveProperty('email');
+        expect(json.error).toBeDefined();
+        expect(json.error.code).toBe('VALIDATION_ERROR');
         expect(mockCreate).not.toHaveBeenCalled();
     });
 
