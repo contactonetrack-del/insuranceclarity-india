@@ -7,6 +7,7 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { logger } from '@/lib/logger';
+import { logBraintrustEvent } from '@/lib/braintrust';
 import type { GptAnalysisResponse } from '@/types/report.types';
 import { formatRegulatoryContext, retrieveRegulatoryContext } from '@/services/regulatory-rag.service';
 
@@ -149,6 +150,26 @@ async function analyzeWithGemini(input: AnalysisInput): Promise<AnalysisResult> 
         processingMs,
     });
 
+    await logBraintrustEvent({
+        eventType: 'ai_analysis.complete',
+        input: truncatePolicyText(input.policyText),
+        output: JSON.stringify({
+            score: parsed.score,
+            summary: parsed.summary,
+            risks: parsed.risks.length,
+            exclusions: parsed.exclusions.length,
+            suggestions: parsed.suggestions.length,
+            hiddenClauses: parsed.hiddenClauses.length,
+        }),
+        metadata: {
+            provider: 'gemini',
+            model: GEMINI_MODEL,
+            tokensUsed,
+            processingMs,
+            fileName: input.fileName,
+        },
+    });
+
     return {
         report: { ...parsed, rawText: rawContent },
         tokensUsed,
@@ -171,10 +192,23 @@ export async function analyzePolicyWithGpt(input: AnalysisInput): Promise<Analys
     try {
         return await analyzeWithGemini(input);
     } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
         logger.error({
             action: 'ai.analyze.error',
-            error: error instanceof Error ? error.message : String(error),
+            error: message,
         });
+
+        await logBraintrustEvent({
+            eventType: 'ai_analysis.error',
+            input: truncatePolicyText(input.policyText),
+            error: message,
+            metadata: {
+                provider: 'gemini',
+                model: GEMINI_MODEL,
+                fileName: input.fileName,
+            },
+        });
+
         throw new Error('AI analysis failed. Please try again or use a different PDF.');
     }
 }

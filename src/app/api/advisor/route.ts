@@ -14,6 +14,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { INTENTS, FALLBACKS } from '@/config/advisor-intents';
 
 import { logger } from '@/lib/logger';
+import { logBraintrustEvent } from '@/lib/braintrust';
 import { validateCsrfRequest } from '@/lib/security/csrf';
 import { enforceAiRateLimit } from '@/lib/security/ai-rate-limit';
 import { formatRegulatoryContext, retrieveRegulatoryContext } from '@/services/regulatory-rag.service';
@@ -113,8 +114,29 @@ Available pages to link to:
         const raw = stripJsonCodeFence(response.response.text() || '');
         if (!raw) return null;
 
-        return JSON.parse(raw) as AdvisorAiResponse;
-    } catch {
+        const result = JSON.parse(raw) as AdvisorAiResponse;
+        await logBraintrustEvent({
+            eventType: 'advisor.intent.success',
+            input: message,
+            output: JSON.stringify(result),
+            metadata: {
+                model: modelName,
+                route: '/api/advisor',
+            },
+        });
+
+        return result;
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        await logBraintrustEvent({
+            eventType: 'advisor.intent.error',
+            input: message,
+            error: message,
+            metadata: {
+                model: process.env.GEMINI_ADVISOR_MODEL ?? 'gemini-2.0-flash',
+                route: '/api/advisor',
+            },
+        });
         return null;
     }
 }

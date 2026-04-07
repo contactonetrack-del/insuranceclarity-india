@@ -41,21 +41,29 @@ Braintrust is an AI evaluation and monitoring platform that helps:
 
 ## 🔧 Implementation Steps
 
-### 1. Install Braintrust SDK
-```bash
-npm install braintrust
-```
+### 1. Configure Braintrust Client
 
-### 2. Configure Braintrust Client
+The repository includes a Braintrust client wrapper at `src/lib/braintrust.ts`.
+It uses your Vercel environment variables to send AI telemetry events securely.
+
 ```typescript
-// lib/braintrust.ts
-import { Braintrust } from 'braintrust';
-
-export const braintrust = new Braintrust({
-  apiKey: process.env.BRAINTRUST_API_KEY,
-  project: 'insurance-clarity-ai-monitoring',
-});
+// src/lib/braintrust.ts
+import { logBraintrustEvent } from '@/lib/braintrust';
 ```
+
+### 2. Update Environment Variables
+
+Ensure the following values are configured in Vercel and local development:
+
+```env
+BRAINTRUST_API_KEY=...
+BRAINTRUST_PROJECT_ID=...
+BRAINTRUST_API_URL=https://api.braintrust.dev/v1/events
+```
+
+If `BRAINTRUST_API_URL` is not configured, the client will default to `https://api.braintrust.dev/v1/events`.
+
+### 3. Add AI Monitoring to Error Handling
 
 ### 3. Add AI Monitoring to Error Handling
 
