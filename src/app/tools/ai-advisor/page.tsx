@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import AdvisorClient from './advisor-client';
 import { Bot } from 'lucide-react';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export default function AiAdvisorPage() {
     return (
