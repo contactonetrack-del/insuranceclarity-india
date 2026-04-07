@@ -7,7 +7,20 @@ import { Resend } from 'resend';
 import { createSafeUserContext, logger } from '@/lib/logger';
 import { isEmailSuppressed } from '@/lib/email/suppression';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendClient: Resend | null = null;
+
+function getResendClient(): Resend | null {
+    const apiKey = process.env.RESEND_API_KEY?.trim();
+    if (!apiKey) {
+        return null;
+    }
+
+    if (!resendClient) {
+        resendClient = new Resend(apiKey);
+    }
+
+    return resendClient;
+}
 
 type SupportedLocale = 'en' | 'hi';
 
@@ -139,6 +152,12 @@ async function sendEmail(payload: EmailPayload): Promise<boolean> {
         } else {
             logger.warn({ action: 'email.resend.not.configured', subject: payload.subject });
         }
+        return false;
+    }
+
+    const resend = getResendClient();
+    if (!resend) {
+        logger.warn({ action: 'email.resend.client.unavailable', subject: payload.subject });
         return false;
     }
 
