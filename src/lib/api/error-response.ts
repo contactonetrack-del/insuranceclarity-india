@@ -12,21 +12,12 @@
 
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { errorAggregator as monitoringErrorAggregator } from '@/lib/monitoring/error-aggregator';
+import { getSeverityFromStatus } from '@/lib/monitoring/error-events';
 import { z } from 'zod';
 
-// Dynamic import to avoid circular dependencies
-let errorAggregator: any = null;
-
 function getErrorAggregator() {
-  if (!errorAggregator) {
-    try {
-      const mod = require('@/lib/monitoring/error-aggregator');
-      errorAggregator = mod.errorAggregator;
-    } catch {
-      // Silently fail if monitoring not available
-    }
-  }
-  return errorAggregator;
+  return monitoringErrorAggregator;
 }
 
 export interface ApiErrorResponse {
@@ -109,6 +100,7 @@ export function createErrorResponse(options: ApiErrorOptions, context?: { route?
           route: context.route,
           method: context.method || 'UNKNOWN',
           statusCode,
+          severity: getSeverityFromStatus(statusCode, code),
           userId: context.userId,
           ipAddress: context.ipAddress,
           details: details as Record<string, unknown> | undefined,
