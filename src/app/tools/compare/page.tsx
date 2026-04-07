@@ -6,8 +6,19 @@ export const metadata = {
     title: 'Compare Policies | InsuranceClarity',
     description: 'Compare multiple insurance policies side-by-side to find the right coverage.',
 }
+export const dynamic = 'force-dynamic'
 
 type JsonData = Record<string, string | number | boolean | null | undefined>
+
+function isExpectedDbFallbackError(error: unknown): boolean {
+    const message = error instanceof Error ? error.message : String(error)
+    return (
+        message.includes('password authentication failed') ||
+        message.includes('Raw query failed') ||
+        message.includes('P1000') ||
+        message.includes('P1001')
+    )
+}
 
 async function tableExists(tableName: string): Promise<boolean> {
     const qualifiedTableName = `public."${tableName}"`
@@ -60,6 +71,19 @@ export default async function ComparePage() {
             categories = dbCategories.map((c) => ({ id: c.id, name: c.name }))
         }
     } catch (error) {
+        if (isExpectedDbFallbackError(error)) {
+            if (process.env.NODE_ENV !== 'production') {
+                logger.warn(
+                    {
+                        action: 'compare.page.db_query_skipped',
+                        error: error instanceof Error ? error.message : String(error),
+                    },
+                    'Skipping compare page DB data; using empty fallback'
+                )
+            }
+            return <CompareClient policies={policies} categories={categories} />
+        }
+
         logger.error(
             {
                 action: 'compare.page.db_query_failed',

@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 
-import ScanActivityChart from '@/components/dashboard/ScanActivityChart';
+import { LazyScanActivityChart, LazyChartWrapper } from '@/components/dashboard/lazy-chart';
 
 interface PersonalizedHint {
     title: string;
@@ -235,8 +235,10 @@ export default async function DashboardPage() {
                     />
                 </div>
 
-                {/* Scan Activity Chart */}
-                <ScanActivityChart data={chartData} />
+                {/* Scan Activity Chart - Lazy loaded for performance */}
+                <LazyChartWrapper>
+                    <LazyScanActivityChart data={chartData} />
+                </LazyChartWrapper>
 
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="Personalized recommendations">
                     {personalizedHints.map((hint) => (

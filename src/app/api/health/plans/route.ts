@@ -11,14 +11,20 @@ import { NextResponse } from 'next/server';
 import { validateSubscriptionPlans } from '@/lib/subscriptions/plan-validation';
 import { logger } from '@/lib/logger';
 
+function formatPlanPreview(value: string | undefined): string {
+    const trimmed = value?.trim();
+    if (!trimmed) return 'NOT_SET';
+    return `${trimmed.substring(0, 15)}...`;
+}
+
 export async function GET() {
     try {
         const validationResult = await validateSubscriptionPlans();
 
         // Extract plan prefixes for display
         const plans = {
-            pro: process.env.RAZORPAY_PLAN_ID_PRO?.substring(0, 15) + '...' || 'NOT_SET',
-            enterprise: process.env.RAZORPAY_PLAN_ID_ENTERPRISE?.substring(0, 15) + '...' || 'NOT_SET',
+            pro: formatPlanPreview(process.env.RAZORPAY_PLAN_ID_PRO),
+            enterprise: formatPlanPreview(process.env.RAZORPAY_PLAN_ID_ENTERPRISE),
             mode: process.env.RAZORPAY_MODE || 'test',
         };
 
