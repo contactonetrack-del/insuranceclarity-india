@@ -53,3 +53,6 @@ Thumbs.db
 bin/
 meili_data/
 dumps/
+
+.vercel
+.env*.local
