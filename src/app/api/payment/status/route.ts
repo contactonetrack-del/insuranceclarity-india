@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
+import { ErrorFactory } from '@/lib/api/error-response';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
     try {
         const scanId = request.nextUrl.searchParams.get('scanId');
         if (!scanId) {
-            return NextResponse.json({ error: 'scanId is required.' }, { status: 400 });
+            return ErrorFactory.validationError('scanId is required.');
         }
 
         const session = await auth();
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
         });
 
         if (!scan) {
-            return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
+            return ErrorFactory.notFound('Scan not found.');
         }
 
         let claimTokenValid = false;
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
                 scanId,
                 sessionUserId: sessionUserId ?? 'anonymous',
             });
-            return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
+            return ErrorFactory.notFound('Scan not found.');
         }
 
         const payment = await prisma.payment.findUnique({
@@ -149,6 +150,6 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         logger.error({ action: 'payment.status.error', error: message });
-        return NextResponse.json({ error: 'Unable to fetch payment status.' }, { status: 500 });
+        return ErrorFactory.internalServerError('Unable to fetch payment status.');
     }
 }

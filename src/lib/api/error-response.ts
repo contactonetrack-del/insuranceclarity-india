@@ -14,6 +14,21 @@ import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
 
+// Dynamic import to avoid circular dependencies
+let errorAggregator: any = null;
+
+function getErrorAggregator() {
+  if (!errorAggregator) {
+    try {
+      const mod = require('@/lib/monitoring/error-aggregator');
+      errorAggregator = mod.errorAggregator;
+    } catch {
+      // Silently fail if monitoring not available
+    }
+  }
+  return errorAggregator;
+}
+
 export interface ApiErrorResponse {
   success: false;
   error: {
@@ -72,7 +87,7 @@ export interface ApiErrorOptions {
 /**
  * Creates a standardized error response
  */
-export function createErrorResponse(options: ApiErrorOptions): NextResponse {
+export function createErrorResponse(options: ApiErrorOptions, context?: { route?: string; method?: string; userId?: string; ipAddress?: string }): NextResponse {
   const { code, message, statusCode, details, logError = true, logContext } = options;
 
   if (logError) {
@@ -83,6 +98,25 @@ export function createErrorResponse(options: ApiErrorOptions): NextResponse {
       statusCode,
       ...logContext,
     });
+
+    // Log to error monitoring system
+    try {
+      const aggregator = getErrorAggregator();
+      if (aggregator && context?.route) {
+        aggregator.queueError({
+          code,
+          message,
+          route: context.route,
+          method: context.method || 'UNKNOWN',
+          statusCode,
+          userId: context.userId,
+          ipAddress: context.ipAddress,
+          details: details as Record<string, unknown> | undefined,
+        });
+      }
+    } catch (err) {
+      // Silently fail if monitoring not available
+    }
   }
 
   const body: ApiErrorResponse = {

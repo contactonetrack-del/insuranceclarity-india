@@ -91,6 +91,7 @@ model Payment {
   currency          String        @default("INR")
   status            PaymentStatus @default(CREATED)
   plan              String        @default("SCAN_UNLOCK")
+  capturedAt        DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   scan              Scan          @relation(fields: [scanId], references: [id], onDelete: Cascade)
@@ -350,4 +351,40 @@ enum SubscriptionStatus {
   CANCELLED
   COMPLETED
   EXPIRED
+}
+
+model ErrorLog {
+  id        String   @id @default(cuid())
+  errorCode String   // VALIDATION_ERROR, UNAUTHORIZED, RATE_LIMIT_EXCEEDED, etc.
+  message   String   // User-friendly error message
+  route     String   // API route (e.g., /api/payment/create-order)
+  method    String   // HTTP method (GET, POST, etc.)
+  httpStatus Int      // HTTP status code (400, 401, 429, 500, etc.)
+  severity  String   // CRITICAL, HIGH, MEDIUM, LOW
+  userId    String?  // User ID if authenticated (NO PII!)
+  ipAddress String?  // Client IP address (last octet masked for privacy)
+  details   Json?    // Additional context (NO PII! - only non-sensitive metadata)
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([errorCode])
+  @@index([route])
+  @@index([httpStatus])
+  @@index([severity])
+  @@index([userId])
+  @@index([timestamp])
+  @@index([createdAt])
+}
+
+model RateLimitAnomaly {
+  id        String   @id @default(cuid())
+  ipAddress String
+  scope     String   // 'leads', 'uploads', 'ai-requests', etc.
+  requestCount Int
+  windowSeconds Int
+  detectedAt DateTime @default(now())
+
+  @@index([ipAddress])
+  @@index([scope])
+  @@index([detectedAt])
 }

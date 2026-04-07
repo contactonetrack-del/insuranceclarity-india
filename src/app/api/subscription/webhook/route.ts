@@ -17,6 +17,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { ErrorFactory } from '@/lib/api/error-response';
 import {
     activateSubscription,
     verifyWebhookSignature,

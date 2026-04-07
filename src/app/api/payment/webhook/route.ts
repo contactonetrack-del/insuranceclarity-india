@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
 import { getRazorpayCredentials } from '@/lib/security/env';
+import { ErrorFactory } from '@/lib/api/error-response';
 import { logAuditEvent } from '@/services/audit.service';
 
 /**
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     if (!secret) {
         logger.error({ action: 'payment.webhook.missing_secret' });
-        return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
+        return ErrorFactory.internalServerError('Webhook secret not configured');
     }
 
     try {
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
         const rawBody = await request.text();
 
         if (!signature) {
-            return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
+            return ErrorFactory.validationError('Missing signature');
         }
 
         const expectedSignature = crypto
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
 
         if (!isValid) {
             logger.warn({ action: 'payment.webhook.invalid_signature' });
-            return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+            return ErrorFactory.validationError('Invalid signature');
         }
 
         // ─── 2. Parse Event ───────────────────────────────────────────────────
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
 
             if (!payment) {
                 logger.error({ action: 'payment.webhook.order_not_found', orderId });
-                return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+                return ErrorFactory.notFound('Order not found');
             }
 
             if (payment.status !== 'CAPTURED') {
@@ -140,6 +141,6 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Webhook processing failed';
         logger.error({ action: 'payment.webhook.error', error: message });
-        return NextResponse.json({ error: message }, { status: 500 });
+        return ErrorFactory.internalServerError(message);
     }
 }

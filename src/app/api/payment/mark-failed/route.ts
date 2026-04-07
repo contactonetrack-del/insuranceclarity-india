@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
 import { validateCsrfRequest } from '@/lib/security/csrf';
+import { ErrorFactory } from '@/lib/api/error-response';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -58,10 +59,7 @@ export async function POST(request: NextRequest) {
         const parsed = markFailedSchema.safeParse(await request.json());
 
         if (!parsed.success) {
-            return NextResponse.json(
-                { error: parsed.error.issues[0]?.message ?? 'Invalid payload.' },
-                { status: 400 },
-            );
+            return ErrorFactory.validationError(parsed.error.issues[0]?.message ?? 'Invalid payload.');
         }
 
         const body = parsed.data;
@@ -87,7 +85,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!payment || payment.scanId !== body.scanId) {
-            return NextResponse.json({ error: 'Payment record not found.' }, { status: 404 });
+            return ErrorFactory.notFound('Payment record not found.');
         }
 
         let claimTokenValid = false;
@@ -106,7 +104,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!isAllowed) {
-            return NextResponse.json({ error: 'Payment record not found.' }, { status: 404 });
+            return ErrorFactory.notFound('Payment record not found.');
         }
 
         if (payment.status === 'CAPTURED') {
@@ -129,7 +127,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         logger.error({ action: 'payment.mark_failed.error', error: message });
-        return NextResponse.json({ error: 'Unable to mark payment attempt as failed.' }, { status: 500 });
+        return ErrorFactory.internalServerError('Unable to mark payment attempt as failed.');
     }
 }
 
