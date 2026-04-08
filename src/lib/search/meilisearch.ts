@@ -1,11 +1,11 @@
-import { MeiliSearch } from 'meilisearch';
+import { Meilisearch } from 'meilisearch';
 import { getMeilisearchHost } from './config';
 
-const globalForMeili = global as unknown as { meiliClient: MeiliSearch };
+const globalForMeili = global as unknown as { meiliClient: Meilisearch };
 
 export const meiliClient =
     globalForMeili.meiliClient ||
-    new MeiliSearch({
+    new Meilisearch({
         host: getMeilisearchHost(),
         apiKey: process.env.MEILISEARCH_API_KEY || 'vercel_build_bypass_key',
     });

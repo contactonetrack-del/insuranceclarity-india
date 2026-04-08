@@ -1,9 +1,10 @@
-﻿'use server'
+'use server'
 
 import { indexes } from '@/lib/search/meilisearch';
 import { generateEmbedding } from './embedding.service';
 import { logger } from '@/lib/logger';
-import { ensureMeilisearchProductionReady } from '@/lib/search/config';
+import { ensureMeilisearchProductionReady, getSearchBackend } from '@/lib/search/config';
+import { findInsuranceProductMatchesInDatabase } from '@/lib/search/database-search';
 
 export interface InsuranceProduct {
     id: number | string;
@@ -29,13 +30,10 @@ export interface MatchResult {
     matchType: 'semantic' | 'keyword' | 'hybrid';
 }
 
-/**
- * Main inference function to find the best matching insurance products for a natural language query.
- * Upgraded to use Semantic Hybrid Search (Keyword + embeddings).
- * 
- * @param query â€” Natural language description of need (e.g. "protection for my startup")
- * @param maxResults â€” Number of top matches to return
- */
+function normalizeConfidence(score: number): number {
+    return Math.min(95, Math.max(45, Math.round(score)));
+}
+
 export async function findBestMatches(query: string, maxResults: number = 3): Promise<MatchResult[]> {
     const startTime = Date.now();
     let matchType: MatchResult['matchType'] = 'keyword';
@@ -46,74 +44,96 @@ export async function findBestMatches(query: string, maxResults: number = 3): Pr
             return [];
         }
 
-        ensureMeilisearchProductionReady();
+        const backend = getSearchBackend();
+        let topMatches: MatchResult[] = [];
 
-        let vector: number[] | undefined;
-        try {
-            // Attempt to generate semantic embedding for hybrid search
-            vector = await generateEmbedding(query);
-            matchType = 'hybrid';
-        } catch (embError) {
-            // Fallback to keyword search if embedding fails (e.g. quota limit)
-            logger.warn({
-                signal: 'ai_matcher.embedding_failed',
-                error: embError instanceof Error ? embError.message : String(embError),
-                queryLength,
+        if (backend !== 'postgres') {
+            try {
+                ensureMeilisearchProductionReady();
+
+                let vector: number[] | undefined;
+                try {
+                    vector = await generateEmbedding(query);
+                    matchType = 'hybrid';
+                } catch (embeddingError) {
+                    logger.warn({
+                        signal: 'ai_matcher.embedding_failed',
+                        error: embeddingError instanceof Error ? embeddingError.message : String(embeddingError),
+                        queryLength,
+                    });
+                    matchType = 'keyword';
+                }
+
+                const searchResult = await indexes.products.search<InsuranceProduct>(query, {
+                    limit: maxResults,
+                    vector,
+                    hybrid: vector ? { semanticRatio: 0.7, embedder: 'default' } : undefined,
+                    showRankingScore: true,
+                });
+
+                topMatches = (searchResult.hits ?? []).map((hit) => {
+                    const confidence = normalizeConfidence((hit._rankingScore ?? 0.5) * 100);
+                    const reason = matchType === 'hybrid'
+                        ? `Semantic analysis found a strong contextual match (${confidence}%).`
+                        : `Keyword matching found a strong terminology match (${confidence}%).`;
+
+                    return {
+                        product: {
+                            id: hit.id,
+                            name: hit.name,
+                            sector: hit.sector || '',
+                            category: hit.category || '',
+                            subcategory: hit.subcategory || '',
+                            description: hit.description || '',
+                            coveragePurpose: hit.coveragePurpose || '',
+                            riskType: hit.riskType || '',
+                        },
+                        score: confidence,
+                        matchReason: reason,
+                        matchType,
+                    } satisfies MatchResult;
+                });
+            } catch (error) {
+                logger.warn({
+                    action: 'ai_matcher.meilisearch_unavailable',
+                    backend,
+                    error: error instanceof Error ? error.message : String(error),
+                    queryLength,
+                });
+            }
+        }
+
+        if (topMatches.length === 0) {
+            const databaseMatches = await findInsuranceProductMatchesInDatabase(query, maxResults);
+            topMatches = databaseMatches.map((match) => {
+                const confidence = normalizeConfidence(match.score);
+
+                return {
+                    product: {
+                        id: match.id,
+                        name: match.name,
+                        sector: match.category,
+                        category: match.category,
+                        subcategory: match.subcategory,
+                        description: match.description,
+                        coveragePurpose: match.benefits[0] || '',
+                        riskType: match.exclusions[0] || '',
+                    },
+                    score: confidence,
+                    matchReason: `Database-backed relevance match (${confidence}%).`,
+                    matchType: 'keyword',
+                } satisfies MatchResult;
             });
             matchType = 'keyword';
         }
 
-        // Execute Search on Meilisearch
-        // If vector exists, this performs a Hybrid search automatically
-        const searchRes = await indexes.products.search<InsuranceProduct>(query, {
-            limit: maxResults,
-            vector,
-            hybrid: vector ? { semanticRatio: 0.7, embedder: 'default' } : undefined,
-            showRankingScore: true,
-        });
-
-        if (!searchRes.hits || searchRes.hits.length === 0) {
-            return [];
-        }
-
-        const topMatches: MatchResult[] = searchRes.hits.map(hit => {
-            // Meilisearch ranking score is between 0 and 1
-            const baseScore = hit._rankingScore ?? 0.5;
-            
-            // Adjust confidence based on score and match type
-            // Vectors often provide high scores, so we normalize to a standard confidence string
-            let confidence = Math.round(baseScore * 100);
-            if (confidence > 98) confidence = 98;
-            if (confidence < 45) confidence = Math.floor(Math.random() * (65 - 45 + 1)) + 45;
-
-            const reason = matchType === 'hybrid' 
-                ? `Semantic Analysis: ${confidence}% confidence match for this context.`
-                : `Keyword Matching: ${confidence}% confidence based on terminology.`;
-
-            return {
-                product: {
-                    id: hit.id,
-                    name: hit.name,
-                    sector: hit.sector || '',
-                    category: hit.category || '',
-                    subcategory: hit.subcategory || '',
-                    description: hit.description || '',
-                    coveragePurpose: hit.coveragePurpose || '',
-                    riskType: hit.riskType || '',
-                },
-                score: confidence,
-                matchReason: reason,
-                matchType,
-            };
-        });
-
         const duration = Date.now() - startTime;
-        logger.info({ 
-            action: 'ai_matcher.complete', 
-            matchType, 
+        logger.info({
+            action: 'ai_matcher.complete',
+            matchType,
             resultsFound: topMatches.length,
             queryLength,
-            ms: duration 
+            ms: duration,
         });
 
         return topMatches;
@@ -126,4 +146,3 @@ export async function findBestMatches(query: string, maxResults: number = 3): Pr
         return [];
     }
 }
-

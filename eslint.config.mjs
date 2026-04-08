@@ -12,6 +12,7 @@ export default [
             // Root-level CJS config and utility scripts — not app code
             'next.config.js',
             'postcss.config.js',
+            'temp-*.js',
             'tailwind.config.js',
             'refactor-buttons.js',
             'scripts/**',

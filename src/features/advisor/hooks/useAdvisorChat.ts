@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { api } from '@/lib/api-client'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAuthSession } from '@/lib/auth-client'
 import { Message, AdvisorAction } from '../types'
 import {
     Calculator, BookOpen, AlertCircle, Scale, Heart, Shield,
@@ -22,7 +22,7 @@ export function useAdvisorChat() {
     const [hasNewMessage, setHasNewMessage] = useState(false)
     const pathname = usePathname()
     const scrollRef = useRef<HTMLDivElement>(null)
-    const { data: session } = useSession()
+    const { data: session } = useAuthSession()
     const [currentChatId, setCurrentChatId] = useState<string | null>(null)
     const [isSaving, setIsSaving] = useState(false)
 

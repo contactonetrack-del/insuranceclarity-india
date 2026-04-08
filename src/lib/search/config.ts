@@ -7,6 +7,17 @@ export function getMeilisearchHost(): string {
     return process.env.MEILISEARCH_HOST?.trim() || 'http://localhost:7700';
 }
 
+export type SearchBackend = 'auto' | 'meilisearch' | 'postgres';
+
+export function getSearchBackend(): SearchBackend {
+    const configured = (process.env.SEARCH_BACKEND ?? 'postgres').trim().toLowerCase();
+    if (configured === 'meilisearch' || configured === 'postgres') {
+        return configured;
+    }
+
+    return 'postgres';
+}
+
 export function ensureMeilisearchProductionReady(): void {
     const host = getMeilisearchHost();
 

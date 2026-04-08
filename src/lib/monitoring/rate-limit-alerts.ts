@@ -7,7 +7,6 @@
 
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { redisClient } from '@/lib/cache/redis';
 
 export interface RateLimitAnomaly {
   ipAddress: string;

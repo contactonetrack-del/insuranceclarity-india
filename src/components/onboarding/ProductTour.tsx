@@ -1,93 +1,122 @@
 'use client';
 
-/**
- * ProductTour.tsx
- *
- * 3-step onboarding tour shown on first visit.
- * Dismissed permanently via localStorage.
- * Keyboard navigable (ESC to dismiss).
- */
-
 import { useState, useEffect, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import './tour.css';
 
 const STORAGE_KEY = 'ic_onboarded_v1';
+const AUTO_OPEN_DELAY_MS = 600;
+const INTERACTION_EVENTS: Array<keyof WindowEventMap> = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
 
 const STEPS = [
     {
-        emoji: '📄',
+        badge: 'PDF',
         title: 'Upload Your Policy PDF',
-        body: 'Upload any Indian insurance policy — Health, Term Life, Motor, Home, or Travel. Our AI reads 100+ pages in under 60 seconds.',
+        body: 'Upload any Indian insurance policy - Health, Term Life, Motor, Home, or Travel. Our AI reads 100+ pages in under 60 seconds.',
         highlight: 'Works with all IRDAI-registered insurers',
     },
     {
-        emoji: '🔍',
+        badge: 'AI',
         title: 'AI Finds Hidden Risks',
         body: 'Our GPT-powered engine analyses your policy against 500+ known claim traps, exclusions, and red flags that your insurer counts on you missing.',
         highlight: '87% of policies contain at least 3 hidden risks',
     },
     {
-        emoji: '🔓',
+        badge: 'REP',
         title: 'Unlock Your Full Report',
-        body: 'See the first 3 risks free. Unlock the complete risk report for just ₹199 — a one-time payment with a 7-day refund guarantee.',
-        highlight: 'One-time ₹199 · No subscription required',
+        body: 'See the first 3 risks free. Unlock the complete risk report for just Rs 199 - a one-time payment with a 7-day refund guarantee.',
+        highlight: 'One-time Rs 199 - No subscription required',
     },
 ] as const;
 
 export default function ProductTour() {
+    const pathname = usePathname();
     const [visible, setVisible] = useState(false);
     const [step, setStep] = useState(0);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
-        const done = localStorage.getItem(STORAGE_KEY);
-        if (!done) {
-            // Slight delay so the page content renders first
-            const timer = setTimeout(() => setVisible(true), 1200);
-            return () => clearTimeout(timer);
-        }
-    }, []);
-
-    const dismiss = useCallback(() => {
-        setVisible(false);
-        localStorage.setItem(STORAGE_KEY, 'true');
     }, []);
 
     useEffect(() => {
+        if (!mounted) return;
+        if (pathname !== '/') {
+            setVisible(false);
+            return;
+        }
+
+        const done = window.localStorage.getItem(STORAGE_KEY);
+        if (done) {
+            setVisible(false);
+            return;
+        }
+
+        let cancelled = false;
+        const cancelAutoOpen = () => {
+            cancelled = true;
+            window.clearTimeout(timer);
+        };
+
+        // Do not interrupt visitors who already started using the page.
+        const timer = window.setTimeout(() => {
+            if (cancelled) return;
+            setStep(0);
+            setVisible(true);
+        }, AUTO_OPEN_DELAY_MS);
+
+        INTERACTION_EVENTS.forEach((eventName) => {
+            window.addEventListener(eventName, cancelAutoOpen);
+        });
+
+        return () => {
+            cancelled = true;
+            window.clearTimeout(timer);
+            INTERACTION_EVENTS.forEach((eventName) => {
+                window.removeEventListener(eventName, cancelAutoOpen);
+            });
+        };
+    }, [mounted, pathname]);
+
+    const dismiss = useCallback(() => {
+        setVisible(false);
+        window.localStorage.setItem(STORAGE_KEY, 'true');
+    }, []);
+
+    useEffect(() => {
+        if (!visible) return;
+
         const onKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') dismiss();
-            if (e.key === 'ArrowRight' && step < STEPS.length - 1) setStep(s => s + 1);
-            if (e.key === 'ArrowLeft' && step > 0) setStep(s => s - 1);
+            if (e.key === 'ArrowRight' && step < STEPS.length - 1) setStep((currentStep) => currentStep + 1);
+            if (e.key === 'ArrowLeft' && step > 0) setStep((currentStep) => currentStep - 1);
         };
-        if (visible) window.addEventListener('keydown', onKey);
+
+        window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, [visible, step, dismiss]);
 
-    if (!mounted || !visible) return null;
+    if (!mounted || !visible || pathname !== '/') return null;
 
     const current = STEPS[step];
     const isLast = step === STEPS.length - 1;
 
     return (
         <>
-            {/* Backdrop */}
             <div
                 className="tour-backdrop"
                 onClick={dismiss}
                 aria-hidden="true"
             />
 
-            {/* Modal */}
             <div
                 role="dialog"
                 aria-modal="true"
-                aria-label="Welcome to InsuranceClarity — quick product tour"
+                aria-label="Welcome to InsuranceClarity quick product tour"
                 className="tour-modal"
             >
-                {/* Close */}
                 <button
                     type="button"
                     onClick={dismiss}
@@ -97,36 +126,33 @@ export default function ProductTour() {
                     <X className="w-4 h-4" />
                 </button>
 
-                {/* Progress dots */}
                 <div className="tour-dots" aria-label={`Step ${step + 1} of ${STEPS.length}`} role="navigation">
-                    {STEPS.map((_, i) => (
+                    {STEPS.map((_, index) => (
                         <button
-                            key={i}
+                            key={index}
                             type="button"
-                            className={`tour-dot ${i === step ? 'tour-dot--active' : ''}`}
-                            onClick={() => setStep(i)}
-                            aria-label={`Go to step ${i + 1}`}
-                            aria-current={i === step ? 'step' : undefined}
+                            className={`tour-dot ${index === step ? 'tour-dot--active' : ''}`}
+                            onClick={() => setStep(index)}
+                            aria-label={`Go to step ${index + 1}`}
+                            aria-current={index === step ? 'step' : undefined}
                         />
                     ))}
                 </div>
 
-                {/* Content */}
                 <div className="tour-content" key={step}>
-                    <div className="tour-emoji" aria-hidden="true">{current.emoji}</div>
+                    <div className="tour-emoji" aria-hidden="true">{current.badge}</div>
                     <h2 className="tour-title">{current.title}</h2>
                     <p className="tour-body">{current.body}</p>
                     <div className="tour-highlight">
-                        <span aria-hidden="true">✨</span> {current.highlight}
+                        <span aria-hidden="true">AI</span> {current.highlight}
                     </div>
                 </div>
 
-                {/* Navigation */}
                 <div className="tour-nav">
                     {step > 0 && (
                         <button
                             type="button"
-                            onClick={() => setStep(s => s - 1)}
+                            onClick={() => setStep((currentStep) => currentStep - 1)}
                             className="btn-secondary tour-nav__back"
                             aria-label="Previous step"
                         >
@@ -147,7 +173,7 @@ export default function ProductTour() {
                     ) : (
                         <button
                             type="button"
-                            onClick={() => setStep(s => s + 1)}
+                            onClick={() => setStep((currentStep) => currentStep + 1)}
                             className="btn-primary tour-nav__next"
                             aria-label="Next step"
                         >
@@ -157,7 +183,6 @@ export default function ProductTour() {
                     )}
                 </div>
 
-                {/* Skip link */}
                 {!isLast && (
                     <button type="button" onClick={dismiss} className="tour-skip">
                         Skip tour

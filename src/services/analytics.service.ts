@@ -6,6 +6,9 @@
  */
 
 import { logger } from '@/lib/logger';
+import { isRuntimeAnalyticsDisabled } from '@/lib/runtime-flags';
+
+let webVitalsTrackingInitialized = false;
 
 // Dev-only logger — tree-shaken in production builds
 function _devLog(...args: unknown[]): void {
@@ -121,6 +124,10 @@ export function trackEvent(
     eventName: string,
     eventParams: Record<string, unknown> = {}
 ): void {
+    if (isRuntimeAnalyticsDisabled()) {
+        return;
+    }
+
     // Sanitize params to remove any PII
     const safeParams = sanitizeEventParams(eventParams);
 
@@ -140,8 +147,9 @@ export function trackEvent(
         window.gtag('event', eventName, safeParams);
     }
 
-    // Future: Send to custom analytics endpoint
-    // sendToCustomAnalytics(eventName, safeParams);
+    if (typeof window !== 'undefined' && window.posthog) {
+        window.posthog.capture(eventName, safeParams);
+    }
 }
 
 // ============================================
@@ -293,9 +301,11 @@ export function trackWebVitals(metric: WebVitalMetric): void {
  * Call this in your app's entry point
  */
 export async function initWebVitalsTracking(): Promise<void> {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || isRuntimeAnalyticsDisabled()) return;
+    if (webVitalsTrackingInitialized) return;
 
     try {
+        webVitalsTrackingInitialized = true;
         const webVitals = await import('web-vitals');
 
         // Type-safe wrapper for web vitals
@@ -312,6 +322,7 @@ export async function initWebVitalsTracking(): Promise<void> {
         webVitals.onLCP(reportVital);
         webVitals.onTTFB(reportVital);
     } catch {
+        webVitalsTrackingInitialized = false;
         // Web Vitals unavailable — non-fatal, silently skip
     }
 }

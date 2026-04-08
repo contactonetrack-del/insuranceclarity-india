@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
+const shouldManageWebServer = process.env.PLAYWRIGHT_SKIP_WEB_SERVER !== '1';
+
 /**
  * Playwright E2E Test Configuration
  * @see https://playwright.dev/docs/test-configuration
@@ -36,7 +39,7 @@ export default defineConfig({
     // Shared settings for all the projects below
     use: {
         // Base URL to use in actions like `await page.goto('/')`
-        baseURL: 'http://localhost:3000',
+        baseURL,
 
         // Collect trace when retrying the failed test
         trace: 'on-first-retry',
@@ -68,10 +71,17 @@ export default defineConfig({
     ],
 
     // Run your local dev server before starting the tests
-    webServer: {
-        command: 'npm run dev',
-        url: 'http://localhost:3000',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120 * 1000,
-    },
+    webServer: shouldManageWebServer
+        ? {
+            command: 'npm run dev -- --hostname 127.0.0.1 --port 3000',
+            env: {
+                ...process.env,
+                NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS: 'true',
+                SEARCH_BACKEND: process.env.SEARCH_BACKEND ?? 'postgres',
+            },
+            url: baseURL,
+            reuseExistingServer: !process.env.CI,
+            timeout: 120 * 1000,
+        }
+        : undefined,
 });

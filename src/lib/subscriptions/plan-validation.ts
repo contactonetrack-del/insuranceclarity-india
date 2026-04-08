@@ -20,8 +20,18 @@ export async function validateSubscriptionPlans(): Promise<PlanValidationResult>
   const issues: string[] = [];
   const warnings: string[] = [];
 
-  const skip = process.env.RAZORPAY_SKIP_PLAN_VALIDATION === 'true';
-  const mode = process.env.RAZORPAY_MODE || 'test';
+  const skipRequested = process.env.RAZORPAY_SKIP_PLAN_VALIDATION === 'true';
+  const mode = process.env.RAZORPAY_MODE?.trim() || 'test';
+  const skip = skipRequested && process.env.NODE_ENV !== 'production';
+
+  if (skipRequested && !skip) {
+    warnings.push('RAZORPAY_SKIP_PLAN_VALIDATION is ignored in production.');
+    logger.error({
+      action: 'startup.plan_validation.skip_blocked',
+      reason: 'RAZORPAY_SKIP_PLAN_VALIDATION=true',
+      environment: process.env.NODE_ENV,
+    });
+  }
 
   if (skip) {
     logger.warn({

@@ -7,7 +7,6 @@ import {
     trackFormEvent,
 } from '../analytics.service';
 import { logger } from '@/lib/logger';
-
 describe('Analytics', () => {
     let loggerDebugSpy: any;
     let loggerWarnSpy: any;

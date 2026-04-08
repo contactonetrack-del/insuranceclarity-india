@@ -42,14 +42,14 @@ export function ParallaxSection({
     if (prefersReducedMotion) {
         return (
             <div ref={ref} className={cn('relative overflow-hidden', className)}>
-                <div>{children}</div>
+                <div className="h-full">{children}</div>
             </div>
         )
     }
 
     return (
         <div ref={ref} className={cn('relative overflow-hidden', className)}>
-            <motion.div style={{ y }}>
+            <motion.div className="h-full" style={{ y }}>
                 {children}
             </motion.div>
         </div>
@@ -67,7 +67,7 @@ interface ParallaxImageProps {
 
 import Image from 'next/image'
 
-const MotionImage = motion(Image)
+const MotionImage = motion.create(Image)
 
 /**
  * ParallaxImage - Background image with parallax scrolling effect.

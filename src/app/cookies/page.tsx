@@ -148,7 +148,7 @@ export default function CookiePolicyPage() {
                             Note: Disabling essential cookies may break website functionality.
                         </p>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">Option 3: Opt-Out of Google Analytics</h3>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">Option 3: Opt-Out of Analytics</h3>
                         <p className="text-theme-secondary">
                             You can exclude yourself from GA4 tracking by installing the{' '}
                             <a
@@ -174,7 +174,8 @@ export default function CookiePolicyPage() {
                             <strong>Only trackers present:</strong>
                         </p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Google Analytics 4 (analytics, with PII blocking enabled)</li>
+                            <li>Google Analytics 4 (marketing analytics, with PII blocking enabled)</li>
+                            <li>PostHog (product analytics, enabled only when configured and consented)</li>
                             <li>Sentry (error monitoring, with PII redaction)</li>
                         </ul>
                     </section>

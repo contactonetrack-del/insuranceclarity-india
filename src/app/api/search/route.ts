@@ -1,60 +1,166 @@
+/**
+ * GET /api/search?q=query&index=indexName
+ *
+ * Search across insurance products, hidden facts, and claim cases.
+ *
+ * Phase 11 Week 2: Implements response caching for improved performance.
+ *
+ * Query parameters:
+ * - q: Search query string
+ * - index: Search index (products|hiddenFacts|claimCases)
+ *
+ * Returns: { hits: [], estimatedTotalHits: number, source: string }
+ */
+
 import { NextResponse } from 'next/server';
 import { indexes } from '@/lib/search/meilisearch';
-import { redisClient } from '@/lib/cache/redis';
-import { ensureMeilisearchProductionReady } from '@/lib/search/config';
+import { ensureMeilisearchProductionReady, getSearchBackend } from '@/lib/search/config';
 import { logger } from '@/lib/logger';
+import { getDbFallbackErrorMessage, isExpectedDbFallbackError } from '@/lib/prisma-fallback';
+import { searchSiteIndexInDatabase, type SearchIndexName } from '@/lib/search/database-search';
+import { getCachedResponse, cacheResponse } from '@/lib/cache/response-cache';
 
 export const dynamic = 'force-dynamic';
 
-const SEARCH_CACHE_TTL_SECONDS = 60 * 5; // 5 minutes
+const VALID_SEARCH_INDEXES: SearchIndexName[] = ['products', 'hiddenFacts', 'claimCases'];
+
+type SearchPayload = {
+    hits?: unknown[];
+    estimatedTotalHits?: number;
+    processingTimeMs?: number;
+    query?: string;
+    source: 'meilisearch' | 'postgres' | 'fallback';
+} & Record<string, unknown>;
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const q = searchParams.get('q');
-    const indexName = (searchParams.get('index') as keyof typeof indexes) || 'products';
+    const indexName = (searchParams.get('index') as SearchIndexName) || 'products';
 
     if (!q) {
         return NextResponse.json({ hits: [] });
     }
 
+    if (!VALID_SEARCH_INDEXES.includes(indexName)) {
+        return NextResponse.json({ error: 'Invalid search index requested.' }, { status: 400 });
+    }
+
     try {
-        ensureMeilisearchProductionReady();
+        // Phase 11 Week 2: Try to get cached response first
+        const cacheKey = `/api/search?q=${encodeURIComponent(q)}&index=${indexName}`;
+        const cachedResult = await getCachedResponse(cacheKey);
 
-        // Validate index name
-        if (!indexes[indexName]) {
-            return NextResponse.json({ error: 'Invalid search index requested.' }, { status: 400 });
+        if (cachedResult) {
+            logger.info({
+                action: 'search.cache_hit',
+                cacheKey,
+                indexName,
+            });
+
+            return NextResponse.json(cachedResult, {
+                headers: {
+                    'X-Cache-Status': 'HIT',
+                    'x-search-backend': 'cache',
+                    'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=1800',
+                },
+            });
         }
 
-        const cacheKey = `search:${indexName}:${q.toLowerCase().trim()}`;
+        // Cache miss - perform search
+        const backend = getSearchBackend();
+        let payload: SearchPayload | null = null;
+        let searchSource: 'meilisearch' | 'postgres' | 'fallback' = 'fallback';
 
-        // Check cache first
-        const cached = await redisClient.get<unknown>(cacheKey);
-        if (cached !== null) {
-            return NextResponse.json(cached);
+        if (backend !== 'postgres') {
+            try {
+                ensureMeilisearchProductionReady();
+
+                const meiliResults = await indexes[indexName].search(q, {
+                    limit: 12,
+                    attributesToHighlight: indexName === 'products'
+                        ? ['name', 'description', 'category']
+                        : ['title', 'content', 'fact'],
+                    highlightPreTag: '<mark>',
+                    highlightPostTag: '</mark>',
+                });
+
+                payload = {
+                    ...meiliResults,
+                    source: 'meilisearch',
+                };
+                searchSource = 'meilisearch';
+            } catch (error) {
+                logger.warn({
+                    action: 'search.meilisearch_unavailable',
+                    backend,
+                    indexName,
+                    error: error instanceof Error ? error.message : String(error),
+                });
+            }
         }
 
-        // Execute search
-        const results = await indexes[indexName].search(q, {
-            limit: 12,
-            attributesToHighlight: indexName === 'products'
-                ? ['name', 'description', 'category']
-                : ['title', 'content', 'fact'],
-            highlightPreTag: '<mark>',
-            highlightPostTag: '</mark>',
+        if (!payload) {
+            try {
+                const hits = await searchSiteIndexInDatabase(indexName, q, 12);
+                payload = {
+                    hits,
+                    estimatedTotalHits: hits.length,
+                    processingTimeMs: 0,
+                    query: q,
+                    source: 'postgres',
+                };
+                searchSource = 'postgres';
+            } catch (error) {
+                if (isExpectedDbFallbackError(error)) {
+                    const message = getDbFallbackErrorMessage(error);
+                    if (process.env.NODE_ENV !== 'production') {
+                        logger.warn({
+                            action: 'search.database_fallback_skipped',
+                            indexName,
+                            error: message,
+                        });
+                    }
+
+                    payload = {
+                        hits: [],
+                        estimatedTotalHits: 0,
+                        processingTimeMs: 0,
+                        query: q,
+                        source: 'fallback',
+                    };
+                    searchSource = 'fallback';
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        logger.info({
+            action: 'search.cache_miss',
+            indexName,
+            queryLength: q.length,
+            hitsCount: Array.isArray(payload?.hits) ? payload.hits.length : 0,
+            searchSource,
         });
 
-        // Cache the response
-        await redisClient.set(cacheKey, results, { ex: SEARCH_CACHE_TTL_SECONDS });
+        // Phase 11 Week 2: Cache the response for 10 minutes
+        await cacheResponse(cacheKey, {}, payload, 600);
 
-        return NextResponse.json(results);
-    } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        logger.error({ action: 'search.unavailable', error: msg });
-        return NextResponse.json(
-            {
-                error: 'Search service is currently unavailable. Please try again later.',
+        return NextResponse.json(payload, {
+            headers: {
+                'X-Cache-Status': 'MISS',
+                'x-search-backend': searchSource,
+                'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=1800',
             },
-            { status: 503 }
-        );
+        });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error({
+            action: 'search.unavailable',
+            indexName,
+            error: message,
+        });
+
+        return NextResponse.json({ hits: [], source: 'fallback' });
     }
 }

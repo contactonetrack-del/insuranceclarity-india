@@ -15,7 +15,7 @@ import {
     X
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
+import { useAuthSession } from '@/lib/auth-client';
 
 interface ScanResult {
     policyName: string;
@@ -26,7 +26,7 @@ interface ScanResult {
 }
 
 export default function AIScannerPage() {
-    useSession();
+    useAuthSession();
     const [file, setFile] = useState<File | null>(null);
     const [isScanning, setIsScanning] = useState(false);
     const [result, setResult] = useState<ScanResult | null>(null);

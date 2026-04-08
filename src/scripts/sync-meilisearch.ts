@@ -1,7 +1,7 @@
 ﻿import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
-import { MeiliSearch } from 'meilisearch';
+import { Meilisearch } from 'meilisearch';
 import productsData from '../data/mega-database.json';
 
 // Path to pre-generated embeddings
@@ -18,7 +18,7 @@ async function syncMeilisearch() {
 
     try {
         // Initialize local client to ensure correct environment variables
-        const client = new MeiliSearch({
+        const client = new Meilisearch({
             host: process.env.MEILISEARCH_HOST || 'http://localhost:7700',
             apiKey: process.env.MEILISEARCH_API_KEY || 'default-master-key',
         });

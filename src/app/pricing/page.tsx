@@ -1,8 +1,18 @@
+/**
+ * Pricing Page
+ *
+ * Phase 11 Week 2: Implements ISR for improved performance.
+ * Revalidates every 2 hours since pricing rarely changes.
+ */
+
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Check, X, Zap, Shield, Crown, ChevronRight } from 'lucide-react';
 import RazorpayCheckout from '@/components/payment/RazorpayCheckout';
 import { getTranslations } from 'next-intl/server';
+
+// Phase 11 Week 2: ISR configuration for static pricing content
+export const revalidate = 7200; // 2 hours
 
 export const metadata: Metadata = {
     title: 'Pricing Plans — Insurance Clarity',

@@ -3,10 +3,11 @@
 import PDFDocument from 'pdfkit';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
+vi.mock('server-only', () => ({}));
+
 let extractTextFromPdf: typeof import('../pdf-extraction.server').extractTextFromPdf;
 
 beforeAll(async () => {
-    vi.mock('server-only', () => ({}));
     ({ extractTextFromPdf } = await import('../pdf-extraction.server'));
 });
 

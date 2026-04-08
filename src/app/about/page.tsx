@@ -1,7 +1,17 @@
+/**
+ * About Page
+ *
+ * Phase 11 Week 2: Implements ISR for improved performance.
+ * Revalidates every 4 hours since content rarely changes.
+ */
+
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Shield, Eye, Heart, TrendingUp } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
+
+// Phase 11 Week 2: ISR configuration for static about content
+export const revalidate = 14400; // 4 hours
 
 export const metadata: Metadata = {
     title: 'About InsuranceClarity India — Our Mission & Story',

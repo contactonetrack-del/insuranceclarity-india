@@ -8,20 +8,24 @@ async function gotoHome(page: Page) {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 }
 
-async function disableProductTour(page: Page) {
+async function primeStableHomepageState(page: Page) {
     await page.addInitScript(() => {
         window.localStorage.setItem('ic_onboarded_v1', 'true');
+        const consent = encodeURIComponent(JSON.stringify({ essential: true, analytics: false }));
+        document.cookie = `ic_cookie_consent=${consent}; path=/; SameSite=Lax`;
     });
 }
 
+test.beforeEach(async ({ page }) => {
+    await primeStableHomepageState(page);
+});
+
 test.describe('Homepage', () => {
     test.beforeEach(async ({ page }) => {
-        await disableProductTour(page);
         await gotoHome(page);
     });
 
     test('should display the hero section with main headline', async ({ page }) => {
-        // Check for the main headline
         await expect(page.getByText('Discover What Insurance')).toBeVisible();
         await expect(page.getByText('Companies Hide From You')).toBeVisible();
     });
@@ -31,11 +35,9 @@ test.describe('Homepage', () => {
     });
 
     test('should have working CTA buttons', async ({ page }) => {
-        // Primary CTA
         const exploreCTA = page.getByRole('button', { name: /Explore Hidden Facts/i }).first();
         await expect(exploreCTA).toBeVisible();
 
-        // Secondary CTA
         const calculatorCTA = page.getByRole('button', { name: /Estimate Premium/i }).first();
         await expect(calculatorCTA).toBeVisible();
     });
@@ -61,7 +63,6 @@ test.describe('Homepage', () => {
     });
 
     test('should have working navigation', async ({ page }) => {
-        // Check header navigation exists
         await expect(page.getByRole('navigation')).toBeVisible();
         await expect(page.getByRole('banner').getByRole('link', { name: /InsuranceClarity Logo/i })).toBeVisible();
     });
@@ -96,42 +97,42 @@ test.describe('Homepage', () => {
 });
 
 test.describe('Navigation', () => {
-    test('should navigate to insurance category page', async ({ page }) => {
+    test.beforeEach(async ({ page }) => {
         await gotoHome(page);
+    });
 
-        await page.locator('a[href="/insurance/life"]').first().click();
-
+    test('should navigate to insurance category page', async ({ page }) => {
+        await page.getByRole('link', { name: /Life Insurance Term, Whole Life, ULIPs/i }).click();
         await expect(page).toHaveURL(/\/insurance\/life/);
     });
 
     test('should navigate to tools page', async ({ page }) => {
-        await gotoHome(page);
-
-        await page.locator('a[href="/tools/hidden-facts"]').first().click();
+        const toolsSection = page.locator('section').filter({
+            has: page.getByRole('heading', { name: 'Tools to Make Better Decisions' }),
+        });
+        await toolsSection.getByRole('link', { name: /Hidden Facts/i }).click();
         await expect(page).toHaveURL(/\/tools\/hidden-facts/);
     });
 });
 
 test.describe('Accessibility', () => {
-    test('should have proper page title', async ({ page }) => {
+    test.beforeEach(async ({ page }) => {
         await gotoHome(page);
+    });
+
+    test('should have proper page title', async ({ page }) => {
         await expect(page).toHaveTitle(/InsuranceClarity/);
     });
 
     test('should have meta description', async ({ page }) => {
-        await gotoHome(page);
         const metaDescription = page.locator('meta[name="description"]');
         await expect(metaDescription).toHaveAttribute('content', /insurance/i);
     });
 
     test('should be keyboard navigable', async ({ page }) => {
-        await gotoHome(page);
-
-        // Tab through focusable elements
         await page.keyboard.press('Tab');
         await page.keyboard.press('Tab');
 
-        // Some element should be focused
         const focusedElement = page.locator(':focus');
         await expect(focusedElement).toBeVisible();
     });

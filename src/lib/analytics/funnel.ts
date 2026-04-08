@@ -1,5 +1,6 @@
 import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
+import { isRuntimeAnalyticsDisabled } from '@/lib/runtime-flags';
 
 export type FunnelStep = 'signup' | 'scan' | 'pay' | 'retain';
 
@@ -14,6 +15,10 @@ export async function trackFunnelStep(step: FunnelStep, context?: {
     scanId?: string | null;
     paymentId?: string | null;
 }): Promise<void> {
+    if (isRuntimeAnalyticsDisabled()) {
+        return;
+    }
+
     const day = formatDay(new Date());
     const key = `funnel:${day}:${step}`;
 

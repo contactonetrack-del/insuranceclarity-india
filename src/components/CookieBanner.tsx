@@ -4,15 +4,16 @@ import { useState, useEffect } from 'react'
 import { Cookie, X, Settings, Check } from 'lucide-react'
 import { trackEvent } from '@/services/analytics.service';
 import Link from 'next/link'
+import {
+    CONSENT_COOKIE_NAME,
+    CONSENT_UPDATED_EVENT,
+    type CookiePreferences,
+    getCookieValue,
+    readCookiePreferences,
+} from '@/lib/analytics/consent'
+import { syncPostHogConsent } from '@/lib/analytics/posthog'
 
-interface CookiePreferences {
-    essential: boolean // Always true
-    analytics: boolean
-}
-
-const CONSENT_COOKIE_NAME = 'ic_cookie_consent'
 const CONSENT_COOKIE_DAYS = 365
-const CONSENT_UPDATED_EVENT = 'ic-consent-updated'
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 /**
@@ -21,9 +22,7 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
  */
 export default function CookieBanner() {
     const getCookie = (name: string): string | null => {
-        if (typeof document === 'undefined') return null
-        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
-        return match ? decodeURIComponent(match[2]) : null
+        return getCookieValue(name)
     }
 
     const setCookie = (name: string, value: string, days: number) => {
@@ -39,6 +38,8 @@ export default function CookieBanner() {
         if (GA_MEASUREMENT_ID) {
             window[`ga-disable-${GA_MEASUREMENT_ID}`] = !prefs.analytics
         }
+
+        syncPostHogConsent(prefs.analytics)
 
         if (!prefs.analytics) {
             // Try to delete existing GA cookies
@@ -66,11 +67,11 @@ export default function CookieBanner() {
             setTimeout(() => setShowBanner(true), 1000)
         } else {
             // Apply saved preferences
-            try {
-                const saved = JSON.parse(consent)
+            const saved = readCookiePreferences(document.cookie)
+            if (saved) {
                 setPreferences(saved)
                 applyConsent(saved)
-            } catch {
+            } else {
                 setShowBanner(true)
             }
         }
@@ -98,8 +99,7 @@ export default function CookieBanner() {
     }
 
     const handleSavePreferences = () => {
-        applyConsent(preferences)
-        setShowBanner(false)
+        saveConsent(preferences, 'save_preferences_button')
         setShowPreferences(false)
     }
 
@@ -206,7 +206,7 @@ export default function CookieBanner() {
                                     <div>
                                         <p className="font-medium text-theme-primary text-sm">Analytics Cookies</p>
                                         <p className="text-xs text-theme-secondary mt-0.5">
-                                            Help us understand how visitors use our website (Google Analytics).
+                                            Help us understand how visitors use our website with privacy-safe analytics.
                                         </p>
                                     </div>
                                     <button

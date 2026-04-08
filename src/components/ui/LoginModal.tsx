@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { signIn } from "next-auth/react";
+import { signIn } from '@/lib/auth-client';
 import { LogIn, Mail, X, Loader2, ShieldCheck, MailQuestion } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

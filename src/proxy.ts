@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
 import { auth } from '@/auth';
+import { isRuntimeAnalyticsDisabled } from '@/lib/runtime-flags';
 
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL ?? '';
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN ?? '';
@@ -17,7 +18,7 @@ const ratelimit = redis
     ? new Ratelimit({
         redis,
         limiter: Ratelimit.slidingWindow(100, '60 s'),
-        analytics: true,
+        analytics: process.env.NODE_ENV === 'production' && !isRuntimeAnalyticsDisabled(),
     })
     : null;
 
@@ -70,8 +71,25 @@ function isRateLimitedApi(pathname: string): boolean {
     ].some((prefix) => pathname.startsWith(prefix));
 }
 
+function getAllowedTelemetryOrigins(): string[] {
+    const configuredOrigins = [process.env.NEXT_PUBLIC_POSTHOG_HOST?.trim() ?? ''];
+
+    return configuredOrigins.flatMap((value) => {
+        if (!value) {
+            return [];
+        }
+
+        try {
+            return [new URL(value).origin];
+        } catch {
+            return [];
+        }
+    });
+}
+
 function buildCsp(nonce: string): string {
     const isDev = process.env.NODE_ENV === 'development';
+    const telemetryOrigins = getAllowedTelemetryOrigins();
 
     const directives = [
         "default-src 'self'",
@@ -92,9 +110,31 @@ function buildCsp(nonce: string): string {
         ].filter(Boolean).join(' '),
         "style-src-elem 'self' https://fonts.googleapis.com",
         "style-src-attr 'unsafe-inline'",
-        "img-src 'self' blob: data: https://cdn.sanity.io https://images.unsplash.com https://lh3.googleusercontent.com https://res.cloudinary.com https://www.google-analytics.com",
+        [
+            "img-src 'self' blob: data:",
+            'https://cdn.sanity.io',
+            'https://images.unsplash.com',
+            'https://lh3.googleusercontent.com',
+            'https://res.cloudinary.com',
+            'https://www.google-analytics.com',
+            ...telemetryOrigins,
+        ].join(' '),
         "font-src 'self' data: https://fonts.gstatic.com",
-        "connect-src 'self' https://*.sanity.io https://*.sentry.io https://o*.ingest.sentry.io https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://*.upstash.io https://api.razorpay.com https://lumberjack.razorpay.com https://generativelanguage.googleapis.com https://res.cloudinary.com",
+        [
+            "connect-src 'self'",
+            'https://*.sanity.io',
+            'https://*.sentry.io',
+            'https://o*.ingest.sentry.io',
+            'https://www.google-analytics.com',
+            'https://analytics.google.com',
+            'https://www.googletagmanager.com',
+            'https://*.upstash.io',
+            'https://api.razorpay.com',
+            'https://lumberjack.razorpay.com',
+            'https://generativelanguage.googleapis.com',
+            'https://res.cloudinary.com',
+            ...telemetryOrigins,
+        ].join(' '),
         "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com",
         "worker-src 'self' blob:",
         "object-src 'none'",
@@ -167,7 +207,7 @@ export default auth(async function proxy(request: AuthenticatedRequest) {
     // ─── Defense-in-Depth Security Headers ────────────────────────────────────
     response.headers.set('X-DNS-Prefetch-Control', 'on');
     response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-    response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+    response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
     response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');

@@ -35,7 +35,6 @@
       "eventsource",
       "react",
       "react-dom",
-      "react-is",
       "hast",
       "unist",
       "uuid",

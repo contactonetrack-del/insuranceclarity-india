@@ -57,7 +57,7 @@ export function InfiniteSlider({
     return (
         <div
             className={cn(
-                "marquee relative overflow-x-clip overflow-y-visible w-full select-none group",
+                "marquee relative overflow-x-hidden overflow-y-visible w-full select-none group",
                 className
             )}
             style={{
@@ -69,7 +69,7 @@ export function InfiniteSlider({
             {/* First copy */}
             <div
                 className={cn(
-                    "marquee__content flex shrink-0 items-center",
+                    "marquee__content shrink-0 items-center",
                     pauseOnHover && "group-hover:[animation-play-state:paused]"
                 )}
                 style={{
@@ -84,7 +84,7 @@ export function InfiniteSlider({
             {/* Second copy for seamless loop */}
             <div
                 className={cn(
-                    "marquee__content flex shrink-0 items-center",
+                    "marquee__content shrink-0 items-center",
                     pauseOnHover && "group-hover:[animation-play-state:paused]"
                 )}
                 style={{

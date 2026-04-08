@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown, Coffee, User as UserIcon, LogOut, LayoutDashboard, Sparkles } from 'lucide-react'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import LoginModal from '@/components/ui/LoginModal'
-import { useSession, signOut } from 'next-auth/react'
+import { useAuthSession, signOut } from '@/lib/auth-client'
 import { useGlobalStore } from '@/store/useGlobalStore'
 import { insuranceTypes, businessTypes, tools, knowledgeCenter } from '@/config/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -55,7 +55,7 @@ function NavDropdown({ label, id, items, activeDropdown, setActiveDropdown }: Na
             <button
                 ref={buttonRef}
                 className={`flex items-center gap-1.5 text-sm transition-colors duration-200 group relative py-2 whitespace-nowrap
-                           ${isOpen ? 'text-accent font-semibold' : 'text-theme-secondary hover:text-accent font-medium'}`}
+                           ${isOpen ? 'text-accent font-semibold' : 'text-slate-700 hover:text-accent dark:text-slate-200 dark:hover:text-accent font-medium'}`}
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
                 aria-controls={`dropdown-${id}`}
@@ -64,10 +64,9 @@ function NavDropdown({ label, id, items, activeDropdown, setActiveDropdown }: Na
             >
                 {label}
                 <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180 text-accent' : 'text-theme-muted group-hover:text-accent'}`}
+                    className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180 text-accent' : 'text-slate-400 dark:text-slate-400 group-hover:text-accent'}`}
                     aria-hidden="true"
                 />
-
                 {/* Premium Hover Underline */}
                 <span className={`absolute bottom-0 left-0 h-0.5 bg-accent transition-all duration-300 rounded-full
                                  ${isOpen ? 'w-full opacity-100' : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'}`} />
@@ -104,8 +103,8 @@ function NavDropdown({ label, id, items, activeDropdown, setActiveDropdown }: Na
                                     <item.icon className="w-5 h-5 text-white" strokeWidth={2} />
                                 </div>
                                 <div className="flex-1">
-                                    <span className="block font-semibold text-sm text-theme-primary group-hover:text-accent transition-colors">{item.label}</span>
-                                    <span className="block text-xs text-theme-secondary mt-0.5 line-clamp-1 opacity-80">{item.description}</span>
+                                    <span className="block font-semibold text-sm text-slate-900 dark:text-slate-100 group-hover:text-accent transition-colors">{item.label}</span>
+                                    <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 opacity-80">{item.description}</span>
                                 </div>
                             </Link>
                         ))}
@@ -124,7 +123,7 @@ export default function Header() {
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-    const { data: session, status } = useSession()
+    const { data: session, status } = useAuthSession()
     const pathname = usePathname()
 
     const userMenuRef = useRef<HTMLDivElement>(null)

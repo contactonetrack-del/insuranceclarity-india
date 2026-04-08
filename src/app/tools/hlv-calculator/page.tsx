@@ -14,12 +14,12 @@ import {
     ChevronRight
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
+import { useAuthSession } from '@/lib/auth-client';
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 export default function HLVCalculatorPage() {
-    const { data: session } = useSession();
+    const { data: session } = useAuthSession();
     const t = useTranslations('tools.hlv');
 
     // State for sliders

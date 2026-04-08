@@ -1,6 +1,16 @@
+/**
+ * Terms of Service Page
+ *
+ * Phase 11 Week 2: Implements ISR for improved performance.
+ * Revalidates every 24 hours since legal content changes infrequently.
+ */
+
 import { Metadata } from 'next'
 import { FileText, AlertTriangle, Mail, Scale } from 'lucide-react'
 import Link from 'next/link'
+
+// Phase 11 Week 2: ISR configuration for static legal content
+export const revalidate = 86400; // 24 hours
 
 export const metadata: Metadata = {
     title: 'Terms of Service | InsuranceClarity India',

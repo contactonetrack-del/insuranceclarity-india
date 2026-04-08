@@ -1,6 +1,16 @@
+/**
+ * Privacy Policy Page
+ *
+ * Phase 11 Week 2: Implements ISR for improved performance.
+ * Revalidates every 24 hours since legal content changes infrequently.
+ */
+
 import { Metadata } from 'next'
 import { Shield, Mail, MapPin, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
+
+// Phase 11 Week 2: ISR configuration for static legal content
+export const revalidate = 86400; // 24 hours
 
 export const metadata: Metadata = {
     title: 'Privacy Policy | InsuranceClarity India',
@@ -103,7 +113,7 @@ export default function PrivacyPage() {
                     <section>
                         <h2 className="text-xl font-semibold text-theme-primary">4. Lawful Basis for Processing (DPDP Act §4)</h2>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Analytics (Google Analytics):</strong> Consent via cookie banner</li>
+                            <li><strong>Analytics (Google Analytics / PostHog):</strong> Consent via cookie banner</li>
                             <li><strong>Error Monitoring (Sentry):</strong> Legitimate interest (website stability) — NO PII retained</li>
                             <li><strong>Website Functionality:</strong> Lawful processing without specific consent</li>
                             <li><strong>Grievance Redressal:</strong> Legal obligation</li>
@@ -119,7 +129,7 @@ export default function PrivacyPage() {
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
                             <li><strong>Response time:</strong> 30 days</li>
                             <li><strong>Contact:</strong> privacy@insuranceclarity.in</li>
-                            <li><strong>What we&apos;ll provide:</strong> Copy of data we process, purpose of processing, recipients (Google, Sentry), retention period</li>
+                            <li><strong>What we&apos;ll provide:</strong> Copy of data we process, purpose of processing, recipients (Google, PostHog, Sentry), retention period</li>
                         </ul>
 
                         <h3 className="text-lg font-medium text-theme-primary mt-4">5.2 Right to Correction (§19)</h3>
@@ -216,8 +226,8 @@ export default function PrivacyPage() {
                     <section>
                         <h2 className="text-xl font-semibold text-theme-primary">8. Technical Safeguards — Verified Configuration</h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">8.1 Google Analytics 4 — PII Blocking</h3>
-                        <p className="text-theme-secondary">We have configured GA4 to BLOCK the following fields:</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">8.1 Analytics Events — PII Blocking</h3>
+                        <p className="text-theme-secondary">Custom analytics events sent to GA4 and PostHog pass through the same PII blocking layer:</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
                             <li>age, user_age, sum_insured, sum_assured</li>
                             <li>phone, email, mobile, aadhaar, pan</li>
@@ -256,6 +266,16 @@ export default function PrivacyPage() {
                             <br />
                             <Link href="https://policies.google.com/privacy" className="text-accent hover:underline" target="_blank">
                                 Google Privacy Policy →
+                            </Link>
+                        </p>
+
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">PostHog</h3>
+                        <p className="text-theme-secondary">
+                            Product analytics is sent to PostHog only when it is configured and you have opted into analytics cookies.
+                            We disable session recording and rely on the same client-side PII blocking rules used for other analytics events.
+                            <br />
+                            <Link href="https://posthog.com/privacy" className="text-accent hover:underline" target="_blank">
+                                PostHog Privacy Policy â†’
                             </Link>
                         </p>
 

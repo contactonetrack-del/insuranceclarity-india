@@ -3,14 +3,10 @@ import { Inter, Outfit } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import CookieBanner from '@/components/CookieBanner'
-import AnalyticsBootstrap from '@/components/AnalyticsBootstrap'
+import DeferredGlobalUi from '@/components/DeferredGlobalUi'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { NextAuthProvider } from '@/components/providers/NextAuthProvider'
-import { SWRProvider } from '@/components/providers/swr-provider'
 import PageTransition from '@/components/PageTransition'
-import ClarityAdvisor from '@/components/ClarityAdvisor'
-import ProductTour from '@/components/onboarding/ProductTour'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
@@ -115,17 +111,12 @@ export default async function RootLayout({
                 <NextIntlClientProvider messages={messages} locale={locale}>
                     <ThemeProvider>
                         <NextAuthProvider>
-                            <SWRProvider>
-                                <Header />
-                                <PageTransition>
-                                    <main id="main-content" className="pt-24">{children}</main>
-                                </PageTransition>
-                                <Footer />
-                                <AnalyticsBootstrap nonce={nonce} />
-                                <CookieBanner />
-                                <ClarityAdvisor />
-                                <ProductTour />
-                            </SWRProvider>
+                            <Header />
+                            <PageTransition>
+                                <main id="main-content" className="pt-24">{children}</main>
+                            </PageTransition>
+                            <Footer />
+                            <DeferredGlobalUi nonce={nonce} />
                         </NextAuthProvider>
                     </ThemeProvider>
                 </NextIntlClientProvider>

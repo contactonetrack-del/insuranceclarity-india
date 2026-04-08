@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { logger } from '@/lib/logger'
+import { isExpectedDbFallbackError } from '@/lib/prisma-fallback'
 import CompareClient, { Policy } from './CompareClient'
 
 export const metadata = {
@@ -9,16 +10,6 @@ export const metadata = {
 export const dynamic = 'force-dynamic'
 
 type JsonData = Record<string, string | number | boolean | null | undefined>
-
-function isExpectedDbFallbackError(error: unknown): boolean {
-    const message = error instanceof Error ? error.message : String(error)
-    return (
-        message.includes('password authentication failed') ||
-        message.includes('Raw query failed') ||
-        message.includes('P1000') ||
-        message.includes('P1001')
-    )
-}
 
 async function tableExists(tableName: string): Promise<boolean> {
     const qualifiedTableName = `public."${tableName}"`

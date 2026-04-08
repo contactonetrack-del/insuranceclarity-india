@@ -20,6 +20,10 @@ interface RouteParams {
     params: Promise<{ id: string }>;
 }
 
+function isPlausibleScanId(scanId: string): boolean {
+    return /^c[a-z0-9]{20,}$/i.test(scanId);
+}
+
 function getClientIp(request: NextRequest): string | null {
     const forwarded = request.headers.get('x-forwarded-for');
     if (forwarded) {
@@ -71,6 +75,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
         if (!scanId) {
             return NextResponse.json({ error: 'scanId is required.' }, { status: 400 });
+        }
+
+        if (!isPlausibleScanId(scanId)) {
+            return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
         }
 
         // Get session to check access/payment status

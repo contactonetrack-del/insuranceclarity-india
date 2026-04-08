@@ -11,6 +11,7 @@
  * - LOW: Don't log
  */
 
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -32,6 +33,16 @@ export interface ErrorEvent {
   ipAddress?: string; // Client IP address
   details?: Record<string, unknown>; // Additional context (no PII!)
   timestamp?: Date;
+}
+
+function toPrismaJson(
+  details?: Record<string, unknown>,
+): Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined {
+  if (!details) {
+    return undefined;
+  }
+
+  return JSON.parse(JSON.stringify(details)) as Prisma.InputJsonValue;
 }
 
 /**
@@ -87,8 +98,8 @@ export async function logErrorEvent(event: ErrorEvent): Promise<void> {
         severity,
         userId: event.userId,
         ipAddress: event.ipAddress,
-        details: event.details ?? undefined,
-        timestamp: event.timestamp ||new Date(),
+        details: toPrismaJson(event.details),
+        timestamp: event.timestamp || new Date(),
       },
     }).catch((err) => {
       // Log but don't throw — logging failures shouldn't break the app
@@ -130,7 +141,7 @@ export async function batchLogErrorEvents(events: ErrorEvent[]): Promise<void> {
         severity: e.severity || getSeverityFromStatus(e.statusCode, e.code),
         userId: e.userId,
         ipAddress: e.ipAddress,
-        details: e.details ?? undefined,
+        details: toPrismaJson(e.details),
         timestamp: e.timestamp || new Date(),
       })),
     }).catch((err) => {
