@@ -1,4 +1,17 @@
-import { prisma } from '@/lib/prisma';
+/**
+ * database-search.ts
+ *
+ * PostgreSQL-backed search with two layers:
+ * 1. Native full-text ranking via `to_tsvector` / `websearch_to_tsquery`
+ * 2. Deterministic in-process scoring as a fallback tie-breaker
+ *
+ * This keeps `/api/search` on Postgres today while preparing the schema for
+ * pg_trgm/pgvector rollout in the database layer.
+ */
+
+import {
+    searchRepository,
+} from '@/repositories/search.repository';
 
 export type SearchIndexName = 'products' | 'hiddenFacts' | 'claimCases';
 
@@ -32,16 +45,20 @@ function tokenize(query: string): string[] {
     return Array.from(new Set(normalizeQuery(query).split(/\s+/).filter(Boolean)));
 }
 
+function escapeLikePattern(value: string): string {
+    return value.replace(/[\\%_]/g, '\\$&');
+}
+
 function scoreMatch(haystack: string, normalizedQuery: string, tokens: string[]): number {
-    const normalizedHaystack = haystack.toLowerCase();
+    const h = haystack.toLowerCase();
     let score = 0;
 
-    if (normalizedHaystack === normalizedQuery) score += 120;
-    if (normalizedHaystack.startsWith(normalizedQuery)) score += 70;
-    if (normalizedHaystack.includes(normalizedQuery)) score += 45;
+    if (h === normalizedQuery) score += 120;
+    else if (h.startsWith(normalizedQuery)) score += 70;
+    else if (h.includes(normalizedQuery)) score += 45;
 
     for (const token of tokens) {
-        if (normalizedHaystack.includes(token)) {
+        if (h.includes(token)) {
             score += token.length > 3 ? 12 : 6;
         }
     }
@@ -49,45 +66,35 @@ function scoreMatch(haystack: string, normalizedQuery: string, tokens: string[])
     return score;
 }
 
-function byScoreDescending<T extends { score: number; title?: string; name?: string }>(left: T, right: T): number {
-    if (right.score !== left.score) {
-        return right.score - left.score;
-    }
-
-    const leftLabel = left.title ?? left.name ?? '';
-    const rightLabel = right.title ?? right.name ?? '';
-    return leftLabel.localeCompare(rightLabel);
+function scoreFromRank(rank: number | null | undefined, haystack: string, normalizedQuery: string, tokens: string[]): number {
+    const normalizedRank = Number.isFinite(rank) ? Math.round((rank ?? 0) * 1000) : 0;
+    return normalizedRank + scoreMatch(haystack, normalizedQuery, tokens);
 }
 
-export async function findInsuranceProductMatchesInDatabase(query: string, limit: number): Promise<ProductSearchMatch[]> {
+function byScoreDescending<T extends { score: number; title?: string; name?: string }>(
+    left: T,
+    right: T,
+): number {
+    if (right.score !== left.score) return right.score - left.score;
+    const l = left.title ?? left.name ?? '';
+    const r = right.title ?? right.name ?? '';
+    return l.localeCompare(r);
+}
+
+function getExpandedLimit(limit: number): number {
+    return Math.max(limit * 4, 24);
+}
+
+async function findInsuranceProductMatchesFallback(
+    query: string,
+    limit: number,
+): Promise<ProductSearchMatch[]> {
     const normalizedQuery = normalizeQuery(query);
     if (!normalizedQuery) return [];
 
     const tokens = tokenize(query);
-    const policies = await prisma.insurancePolicy.findMany({
-        where: {
-            OR: [
-                { productName: { contains: normalizedQuery, mode: 'insensitive' } },
-                { providerName: { contains: normalizedQuery, mode: 'insensitive' } },
-                { seoSlug: { contains: normalizedQuery, mode: 'insensitive' } },
-                { type: { name: { contains: normalizedQuery, mode: 'insensitive' } } },
-                { type: { subcategory: { name: { contains: normalizedQuery, mode: 'insensitive' } } } },
-                { type: { subcategory: { category: { name: { contains: normalizedQuery, mode: 'insensitive' } } } } },
-            ],
-        },
-        include: {
-            type: {
-                include: {
-                    subcategory: {
-                        include: {
-                            category: true,
-                        },
-                    },
-                },
-            },
-        },
-        take: Math.max(limit * 4, 24),
-    });
+
+    const policies = await searchRepository.findInsurancePoliciesByQuery(normalizedQuery, getExpandedLimit(limit));
 
     return policies
         .map((policy) => {
@@ -97,6 +104,7 @@ export async function findInsuranceProductMatchesInDatabase(query: string, limit
             const name = `${policy.providerName} ${policy.productName}`.trim();
             const benefitsSummary = policy.benefits.slice(0, 2).join(', ');
             const description = benefitsSummary || `${typeName} coverage from ${policy.providerName}`;
+
             const haystack = [
                 name,
                 policy.providerName,
@@ -126,24 +134,13 @@ export async function findInsuranceProductMatchesInDatabase(query: string, limit
         .slice(0, limit);
 }
 
-async function searchHiddenFactsInDatabase(query: string, limit: number): Promise<SearchHit[]> {
+async function searchHiddenFactsFallback(query: string, limit: number): Promise<SearchHit[]> {
     const normalizedQuery = normalizeQuery(query);
     if (!normalizedQuery) return [];
 
     const tokens = tokenize(query);
-    const facts = await prisma.hiddenFact.findMany({
-        where: {
-            OR: [
-                { title: { contains: normalizedQuery, mode: 'insensitive' } },
-                { category: { contains: normalizedQuery, mode: 'insensitive' } },
-                { description: { contains: normalizedQuery, mode: 'insensitive' } },
-                { realCase: { contains: normalizedQuery, mode: 'insensitive' } },
-                { whatToCheck: { contains: normalizedQuery, mode: 'insensitive' } },
-            ],
-        },
-        take: Math.max(limit * 4, 24),
-        orderBy: { updatedAt: 'desc' },
-    });
+
+    const facts = await searchRepository.findHiddenFactsByQuery(normalizedQuery, getExpandedLimit(limit));
 
     return facts
         .map((fact) => {
@@ -171,24 +168,13 @@ async function searchHiddenFactsInDatabase(query: string, limit: number): Promis
         .slice(0, limit);
 }
 
-async function searchClaimCasesInDatabase(query: string, limit: number): Promise<SearchHit[]> {
+async function searchClaimCasesFallback(query: string, limit: number): Promise<SearchHit[]> {
     const normalizedQuery = normalizeQuery(query);
     if (!normalizedQuery) return [];
 
     const tokens = tokenize(query);
-    const claimCases = await prisma.claimCase.findMany({
-        where: {
-            OR: [
-                { title: { contains: normalizedQuery, mode: 'insensitive' } },
-                { category: { contains: normalizedQuery, mode: 'insensitive' } },
-                { issue: { contains: normalizedQuery, mode: 'insensitive' } },
-                { details: { contains: normalizedQuery, mode: 'insensitive' } },
-                { lesson: { contains: normalizedQuery, mode: 'insensitive' } },
-            ],
-        },
-        take: Math.max(limit * 4, 24),
-        orderBy: { updatedAt: 'desc' },
-    });
+
+    const claimCases = await searchRepository.findClaimCasesByQuery(normalizedQuery, getExpandedLimit(limit));
 
     return claimCases
         .map((claimCase) => {
@@ -216,7 +202,142 @@ async function searchClaimCasesInDatabase(query: string, limit: number): Promise
         .slice(0, limit);
 }
 
-export async function searchSiteIndexInDatabase(indexName: SearchIndexName, query: string, limit: number): Promise<SearchHit[]> {
+export async function findInsuranceProductMatchesInDatabase(
+    query: string,
+    limit: number,
+): Promise<ProductSearchMatch[]> {
+    const normalizedQuery = normalizeQuery(query);
+    if (!normalizedQuery) return [];
+
+    const tokens = tokenize(query);
+    const likePattern = `%${escapeLikePattern(normalizedQuery)}%`;
+
+    try {
+        const rows = await searchRepository.searchProductRows(normalizedQuery, likePattern, getExpandedLimit(limit));
+
+        return rows
+            .map((row) => {
+                const benefits = row.benefits ?? [];
+                const exclusions = row.exclusions ?? [];
+                const name = `${row.providerName} ${row.productName}`.trim();
+                const description =
+                    benefits.slice(0, 2).join(', ') ||
+                    `${row.typeName} coverage from ${row.providerName}`;
+                const haystack = [
+                    name,
+                    row.providerName,
+                    row.productName,
+                    row.seoSlug,
+                    row.typeName,
+                    row.subcategory,
+                    row.category,
+                    ...benefits,
+                    ...exclusions,
+                ].join(' ');
+
+                return {
+                    id: row.id,
+                    name,
+                    description,
+                    href: `/insurance/${row.seoSlug}`,
+                    category: row.category,
+                    subcategory: row.subcategory,
+                    score: scoreFromRank(row.rank, haystack, normalizedQuery, tokens),
+                    benefits,
+                    exclusions,
+                } satisfies ProductSearchMatch;
+            })
+            .filter((match) => match.score > 0)
+            .sort(byScoreDescending)
+            .slice(0, limit);
+    } catch {
+        return findInsuranceProductMatchesFallback(query, limit);
+    }
+}
+
+async function searchHiddenFactsInDatabase(query: string, limit: number): Promise<SearchHit[]> {
+    const normalizedQuery = normalizeQuery(query);
+    if (!normalizedQuery) return [];
+
+    const tokens = tokenize(query);
+    const likePattern = `%${escapeLikePattern(normalizedQuery)}%`;
+
+    try {
+        const rows = await searchRepository.searchHiddenFactRows(normalizedQuery, likePattern, getExpandedLimit(limit));
+
+        return rows
+            .map((row) => {
+                const haystack = [
+                    row.title,
+                    row.category,
+                    row.description,
+                    row.realCase,
+                    row.whatToCheck,
+                    ...(row.affectedPolicies ?? []),
+                ].join(' ');
+
+                return {
+                    id: row.id,
+                    type: 'fact',
+                    title: row.title,
+                    description: row.description,
+                    href: '/tools/hidden-facts',
+                    category: row.category,
+                    score: scoreFromRank(row.rank, haystack, normalizedQuery, tokens),
+                } satisfies SearchHit;
+            })
+            .filter((fact) => fact.score > 0)
+            .sort(byScoreDescending)
+            .slice(0, limit);
+    } catch {
+        return searchHiddenFactsFallback(query, limit);
+    }
+}
+
+async function searchClaimCasesInDatabase(query: string, limit: number): Promise<SearchHit[]> {
+    const normalizedQuery = normalizeQuery(query);
+    if (!normalizedQuery) return [];
+
+    const tokens = tokenize(query);
+    const likePattern = `%${escapeLikePattern(normalizedQuery)}%`;
+
+    try {
+        const rows = await searchRepository.searchClaimCaseRows(normalizedQuery, likePattern, getExpandedLimit(limit));
+
+        return rows
+            .map((row) => {
+                const haystack = [
+                    row.title,
+                    row.category,
+                    row.issue,
+                    row.details,
+                    row.lesson,
+                    row.outcome,
+                ].join(' ');
+
+                return {
+                    id: row.id,
+                    type: 'claim',
+                    title: row.title,
+                    description: row.issue,
+                    href: '/tools/claim-cases',
+                    category: row.category,
+                    score: scoreFromRank(row.rank, haystack, normalizedQuery, tokens),
+                } satisfies SearchHit;
+            })
+            .filter((claimCase) => claimCase.score > 0)
+            .sort(byScoreDescending)
+            .slice(0, limit);
+    } catch {
+        return searchClaimCasesFallback(query, limit);
+    }
+}
+
+export async function searchSiteIndexInDatabase(
+    indexName: SearchIndexName,
+    query: string,
+    limit: number,
+): Promise<SearchHit[]> {
     switch (indexName) {
         case 'products':
             return (await findInsuranceProductMatchesInDatabase(query, limit)).map((product) => ({

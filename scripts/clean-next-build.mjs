@@ -12,6 +12,7 @@ async function removeIfPresent(targetPath) {
 async function run() {
   const repoRoot = process.cwd();
   await removeIfPresent(path.join(repoRoot, '.next', 'dev'));
+  await removeIfPresent(path.join(repoRoot, '.next', 'types'));
 }
 
 await run();

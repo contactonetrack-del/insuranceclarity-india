@@ -3,14 +3,14 @@ import { ElementType } from 'react'
 export interface AdvisorAction {
     label: string
     href: string
-    icon: ElementType
+    icon?: ElementType
 }
 
 export interface Message {
     id: string
     type: 'bot' | 'user'
     text: string
-    actions?: any[] // Using any here because it contains React components (icons) in state but serializable objects in DB
+    actions?: AdvisorAction[]
 }
 
 export interface ChatHistoryItem {

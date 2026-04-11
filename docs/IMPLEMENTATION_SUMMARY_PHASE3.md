@@ -1,5 +1,7 @@
 # Phase 3 Complete Implementation Summary
 
+> Historical archive: this captures an earlier implementation phase and is not the current status source. See [MASTER-PLAN-STATUS.md](../MASTER-PLAN-STATUS.md) for the live platform state.
+
 **Session Date**: April 7, 2026  
 **Focus**: Implementing immediate high-priority recommendations from Phase 2
 

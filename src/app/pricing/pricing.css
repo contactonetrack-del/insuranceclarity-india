@@ -133,9 +133,9 @@
     margin-bottom: 16px;
 }
 
-.pricing-card__icon--blue { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+.pricing-card__icon--blue { background: rgb(var(--token-semantic-info) / 0.1); color: rgb(var(--token-semantic-info)); }
 .pricing-card__icon--accent { background: rgba(var(--color-accent), 0.1); color: rgb(var(--color-accent)); }
-.pricing-card__icon--purple { background: rgba(168, 85, 247, 0.1); color: #A855F7; }
+.pricing-card__icon--purple { background: rgb(var(--color-accent) / 0.1); color: rgb(var(--color-accent)); }
 
 .pricing-card__name {
     font-size: 1.5rem;
@@ -202,7 +202,7 @@
 }
 
 .pricing-feature--yes svg {
-    color: #22c55e;
+    color: rgb(var(--token-semantic-success));
     flex-shrink: 0;
 }
 
@@ -212,7 +212,7 @@
 }
 
 .pricing-feature--no svg {
-    color: #ef4444;
+    color: rgb(var(--token-semantic-danger));
     flex-shrink: 0;
 }
 
@@ -484,7 +484,7 @@
 }
 
 .paywall-error {
-    color: #ef4444;
+    color: rgb(var(--token-semantic-danger));
     font-size: 13px;
 }
 
@@ -502,10 +502,10 @@
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    background: rgb(var(--token-semantic-success) / 0.1);
+    border: 1px solid rgb(var(--token-semantic-success) / 0.3);
     border-radius: var(--radius-md);
-    color: #16a34a;
+    color: rgb(var(--token-semantic-success));
     font-weight: 600;
     font-size: 15px;
 }
@@ -546,8 +546,8 @@
     display: inline-block;
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
+    border: 2px solid rgb(var(--token-surface-elevated) / 0.3);
+    border-top-color: rgb(var(--token-surface-elevated));
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
 }

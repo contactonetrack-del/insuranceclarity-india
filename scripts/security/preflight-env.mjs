@@ -20,7 +20,7 @@ function isPlaceholder(value) {
   return PLACEHOLDER_MARKERS.some((marker) => normalized.includes(marker));
 }
 
-function hasStrongNextAuthSecret(value) {
+function hasStrongAuthSecret(value) {
   const secret = value?.trim() ?? '';
   if (secret.length < 32) return false;
   if (isPlaceholder(secret)) return false;
@@ -33,6 +33,10 @@ function isLikelyTestValue(value) {
   return normalized.includes('test');
 }
 
+function normalizeUrl(value) {
+  return value?.trim().replace(/\/+$/, '') ?? '';
+}
+
 function looksLikeRazorpayKeyId(value) {
   const normalized = value?.trim().toLowerCase() ?? '';
   return normalized.startsWith('rzp_');
@@ -42,6 +46,13 @@ function resolveQueueProvider(rawProvider, qstashToken) {
   const normalized = rawProvider?.trim().toLowerCase();
   if (normalized === 'qstash' || normalized === 'http') return normalized;
   return !isPlaceholder(qstashToken) ? 'qstash' : 'http';
+}
+
+function resolveDocumentStorageProvider(rawProvider) {
+  const normalized = rawProvider?.trim().toLowerCase();
+  if (normalized === 's3') return 's3';
+  if (normalized === 'blob') return 'blob';
+  return 'cloudinary';
 }
 
 function run() {
@@ -85,10 +96,10 @@ function run() {
         : 'Expected `.env` or `.env*` ignore rule plus `!.env.example` allow rule.',
   });
 
-  const nextAuthSecret = process.env.NEXTAUTH_SECRET;
+  const authSecret = process.env.BETTER_AUTH_SECRET || process.env.NEXTAUTH_SECRET;
   results.push({
-    name: 'NEXTAUTH_SECRET is strong',
-    pass: hasStrongNextAuthSecret(nextAuthSecret),
+    name: 'BETTER_AUTH_SECRET is strong',
+    pass: hasStrongAuthSecret(authSecret),
     detail: 'Must be >= 32 chars random secret (generate with `openssl rand -base64 32`).',
   });
 
@@ -98,6 +109,13 @@ function run() {
     name: 'Google OAuth credentials configured',
     pass: !isPlaceholder(googleClientId) && !isPlaceholder(googleClientSecret),
     detail: 'Set real GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET from Google Cloud Console.',
+  });
+
+  const geminiApiKey = process.env.GEMINI_API_KEY?.trim();
+  results.push({
+    name: 'Gemini analysis key configured',
+    pass: !isPlaceholder(geminiApiKey),
+    detail: 'Set GEMINI_API_KEY so policy analysis can run in production.',
   });
 
   const scanProcessingModeRaw = process.env.SCAN_PROCESSING_MODE?.trim().toLowerCase() ?? 'worker';
@@ -115,6 +133,7 @@ function run() {
   const queueSecret = process.env.QUEUE_SECRET?.trim();
   const qstashToken = process.env.QSTASH_TOKEN?.trim();
   const queueProvider = resolveQueueProvider(process.env.QUEUE_PROVIDER, qstashToken);
+  const documentStorageProvider = resolveDocumentStorageProvider(process.env.DOCUMENT_STORAGE_PROVIDER);
 
   if (scanProcessingMode === 'worker') {
     results.push({
@@ -129,10 +148,14 @@ function run() {
       detail: 'Set QUEUE_PROVIDER to `qstash` (recommended) or `http`.',
     });
 
-    const appBaseUrl =
-      process.env.APP_BASE_URL?.trim() ||
-      process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-      process.env.NEXTAUTH_URL?.trim() ||
+    const appBaseUrl = normalizeUrl(process.env.APP_BASE_URL);
+    const nextPublicAppUrl = normalizeUrl(process.env.NEXT_PUBLIC_APP_URL);
+    const nextAuthUrl = normalizeUrl(process.env.NEXTAUTH_URL);
+    const appUrl =
+      appBaseUrl ||
+      process.env.BETTER_AUTH_URL?.trim() ||
+      nextPublicAppUrl ||
+      nextAuthUrl ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL.trim()}` : '');
 
     if (queueProvider === 'qstash') {
@@ -151,9 +174,20 @@ function run() {
 
       results.push({
         name: 'Public app URL is configured for managed queue callbacks',
-        pass: Boolean(appBaseUrl) && !isPlaceholder(appBaseUrl),
+        pass: Boolean(appUrl) && !isPlaceholder(appUrl),
         detail:
-          'Set APP_BASE_URL (or NEXT_PUBLIC_APP_URL / NEXTAUTH_URL) so QStash can reach /api/jobs/document-worker.',
+          'Set APP_BASE_URL (or BETTER_AUTH_URL / NEXT_PUBLIC_APP_URL) so QStash can reach /api/jobs/document-worker.',
+      });
+
+      const canonicalAppUrl = nextPublicAppUrl || nextAuthUrl || appBaseUrl;
+      results.push({
+        name: 'Managed queue callback URL is aligned with the canonical app URL',
+        pass:
+          !appBaseUrl ||
+          !canonicalAppUrl ||
+          normalizeUrl(appBaseUrl) === normalizeUrl(canonicalAppUrl),
+        detail:
+          'APP_BASE_URL should match NEXT_PUBLIC_APP_URL or NEXTAUTH_URL. A stale preview URL will send queue callbacks to the wrong deployment.',
       });
     } else {
       results.push({
@@ -222,6 +256,53 @@ function run() {
         ? 'Create test plans in Razorpay dashboard, then set RAZORPAY_PLAN_ID_PRO and RAZORPAY_PLAN_ID_ENTERPRISE.'
         : 'Create live plans in Razorpay dashboard, then set non-test RAZORPAY_PLAN_ID_PRO and RAZORPAY_PLAN_ID_ENTERPRISE.',
   });
+
+  if (documentStorageProvider === 'cloudinary') {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+    const cloudinaryApiKey = process.env.CLOUDINARY_API_KEY?.trim();
+    const cloudinaryApiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+
+    results.push({
+      name: 'Cloudinary document storage is configured',
+      pass:
+        !isPlaceholder(cloudName) &&
+        !isPlaceholder(cloudinaryApiKey) &&
+        !isPlaceholder(cloudinaryApiSecret),
+      detail:
+        'Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET or switch DOCUMENT_STORAGE_PROVIDER to `s3`.',
+    });
+  } else if (documentStorageProvider === 's3') {
+    const bucket = process.env.DOCUMENT_STORAGE_BUCKET?.trim();
+    const accessKeyId = process.env.DOCUMENT_STORAGE_ACCESS_KEY_ID?.trim();
+    const secretAccessKey = process.env.DOCUMENT_STORAGE_SECRET_ACCESS_KEY?.trim();
+    const endpoint = process.env.DOCUMENT_STORAGE_ENDPOINT?.trim();
+
+    results.push({
+      name: 'S3/R2 document storage is configured',
+      pass:
+        !isPlaceholder(bucket) &&
+        !isPlaceholder(accessKeyId) &&
+        !isPlaceholder(secretAccessKey),
+      detail:
+        'Set DOCUMENT_STORAGE_BUCKET, DOCUMENT_STORAGE_ACCESS_KEY_ID, and DOCUMENT_STORAGE_SECRET_ACCESS_KEY before switching to DOCUMENT_STORAGE_PROVIDER=s3.',
+    });
+
+    results.push({
+      name: 'S3/R2 endpoint is configured when needed',
+      pass: !endpoint || !isPlaceholder(endpoint),
+      detail:
+        'If using Cloudflare R2 or another S3-compatible service, set DOCUMENT_STORAGE_ENDPOINT to the provider endpoint URL.',
+    });
+  } else {
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim();
+
+    results.push({
+      name: 'Vercel Blob document storage is configured',
+      pass: !isPlaceholder(blobToken),
+      detail:
+        'Set BLOB_READ_WRITE_TOKEN before switching to DOCUMENT_STORAGE_PROVIDER=blob.',
+    });
+  }
 
   let failed = 0;
   for (const result of results) {

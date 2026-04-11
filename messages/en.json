@@ -36,7 +36,7 @@
     "advisor": "AI Advisor"
   },
   "footer": {
-    "copyright": "© {year} InsuranceClarity India. All rights reserved.",
+    "copyright": "Â© {year} InsuranceClarity India. All rights reserved.",
     "tagline": "India's most transparent insurance platform.",
     "newsletter": {
       "title": "Insurance tips, decoded weekly.",
@@ -52,6 +52,286 @@
       "privacy": "Privacy Policy",
       "terms": "Terms of Service",
       "blog": "Blog"
+    },
+    "categoriesSection": {
+      "insurance": {
+        "badge": "Browse Insurance",
+        "title": "Explore Insurance Types",
+        "description": "Comprehensive guides for every insurance category with hidden facts and real claim cases."
+      },
+      "business": {
+        "badge": "Commercial & Emerging",
+        "title": "Business & Advanced Insurance",
+        "description": "Protect your enterprise with comprehensive coverage for modern risks, liabilities, and emerging technologies."
+      }
+    },
+    "toolsSection": {
+      "badge": "Free Tools",
+      "title": "Tools to Make Better Decisions",
+      "description": "Explore policy details and common exclusions with our educational tools.",
+      "exploreAction": "Explore Now"
+    }
+  },
+  "footerExtended": {
+    "brand": {
+      "logoAlt": "InsuranceClarity logo",
+      "namePrefix": "Insurance",
+      "nameSuffix": "Clarity",
+      "badge": "Independent Policy Intelligence For India",
+      "description": "InsuranceClarity helps people read policy language with more confidence, more context, and fewer insurer blind spots."
+    },
+    "trustPrinciples": {
+      "independentResearch": "Independent research",
+      "noInsurerCommissions": "No insurer commissions",
+      "indiaFocusedPolicyIntelligence": "India-focused policy intelligence"
+    },
+    "contact": {
+      "india": "India",
+      "hqIndia": "HQ: India",
+      "supportIndependentResearch": "Support independent research",
+      "email": "contact@insuranceclarity.in",
+      "website": "insuranceclarity.in"
+    },
+    "social": {
+      "followAria": "Follow InsuranceClarity on {platform}",
+      "platforms": {
+        "twitter": "Twitter",
+        "linkedIn": "LinkedIn",
+        "instagram": "Instagram"
+      }
+    },
+    "navigation": {
+      "sections": {
+        "insuranceTypes": {
+          "title": "Insurance Types",
+          "links": {
+            "lifeInsurance": "Life Insurance",
+            "healthInsurance": "Health Insurance",
+            "motorInsurance": "Motor Insurance",
+            "homeInsurance": "Home Insurance",
+            "travelInsurance": "Travel Insurance",
+            "specializedInsurance": "Specialized Insurance",
+            "personalAccident": "Personal Accident"
+          }
+        },
+        "advancedTools": {
+          "title": "Advanced Tools",
+          "links": {
+            "hiddenFacts": "Hidden Facts",
+            "comparePolicies": "Compare Policies",
+            "premiumCalculator": "Premium Calculator",
+            "claimCases": "Claim Cases"
+          }
+        },
+        "company": {
+          "title": "Company",
+          "links": {
+            "knowledgeHubs": "Knowledge Hubs",
+            "resourcesAndGuides": "Resources & Guides",
+            "contact": "Contact",
+            "privacyPolicy": "Privacy Policy",
+            "termsOfService": "Terms of Service",
+            "cookiePolicy": "Cookie Policy"
+          }
+        }
+      }
+    },
+    "newsletter": {
+      "badge": "Weekly Policy Brief",
+      "title": "Stay Policy Smart",
+      "description": "Get hidden-clause alerts, claim trend breakdowns, and regulatory updates in one sharp weekly email.",
+      "benefits": {
+        "noSpam": "No spam",
+        "unsubscribeAnytime": "Unsubscribe anytime",
+        "builtForIndianPolicyholders": "Built for Indian policyholders"
+      },
+      "form": {
+        "placeholder": "Enter your email...",
+        "emailAriaLabel": "Email address",
+        "subscribe": "Subscribe",
+        "subscribing": "Subscribing...",
+        "subscribed": "Subscribed",
+        "footnote": "One sharp weekly email. No spam. Unsubscribe anytime."
+      }
+    },
+    "regulatory": {
+      "badge": "Regulatory Compliance",
+      "title": "Built For Clarity, Not Commissions",
+      "descriptionPrimary": "InsuranceClarity is an educational and data-transparency platform. We are not an IRDAI-licensed intermediary, agent, or broker. We do not sell, solicit, or recommend policies.",
+      "descriptionSecondary": "Our analysis is independent and grounded in insurer documents, IRDAI references, and verified consumer-facing policy language. Always verify final policy terms directly with the issuing insurer."
+    },
+    "verification": {
+      "title": "Trust And Verification",
+      "officialResources": "Official Resources",
+      "badges": {
+        "sslSecured": "SSL Secured",
+        "dataEncrypted": "Data Encrypted"
+      }
+    },
+    "officialResources": {
+      "bimaBharosa": "Bima Bharosa",
+      "irdaiOfficial": "IRDAI Official"
+    },
+    "copyright": "Â© {year} InsuranceClarity India",
+    "craftedForTransparency": "Crafted for transparency"
+  },
+  "cookieBanner": {
+    "title": "We use cookies",
+    "description": "We use essential cookies for site functionality and analytics cookies to understand how you use our site. You can accept all cookies, reject non-essential ones, or customize your preferences.",
+    "learnMore": "Learn more",
+    "actions": {
+      "acceptAll": "Accept All",
+      "rejectNonEssential": "Reject Non-Essential",
+      "managePreferences": "Manage Preferences",
+      "savePreferences": "Save Preferences",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "preferences": {
+      "title": "Cookie Preferences",
+      "essential": {
+        "title": "Essential Cookies",
+        "description": "Required for website functionality. Cannot be disabled."
+      },
+      "analytics": {
+        "title": "Analytics Cookies",
+        "description": "Help us understand how visitors use our website with privacy-safe analytics.",
+        "toggleAria": "Toggle Analytics Cookies"
+      }
+    }
+  },
+  "newsletterSignup": {
+    "titleDefault": "Insurance tips, decoded weekly.",
+    "subtitleDefault": "No jargon. No spam. Unsubscribe anytime.",
+    "success": {
+      "title": "You're subscribed!",
+      "description": "Check your inbox for a welcome email."
+    },
+    "actions": {
+      "subscribe": "Subscribe",
+      "subscribing": "Subscribing...",
+      "subscribed": "Subscribed"
+    },
+    "placeholders": {
+      "email": "Enter your email address",
+      "compactEmail": "your@email.com"
+    },
+    "aria": {
+      "form": "Newsletter signup form",
+      "compactForm": "Newsletter signup",
+      "emailLabel": "Email address"
+    },
+    "legal": {
+      "prefix": "By subscribing you agree to our",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "errors": {
+      "subscriptionFailed": "Subscription failed",
+      "generic": "Something went wrong"
+    }
+  },
+  "leadCaptureForm": {
+    "titleDefault": "Get Expert Advice. Free.",
+    "subtitleDefault": "Our trusted advisors will help you compare and find the perfect policy.",
+    "defaultInsuranceType": "Life Insurance",
+    "badge": "No Spam Guarantee",
+    "benefits": {
+      "compareTopInsurers": "Compare 50+ Top Insurers",
+      "unbiasedAdvice": "Unbiased Expert Advice",
+      "freeClaimAssistance": "Free Claim Assistance"
+    },
+    "fields": {
+      "name": {
+        "label": "Full Name",
+        "placeholder": "John Doe"
+      },
+      "phone": {
+        "label": "Mobile Number",
+        "placeholder": "98765 43210"
+      },
+      "email": {
+        "label": "Email (Optional)",
+        "placeholder": "john@example.com"
+      }
+    },
+    "actions": {
+      "submit": "Get Free Expert Advice",
+      "processing": "Processing..."
+    },
+    "success": {
+      "title": "Request Received!",
+      "description": "Thank you. One of our IRDAI-certified advisors will contact you shortly to discuss your custom {insuranceType} options."
+    },
+    "validation": {
+      "nameTooShort": "Name is too short",
+      "invalidEmail": "Please enter a valid email",
+      "invalidPhone": "Enter a valid 10-digit mobile number",
+      "insuranceTypeRequired": "Please select an insurance type"
+    },
+    "errors": {
+      "requestFailed": "Something went wrong",
+      "submitFailed": "Failed to submit. Please try again.",
+      "unexpected": "An unexpected error occurred."
+    },
+    "consent": "By clicking you agree to our Terms & Privacy Policy and authorize us to contact you via Whatsapp/SMS/Call."
+  },
+  "searchBar": {
+    "placeholder": "Search insurance types, tools, facts...",
+    "popularPages": "Popular pages",
+    "noResults": "No results for \"{query}\"",
+    "aria": {
+      "searchInput": "Search",
+      "clearSearch": "Clear search",
+      "searchSuggestions": "Search suggestions"
+    },
+    "typeLabels": {
+      "insurance": "Insurance",
+      "tool": "Tool",
+      "fact": "Hidden Fact",
+      "claim": "Claim Case"
+    },
+    "quickLinks": {
+      "hiddenFacts": {
+        "title": "Hidden Facts Revealer",
+        "description": "Uncover policy exclusions"
+      },
+      "premiumCalculator": {
+        "title": "Premium Calculator",
+        "description": "Estimate your premium instantly"
+      },
+      "healthInsurance": {
+        "title": "Health Insurance",
+        "description": "Individual & Family Floater plans"
+      },
+      "termLifeInsurance": {
+        "title": "Term Life Insurance",
+        "description": "Pure protection, lowest premiums"
+      },
+      "policyComparison": {
+        "title": "Policy Comparison",
+        "description": "Compare side by side"
+      },
+      "motorInsurance": {
+        "title": "Motor Insurance",
+        "description": "Car, Bike & Commercial"
+      }
+    }
+  },
+  "shareButtons": {
+    "heading": "Share this",
+    "aria": {
+      "xTwitter": "Share on X (Twitter)",
+      "facebook": "Share on Facebook",
+      "linkedIn": "Share on LinkedIn",
+      "whatsApp": "Share on WhatsApp",
+      "pinterest": "Save on Pinterest",
+      "copyLink": "Copy Link"
+    },
+    "actions": {
+      "share": "Share"
+    },
+    "alerts": {
+      "pinterestImageRequired": "Pinterest requires an image to pin. This content does not have a designated sharing image."
     }
   },
   "nav": {
@@ -67,7 +347,7 @@
     "hero": {
       "badge": "Trusted by 10,000+ Indians",
       "title": "Stop Being Fooled by Your Insurance Policy",
-      "subtitle": "Our AI finds the hidden traps, exclusions, and red flags in your policy — in 60 seconds.",
+      "subtitle": "Our AI finds the hidden traps, exclusions, and red flags in your policy â€” in 60 seconds.",
       "cta": "Scan Your Policy Free",
       "ctaSecondary": "See How It Works",
       "freeNote": "Free forever. No credit card required."
@@ -98,12 +378,81 @@
       "title": "Start protecting yourself today.",
       "subtitle": "Join 10,000+ Indians who use InsuranceClarity to make smarter insurance decisions.",
       "button": "Get Started Free"
+    },
+    "ctaSection": {
+      "badge": "Free - No Sign-up Required",
+      "titleLine1": "Ready to Understand",
+      "titleLine2": "Your Insurance?",
+      "description": "Start with the Hidden Facts tool and discover what your policy really covers - the exclusions, sub-limits, and fine print.",
+      "actions": {
+        "exploreHiddenFacts": "Explore Hidden Facts",
+        "estimatePremium": "Estimate Premium"
+      },
+      "footnote": "Educational platform - No insurance sold - IRDAI compliant content"
+    },
+    "heroSection": {
+      "backgroundAlt": "Insurance protection background",
+      "badge": "India's Most Transparent Insurance Platform",
+      "textRollPrefix": "Smart Protection for your",
+      "textRollWords": "Family|Assets|Health|Future|Life",
+      "titleLine1": "Discover What Insurance",
+      "titleLine2": "Companies Hide From You",
+      "subtitle": "Compare policies, uncover hidden exclusions, and make informed decisions. We show you the fine print that could save your claim.",
+      "actions": {
+        "scanPolicy": "Scan My Policy Free",
+        "exploreHiddenFacts": "Explore Hidden Facts",
+        "estimatePremium": "Estimate Premium"
+      },
+      "notePrefix": "Note:",
+      "noteBody": "InsuranceClarity is an educational platform, not an IRDAI-licensed intermediary. We do not sell insurance.",
+      "learnMore": "Learn more",
+      "trustAriaLabel": "Trust indicators",
+      "trustIndicators": {
+        "irdai": "IRDAI-Compliant Analysis",
+        "users": "10,000+ Users Protected",
+        "pdfDeleted": "PDF Deleted After Scan",
+        "satisfaction": "4.9/5 User Satisfaction"
+      },
+      "tickerTitle": "Decoding policies from top insurers"
+    },
+    "categoriesSection": {
+      "insurance": {
+        "badge": "Browse Insurance",
+        "title": "Explore Insurance Types",
+        "description": "Comprehensive guides for every insurance category with hidden facts and real claim cases."
+      },
+      "business": {
+        "badge": "Commercial & Emerging",
+        "title": "Business & Advanced Insurance",
+        "description": "Protect your enterprise with comprehensive coverage for modern risks, liabilities, and emerging technologies."
+      }
+    },
+    "toolsSection": {
+      "badge": "Free Tools",
+      "title": "Tools to Make Better Decisions",
+      "description": "Explore policy details and common exclusions with our educational tools.",
+      "exploreAction": "Explore Now"
     }
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
     "subtitle": "Start free. Upgrade when you need full clarity.",
     "badge": "No hidden fees",
+    "metadata": {
+      "title": "Pricing Plans - Insurance Clarity",
+      "description": "Choose a plan that fits your insurance needs. Start free, upgrade when you need unlimited AI policy scans, advisor access, and full risk reports.",
+      "openGraphTitle": "Transparent Pricing - Insurance Clarity",
+      "openGraphDescription": "Free forever for 2 scans/month. Upgrade to Pro for â‚¹499/month for unlimited scans and expert AI advisor."
+    },
+    "aria": {
+      "pricingPlans": "Pricing plans",
+      "planLabel": "{plan} plan",
+      "badgeLabel": "{badge} plan",
+      "included": "Included",
+      "notIncluded": "Not included",
+      "faq": "Frequently asked questions",
+      "getStarted": "Get started"
+    },
     "plans": {
       "free": {
         "name": "Free",
@@ -163,7 +512,7 @@
         },
         {
           "q": "What types of insurance policies can you scan?",
-          "a": "We support all major Indian insurance types: Health, Term Life, Motor (Car & Bike), Home, Travel, and Business insurance — from all IRDAI-registered insurers."
+          "a": "We support all major Indian insurance types: Health, Term Life, Motor (Car & Bike), Home, Travel, and Business insurance â€” from all IRDAI-registered insurers."
         },
         {
           "q": "Do you offer refunds?",
@@ -171,13 +520,13 @@
         },
         {
           "q": "Is there a free trial for Pro?",
-          "a": "The Free plan gives you 2 full AI scans per month to evaluate our product. Each scan report's first 3 risks are shown free — no credit card required."
+          "a": "The Free plan gives you 2 full AI scans per month to evaluate our product. Each scan report's first 3 risks are shown free â€” no credit card required."
         }
       ]
     },
     "cta": {
       "title": "Still unsure? Start with the free plan.",
-      "subtitle": "Upload your policy PDF now — no account needed for your first scan.",
+      "subtitle": "Upload your policy PDF now â€” no account needed for your first scan.",
       "button": "Scan Your Policy Free"
     }
   },
@@ -185,6 +534,15 @@
     "title": "AI Policy Scanner",
     "subtitle": "Upload your insurance PDF. Get a full risk analysis in 60 seconds.",
     "badge": "AI-Powered Analysis",
+    "metadata": {
+      "title": "Scan Your Insurance Policy - Insurance Clarity",
+      "description": "Upload your insurance policy PDF and get an AI-powered analysis of hidden clauses, claim risks, exclusions, and a transparent score in seconds.",
+      "openGraphTitle": "Free AI Insurance Policy Scanner",
+      "openGraphDescription": "Discover hidden risks in your policy before it's too late."
+    },
+    "aria": {
+      "securityAndPrivacy": "Security and privacy information"
+    },
     "upload": {
       "title": "Upload your policy",
       "subtitle": "PDF files only. Max 10MB. Your file is encrypted and deleted after analysis.",
@@ -197,9 +555,12 @@
       "dragDropText": "Drag & drop your PDF here, or",
       "browseText": "browse to select",
       "encrypted": "Encrypted & Secure",
-      "pdfOnly": "PDF only · Max {max}MB",
+      "pdfOnly": "PDF only Â· Max {max}MB",
       "freeScan": "Free scan",
-      "uploadingPlaceholder": "Uploading…",
+      "uploadingPlaceholder": "Uploadingâ€¦",
+      "uploadInputAria": "Upload insurance policy PDF",
+      "dropzoneAria": "Drop your insurance policy PDF here or click to select",
+      "uploadProgressAria": "Upload progress",
       "steps": {
         "uploading": "Uploading document",
         "extracting": "Reading policy text",
@@ -207,7 +568,7 @@
         "scoring": "Calculating score"
       }
     },
-    "processing": "Analysing your policy…",
+    "processing": "Analysing your policyâ€¦",
     "trust": {
       "encrypted": "256-bit Encrypted",
       "encryptedDesc": "Your documents are encrypted in transit and at rest.",
@@ -232,16 +593,16 @@
       "riskScore": "Risk Score",
       "risksFound": "{count} risks found",
       "freePreview": "Showing {count} of {total} risks",
-      "unlockAll": "Unlock All Risks — ₹199",
+      "unlockAll": "Unlock All Risks â€” â‚¹199",
       "downloadPdf": "Download PDF Report"
     },
     "paywall": {
       "title": "{count} More Hidden Risk{count, plural, =1 {} other {s}} Found",
       "subtitle": "Unlock the full report to see all exclusions, claim traps, and expert recommendations.",
-      "price": "₹199",
-      "priceNote": "one-time · no subscription",
+      "price": "â‚¹199",
+      "priceNote": "one-time Â· no subscription",
       "guarantee": "100% refund if our AI finds nothing new",
-      "cta": "Unlock Full Report — ₹199",
+      "cta": "Unlock Full Report â€” â‚¹199",
       "features": {
         "allRisks": "All {count} risk items revealed",
         "details": "Detailed explanation for every risk",
@@ -249,6 +610,155 @@
         "pdf": "Downloadable PDF report",
         "lifetime": "Lifetime access to this scan"
       }
+    },
+    "paywallGate": {
+      "lockedRegionLabel": "Premium report locked",
+      "title": "Unlock Full Report",
+      "paymentDescription": "Full Policy Scan Report Unlock",
+      "featuresLabel": "What you get with full access",
+      "ctaUnlock": "Unlock Full Report â€” â‚¹199",
+      "ctaRetry": "Retry Payment â€” â‚¹199",
+      "processing": "Processing...",
+      "reassurance": "One-time payment Â· Secure via Razorpay Â· Instant access",
+      "features": {
+        "allExclusions": "All exclusion clauses",
+        "allSuggestions": "All actionable suggestions",
+        "hiddenClauses": "Hidden fine-print clauses",
+        "shareAndDownload": "Share and download report"
+      },
+      "errors": {
+        "serviceUnavailable": "Payment service unavailable. Please try again.",
+        "securityTokenMissing": "Security token missing. Please refresh and try again.",
+        "orderCreateFailed": "Unable to create payment order.",
+        "verificationFailed": "Payment verification failed. Please retry.",
+        "cancelled": "Payment cancelled.",
+        "paymentFailed": "Payment failed. Please try again."
+      }
+    },
+    "resultPage": {
+      "processing": {
+        "ariaAnalyzingPolicy": "Analyzing your policy",
+        "title": "Analyzing Your Policy...",
+        "subtitle": "Our AI is reading every clause. This usually takes about 60 seconds.",
+        "progressComplete": "{percent}% complete",
+        "checkingEvery": "Checking every {seconds}s",
+        "ariaProcessingSteps": "Processing steps",
+        "reportId": "Report ID:",
+        "steps": {
+          "uploaded": "Document uploaded",
+          "extracting": "Extracting policy text",
+          "identifying": "Identifying risk clauses",
+          "analyzing": "AI analysis running",
+          "scoring": "Calculating score"
+        },
+        "notify": {
+          "label": "Long wait? We can email your report when it is ready.",
+          "emailPlaceholder": "you@example.com",
+          "saving": "Saving...",
+          "savedButton": "Saved",
+          "cta": "Email Me When Ready",
+          "savedSuccess": "Saved. We will email you once analysis is complete."
+        },
+        "errors": {
+          "saveFailed": "Failed to save email notification."
+        }
+      },
+      "report": {
+        "header": {
+          "title": "Policy Analysis Report",
+          "subtitle": "AI analysis complete - here is what your insurer did not tell you."
+        },
+        "actions": {
+          "download": "Download PDF",
+          "downloadAria": "Download full report as PDF",
+          "share": "Share",
+          "shareAria": "Share this report"
+        },
+        "share": {
+          "title": "My Insurance Policy Scan",
+          "summaryText": "I scanned my insurance policy and got a {score}/100 clarity score. Check yours at Insurance Clarity.",
+          "copySuccess": "Link copied to clipboard."
+        },
+        "sections": {
+          "scoreAria": "Policy clarity score",
+          "summaryTitle": "Policy Summary",
+          "statsAria": "Analysis statistics",
+          "topRisksAria": "Top risks identified",
+          "topRisks": "Top Risks ({count} found)",
+          "exclusionsAria": "Policy exclusions",
+          "exclusions": "Exclusions ({count})",
+          "hiddenClausesAria": "Hidden clauses",
+          "hiddenClauses": "Hidden Clauses ({count})",
+          "suggestionsAria": "Actionable suggestions",
+          "suggestions": "What to Do ({count} actions)"
+        },
+        "stats": {
+          "risksFound": "Risks Found",
+          "exclusions": "Exclusions",
+          "suggestions": "Suggestions",
+          "hiddenClauses": "Hidden Clauses"
+        },
+        "scoreRing": {
+          "ariaLabel": "Policy transparency score: {score} out of 100 â€” {label}",
+          "caption": "Transparency Score",
+          "labels": {
+            "excellent": "Excellent",
+            "good": "Good",
+            "average": "Average",
+            "poor": "Poor",
+            "veryPoor": "Very Poor"
+          }
+        },
+        "cards": {
+          "severity": {
+            "high": "High Risk",
+            "medium": "Medium Risk",
+            "low": "Low Risk"
+          },
+          "impactLabel": "Impact:",
+          "riskLabel": "Risk:",
+          "suggestionDefault": "Suggestion"
+        },
+        "footer": {
+          "scanAnother": "Scan Another Policy",
+          "disclaimer": "This report is generated by AI and is for informational purposes only. It is not financial or legal advice. Always consult a certified insurance advisor."
+        }
+      },
+      "error": {
+        "title": "Analysis Failed",
+        "description": "We could not analyze this policy. The document may be scanned (image-based), password-protected, or in an unsupported format.",
+        "reportId": "Report ID: {id}",
+        "retry": "Try Another PDF"
+      }
+    }
+  },
+  "refer": {
+    "missingCode": "Missing referral code. Please use the complete referral URL.",
+    "badge": "Referral Program",
+    "title": "Get Personalized Policy Guidance",
+    "subtitlePrefix": "You were invited with code",
+    "subtitleSuffix": "Share your details and we will help you compare suitable plans.",
+    "fields": {
+      "name": {
+        "label": "Name"
+      },
+      "email": {
+        "label": "Email"
+      },
+      "phone": {
+        "label": "Phone (optional)"
+      }
+    },
+    "actions": {
+      "submitting": "Submitting...",
+      "submitted": "Submitted",
+      "submit": "Submit Referral Request"
+    },
+    "messages": {
+      "success": "Thanks. We received your referral request and our team will reach out."
+    },
+    "errors": {
+      "submitFailed": "Could not submit referral form."
     }
   },
   "dashboard": {
@@ -282,20 +792,103 @@
   },
   "tools": {
     "calculator": {
-       "badge": "PREMIUM EDITION CALCULATOR",
-       "title": "Smart Premium Advisor",
-       "subtitle": "Get a high-precision estimate powered by advanced actuarial modeling."
+      "badge": "PREMIUM EDITION CALCULATOR",
+      "title": "Smart Premium Advisor",
+      "subtitle": "Get a high-precision estimate powered by advanced actuarial modeling.",
+      "sections": {
+        "profileTitle": "Your Personal Profile",
+        "realTimeAnalysis": "Real-time Analysis"
+      },
+      "fields": {
+        "age": "Age (Years)",
+        "ageAria": "Age slider",
+        "policyTerm": "Policy Term (Years)",
+        "policyTermTooltip": "Longer terms (20-40 years) lock in lower rates and offer better long-term value.",
+        "policyTermAria": "Policy term slider",
+        "gender": "Gender",
+        "smokingStatus": "Tobacco / Smoking Status",
+        "smokingTooltip": "Smoking increases premium rates by up to 50% due to higher health risks.",
+        "location": "Resident Location",
+        "locationAria": "Resident Location",
+        "insuranceType": "Insurance Type",
+        "insuranceTypeAria": "Insurance Type",
+        "sumAssured": "Sum Assured (Coverage)",
+        "jobNature": "Job Nature",
+        "jobNatureAria": "Job Nature",
+        "riders": "Additional Protection (Riders)"
+      },
+      "units": {
+        "yearsShort": "yrs",
+        "fiveYears": "5 yrs",
+        "twentyYears": "20 yrs",
+        "fortyYears": "40 yrs"
+      },
+      "insuranceTypes": {
+        "life": "Life Insurance",
+        "health": "Health Insurance",
+        "vehicle": "Vehicle Insurance"
+      },
+      "gender": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other"
+      },
+      "smoking": {
+        "nonSmoker": "Non-Smoker",
+        "smoker": "Smoker"
+      },
+      "occupations": {
+        "salaried": "Salaried / IT Professional",
+        "professional": "Self-Employed Professional",
+        "highRisk": "High Risk (Civil/Mining/Engineering)",
+        "others": "Home Maker / Student"
+      },
+      "locations": {
+        "tier1": "Tier 1 Metro (Mumbai/Delhi/Bengaluru)",
+        "tier2": "Tier 2 City (Pune/Ahmedabad)",
+        "tier3": "Tier 3 & Others"
+      },
+      "riders": {
+        "ci": "Critical Illness Cover",
+        "adb": "Accidental Death Benefit",
+        "wop": "Waiver of Premium"
+      },
+      "sumAssured": {
+        "oneCrorePlus": "â‚¹ 1 Crore+"
+      },
+      "premium": {
+        "indicativeYearlyPremium": "Indicative Yearly Premium",
+        "gstExempt": "GST Exempt (0%) - w.e.f. Sept 22, 2025",
+        "includingGst": "Incl. 18% GST ({gst} GST)",
+        "composition": "Premium Composition",
+        "precisionScore": "Precision Score",
+        "precisionScoreHint": "Based on profile completeness",
+        "exploreGuides": "Explore Expert Guides",
+        "breakdown": {
+          "baseCover": "Base Cover & Ops",
+          "riskCharges": "Risk Adjusted Charges",
+          "riders": "Value Added Riders",
+          "gstVehicle": "GST (18% - Vehicle)"
+        }
+      },
+      "tips": {
+        "title": "Premium Optimization Tips",
+        "buyEarlyTitle": "Buy Early:",
+        "buyEarlyDescription": "For every year you wait after 30, your premium increases by approx 4-7%.",
+        "annualPaymentsTitle": "Annual Payments:",
+        "annualPaymentsDescription": "Choosing yearly instead of monthly payments can save up to 8% in processing fees."
+      }
     },
     "hlv": {
       "badge": "HUMAN LIFE VALUE (HLV)",
       "title": "How Much Are You Worth?",
       "subtitle": "Calculated naturally. Find out exactly how much life insurance your family needs to maintain their lifestyle if you aren't around.",
-      "annualIncome": "Annual Income (₹)",
+      "annualIncome": "Annual Income (â‚¹)",
       "personalExpenses": "Personal Expenses (%)",
       "personalExpensesHint": "Typically 20-35% of income goes to your personal travel, food, etc.",
       "currentAge": "Current Age",
       "retirementAge": "Retirement Age",
-      "loans": "Loans & Liabilities (₹)",
+      "loans": "Loans & Liabilities (â‚¹)",
       "inflation": "Expected Inflation (%)",
       "recommendedCover": "Recommended Life Cover",
       "yearsEstimate": "Estimated based on {years} replacement years",
@@ -314,20 +907,25 @@
       "badge": "TAX OPTIMIZER FY 2024-25",
       "title": "Old vs New Tax Check",
       "subtitle": "See how your insurance premiums affect your tax liability under Section 80C and 80D. Find your perfect regime.",
-      "annualIncome": "Annual Gross Income (₹)",
+      "annualIncome": "Annual Gross Income (â‚¹)",
       "section80C": "Section 80C (Life Ins)",
-      "maxLimit": "Max Limit: ₹{amount}",
+      "maxLimit": "Max Limit: â‚¹{amount}",
       "section80DSelf": "80D (Health - Self)",
       "section80DParents": "80D (Health - Parents)",
       "seniorCitizens": "Senior Citizens?",
       "recommendation": "Our Recommendation",
       "chooseRegime": "Choose {regime}",
+      "regimes": {
+        "old": "Old Regime",
+        "new": "New Regime"
+      },
+      "noteLabel": "Note",
       "oldRegimeTax": "Old Regime Tax",
       "newRegimeTax": "New Regime Tax",
       "annualSaving": "Potential Annual Saving",
       "comparison": "Regime Comparison Points",
-      "newRegimeNote": "In New Regime, your insurance premiums (₹{amount}) have zero impact on tax.",
-      "oldRegimeSaving": "In Old Regime, you are currently saving ₹{min} to ₹{max} in taxes just through insurance.",
+      "newRegimeNote": "In New Regime, your insurance premiums (â‚¹{amount}) have zero impact on tax.",
+      "oldRegimeSaving": "In Old Regime, you are currently saving â‚¹{min} to â‚¹{max} in taxes just through insurance.",
       "budgetNote": "Budget 2024 increased New Regime slabs. If your income is above 15L and you have less than 4.5L in total deductions, New Regime is usually better."
     },
     "roomRent": {
@@ -371,6 +969,7 @@
       "share": "Share",
       "noResults": "No facts found",
       "noResultsDesc": "We couldn't find any facts matching your search. Try adjusting your filters.",
+      "loadingFacts": "Loading facts...",
       "categoryAll": "All Insurance",
       "categoryLife": "Life",
       "categoryHealth": "Health",
@@ -385,6 +984,10 @@
       "badge": "REAL CLAIM CASES",
       "title": "Real Insurance Claim Cases",
       "subtitle": "Learn from actual claim approvals and rejections. Real lessons from real cases.",
+      "emptyTitleFallback": "Claim examples are temporarily unavailable",
+      "emptyTitleNoCases": "No claim cases available yet",
+      "emptyDescriptionFallback": "The claim library could not be loaded right now. You can still explore Hidden Facts while the case feed recovers.",
+      "emptyDescriptionNoCases": "Claim cases will appear here once they are published.",
       "approved": "Approved",
       "rejected": "Rejected",
       "partial": "Partial",
@@ -392,8 +995,175 @@
       "lesson": "Lesson:",
       "viewHiddenFacts": "View Hidden Facts"
     },
+    "claimSearch": {
+      "hero": {
+        "badge": "INSURANCE CASE LAW SEARCH",
+        "titlePrefix": "Learn from",
+        "titleHighlight": "Real-Life Claim",
+        "titleSuffix": "Journeys",
+        "subtitle": "Search 1,000+ past insurance claims, ombudsman rulings, and consumer court decisions to see why claims get rejected and how to stay protected."
+      },
+      "search": {
+        "placeholder": "Search for keywords like 'Cataract', 'Drink & Drive', 'Heart Bypass'...",
+        "action": "AI Search"
+      },
+      "categories": {
+        "all": "All",
+        "health": "Health Insurance",
+        "life": "Life Insurance",
+        "motor": "Motor Insurance"
+      },
+      "status": {
+        "approved": "Approved",
+        "partial": "Partial",
+        "rejected": "Rejected",
+        "verdictSuffix": "Verdict"
+      },
+      "empty": {
+        "title": "No cases found",
+        "description": "Try searching for broader terms or changing categories."
+      },
+      "result": {
+        "issueTitle": "The Issue",
+        "outcomeTitle": "The Outcome",
+        "lessonTitle": "Principal Lesson Learned"
+      },
+      "faq": {
+        "title": "Expert FAQ",
+        "items": {
+          "ombudsman": {
+            "q": "What is the Ombudsman?",
+            "a": "A neutral mediator between you and the insurer for claims up to Rs 30 Lakhs."
+          },
+          "rejectedVsRepudiated": {
+            "q": "Rejected vs Repudiated?",
+            "a": "Rejected is a temporary bar for missing docs; Repudiated is a flat 'No' based on policy terms."
+          },
+          "appealAfterTwoYears": {
+            "q": "Can I appeal after 2 years?",
+            "a": "Yes, but you usually have to explain the delay to the courts or ombudsman."
+          }
+        }
+      },
+      "cta": {
+        "badge": "Stuck with a claim?",
+        "title": "Talk to a Neutral Claims Specialist",
+        "action": "Request a Callback"
+      }
+    },
+    "aiAdvisorPage": {
+      "loadingTitle": "Initializing Edge AI Engine...",
+      "loadingSubtitle": "Loading semantic matching models..."
+    },
+    "aiAdvisorClient": {
+      "hero": {
+        "badge": "AI RISK ADVISOR",
+        "titlePrefix": "Discover Your Perfect Protection with",
+        "titleHighlight": "Guided Policy Matching",
+        "subtitle": "Describe your life, business, or risks in plain English. We rank the most relevant insurance products from the live catalog and explain why they fit."
+      },
+      "search": {
+        "placeholder": "e.g., I run a bakery and I'm worried about a flood...",
+        "analyze": "Analyze"
+      },
+      "loading": {
+        "title": "Ranking matching policies...",
+        "description": "Searching the current insurance catalog for the strongest coverage fit."
+      },
+      "results": {
+        "title": "AI Inference Complete",
+        "topForQuery": "Top {count} recommended coverage types for: \"{query}\"",
+        "bestMatch": "BEST MATCH",
+        "confidence": "Confidence",
+        "targetRisk": "Target Risk:",
+        "globalCode": "Global Code:",
+        "matchReason": "Match Reason:",
+        "browseDirectory": "Browse the full 500+ item directory"
+      },
+      "empty": {
+        "title": "No Direct Matches Found",
+        "description": "We couldn't find an exact product mapping for \"{query}\" in our 500+ item database. Try using different keywords or browsing the full directory.",
+        "openDirectory": "Open Full Directory"
+      },
+      "suggestions": {
+        "one": "I just started a retail bakery and worry about fires",
+        "two": "Looking to protect my family's income if I die",
+        "three": "My company servers might get hacked",
+        "four": "I am pregnant and need to cover delivery costs"
+      },
+      "errors": {
+        "fetchMatchesLog": "Failed to fetch matches:"
+      }
+    },
+    "aiScannerPage": {
+      "hero": {
+        "badge": "AI POLICY AUDITOR",
+        "titlePrefix": "Reveal",
+        "titleHighlight": "Hidden Exclusions",
+        "subtitle": "Upload any insurance brochure or policy wording PDF. Our AI scans thousands of words to find the traps insurers don't want you to see."
+      },
+      "upload": {
+        "pdfDocument": "PDF Document",
+        "dropTitle": "Drop brochure here",
+        "dropDescription": "Click or drag and drop your insurance PDF",
+        "ariaLabel": "Upload insurance policy brochure"
+      },
+      "actions": {
+        "removeFile": "Remove File",
+        "startAudit": "Start AI Audit",
+        "scanAnotherPolicy": "Scan Another Policy"
+      },
+      "features": {
+        "subLimits": "Discovers Sub-limits",
+        "waitingPeriods": "Extracts Waiting Periods",
+        "redFlags": "Identifies Red Flags"
+      },
+      "scanning": {
+        "title": "Analyzing Policy Wording...",
+        "description": "Our AI is scanning thousands of clauses to find hidden exclusions. This usually takes 15-30 seconds."
+      },
+      "severity": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "suffix": "Severity"
+      },
+      "result": {
+        "globalTransparencyScore": "Global Transparency Score",
+        "outOf100": "OUT OF 100",
+        "redFlagsTitle": "Critical Red Flags & Exclusions",
+        "waitingPeriodsTitle": "Waiting Periods",
+        "waitingPeriodSuffix": "Waiting Period",
+        "aiDisclosureLabel": "AI Disclosure:",
+        "aiDisclosureText": "This audit is generated by our AI model scanning the text of the PDF you provided. While highly accurate, insurance wording is complex. Always double-check these findings with your policy agent or the official policy schedule."
+      },
+      "errors": {
+        "invalidPdf": "Please upload a valid PDF file.",
+        "scanFailedFallback": "Failed to scan policy"
+      }
+    },
+    "interactiveQuotePage": {
+      "badge": "Next-Generation Quoting",
+      "hero": {
+        "titleLine1": "Ditch the Forms.",
+        "titleGradient": "Talk to an Assistant.",
+        "descriptionPrefix": "Our AI-powered Underwriting Assistant replaces a 40-page questionnaire with an intelligent conversation. It adapts to your answers in real-time, reducing the time to quote by ",
+        "descriptionHighlight": "85%",
+        "descriptionSuffix": "."
+      },
+      "benefits": {
+        "dynamicQuestioning": "Dynamic Questioning Matrix",
+        "serverActions": "Powered by Server Actions at the Edge",
+        "pdfGeneration": "Asynchronous PDF Policy Generation"
+      },
+      "metadata": {
+        "title": "Interactive Quote Wizard | InsuranceClarity",
+        "description": "Experience the future of insurance quoting with our conversational AI Assistant."
+      }
+    },
     "compare": {
       "badge": "Policy Comparison Engine",
+      "allPolicies": "All Policies",
       "title": "Policy Clarity Comparison",
       "subtitle": "Analyze 100+ insurance policies side-by-side with data-driven expert analysis.",
       "button": "Compare Plans",
@@ -432,16 +1202,16 @@
     "badge": "India's Most Transparent Insurance Platform",
     "title": "About",
     "brandName": "InsuranceClarity",
-    "heroDesc": "We're an independent educational platform with a simple mission: make insurance understandable for every Indian. No sales, no commissions, no jargon — just the truth about your policies.",
+    "heroDesc": "We're an independent educational platform with a simple mission: make insurance understandable for every Indian. No sales, no commissions, no jargon â€” just the truth about your policies.",
     "missionTitle": "Why We Built This",
-    "missionP1": "Insurance in India is complex by design. Policies run dozens of pages. Exclusions are buried in footnotes. Premiums are pushed by commission-driven agents. And millions of Indians discover the gaps in their coverage only at claim time — when it's too late.",
-    "missionP2": "InsuranceClarity was born from frustration with this opacity. We believed there should be a platform that tells you what insurance companies don't want you to know — before you sign anything. So we built one.",
+    "missionP1": "Insurance in India is complex by design. Policies run dozens of pages. Exclusions are buried in footnotes. Premiums are pushed by commission-driven agents. And millions of Indians discover the gaps in their coverage only at claim time â€” when it's too late.",
+    "missionP2": "InsuranceClarity was born from frustration with this opacity. We believed there should be a platform that tells you what insurance companies don't want you to know â€” before you sign anything. So we built one.",
     "missionP3": "We decode policy documents, surface hidden exclusions, track real claim outcomes, and provide tools that help you compare policies on dimensions that actually matter for claims.",
     "valuesTitle": "Our Core Values",
     "values": {
       "transparency": {
         "title": "Radical Transparency",
-        "desc": "We expose what insurance companies hide — exclusions, sub-limits, waiting periods, and conditions that affect claims."
+        "desc": "We expose what insurance companies hide â€” exclusions, sub-limits, waiting periods, and conditions that affect claims."
       },
       "zeroBias": {
         "title": "Zero Commission Bias",
@@ -460,14 +1230,148 @@
     "stats": {
       "policiesAnalyzed": "Insurance policies analyzed",
       "typesCovered": "Insurance types covered",
-      "independent": "Independent — zero advertiser pressure",
+      "independent": "Independent â€” zero advertiser pressure",
       "freeToUse": "Free to use, always"
     },
     "disclaimerTitle": "Legal Disclaimer",
     "disclaimerText": "InsuranceClarity India is an educational content platform and is not an IRDAI-licensed insurance intermediary, broker, or agent. We do not sell, solicit, or negotiate insurance products. All content is for informational purposes only. Insurance is subject to IRDAI regulations. Please read all policy documents carefully and consult a licensed advisor before purchasing.",
     "ctaTitle": "Ready to take control of your insurance?",
     "ctaRevealFacts": "Reveal Hidden Facts",
-    "ctaContact": "Get in Touch"
+    "ctaContact": "Get in Touch",
+    "metadata": {
+      "title": "About InsuranceClarity India - Our Mission & Story",
+      "description": "InsuranceClarity India is an independent, non-commission insurance education platform. We reveal hidden policy terms and help Indian buyers make informed decisions.",
+      "openGraphTitle": "About InsuranceClarity India",
+      "openGraphDescription": "Our mission: Make insurance transparent for every Indian. Non-commercial, IRDAI-aware education platform."
+    },
+    "statsAriaLabel": "Platform statistics"
+  },
+  "contactPage": {
+    "hero": {
+      "badge": "We'd love to hear from you",
+      "titlePrefix": "Contact",
+      "titleHighlight": "Us",
+      "description": "Have a question, found an error, or want to collaborate? We're a small independent team and we personally read every message."
+    },
+    "form": {
+      "title": "Send a Message",
+      "fields": {
+        "name": {
+          "label": "Full Name",
+          "placeholder": "Rahul Sharma"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "rahul@example.com"
+        },
+        "message": {
+          "label": "Message",
+          "placeholder": "How can we help you today?"
+        }
+      },
+      "actions": {
+        "send": "Send Message",
+        "sending": "Sending..."
+      },
+      "success": {
+        "title": "Message Sent!",
+        "description": "Thanks for reaching out. We've received your message and will get back to you shortly.",
+        "reset": "Send another message"
+      },
+      "errors": {
+        "fallback": "Something went wrong"
+      }
+    },
+    "channels": {
+      "email": {
+        "title": "Email Us",
+        "description": "For general queries and feedback. We reply within 24 hours."
+      },
+      "location": {
+        "title": "Location",
+        "value": "India",
+        "description": "Serving insurance buyers across all states and union territories."
+      },
+      "responseTime": {
+        "title": "Response Time",
+        "value": "Within 24 hours",
+        "description": "Monday to Saturday, 9 AM - 6 PM IST. Sundays we may be slower."
+      }
+    },
+    "important": {
+      "title": "Important",
+      "description": "We are an educational platform, not an IRDAI-licensed agent. We do not sell insurance directly."
+    },
+    "officialLinks": {
+      "title": "Official Regulatory Portals",
+      "irdai": {
+        "label": "IRDAI Grievance Portal (IGMS)",
+        "description": "File complaints against insurance companies"
+      },
+      "ombudsman": {
+        "label": "Insurance Ombudsman",
+        "description": "Free dispute resolution for policyholders"
+      }
+    }
+  },
+  "regulatoryDisclaimer": {
+    "body": "InsuranceClarity is an educational platform providing general information about insurance products. We are NOT an IRDAI-licensed insurance intermediary, agent, or broker. We do not sell, solicit, or advise on insurance policies. All information is for educational purposes only. Please verify policy terms directly with insurers before making decisions.",
+    "compact": {
+      "label": "Legal Disclaimer:",
+      "body": "InsuranceClarity is an educational and data-transparency platform. Not an IRDAI-licensed intermediary. We do not sell, promote, or solicit insurance. Always verify details with original policy documents."
+    },
+    "prominent": {
+      "title": "Important Regulatory Notice",
+      "weDoNotLabel": "We do NOT:",
+      "weDoNotItems": "Advise on which policy to buy | Rank policies | Solicit applications | Earn commissions from insurers",
+      "complaintsLabel": "IRDAI Complaints:",
+      "complaintsPortal": "Bima Bharosa Portal",
+      "irdaiWebsite": "irdai.gov.in",
+      "complaintsEmail": "complaints@irdai.gov.in",
+      "complaintsPhones": "155255 / 1800-4254-732"
+    }
+  },
+  "errorPage": {
+    "description": "An unexpected error occurred. Our team has been notified automatically. Please try again or return to the homepage.",
+    "reference": "Reference",
+    "goHome": "Go Home"
+  },
+  "notFoundPage": {
+    "metadata": {
+      "title": "404 - Page Not Found | InsuranceClarity India",
+      "description": "The page you are looking for does not exist. Explore our insurance guides, tools, and resources."
+    },
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved. Let us help you find what you need.",
+    "backToHome": "Back to Home",
+    "exploreTools": "Explore Tools",
+    "popularPages": "Popular Pages",
+    "quickLinks": {
+      "life": {
+        "label": "Life Insurance",
+        "description": "Term, ULIP, Endowment plans"
+      },
+      "health": {
+        "label": "Health Insurance",
+        "description": "Individual, Family Floater"
+      },
+      "motor": {
+        "label": "Motor Insurance",
+        "description": "Car, Bike, Commercial"
+      },
+      "hiddenFacts": {
+        "label": "Hidden Facts",
+        "description": "Uncover policy fine print"
+      },
+      "calculator": {
+        "label": "Premium Calculator",
+        "description": "Estimate your premium"
+      },
+      "compare": {
+        "label": "Compare Policies",
+        "description": "Side-by-side comparison"
+      }
+    }
   },
   "common": {
     "loading": "Loading...",
@@ -490,6 +1394,1578 @@
     "and": "and",
     "free": "Free",
     "perMonth": "/month",
-    "rupee": "₹"
+    "rupee": "â‚¹",
+    "tryAgain": "Try Again",
+    "dontWorry": "Don't worry",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "errors": {
+    "validation": {
+      "title": "Request is invalid",
+      "message": "Please review your input and try again.",
+      "missingField": "This field is required.",
+      "invalidEmail": "Please enter a valid email address.",
+      "invalidPhone": "Please enter a valid phone number.",
+      "passwordTooShort": "Password must be at least 8 characters long.",
+      "invalidFormat": "The format is invalid."
+    },
+    "authentication": {
+      "unauthorized": "Please sign in to continue.",
+      "sessionExpired": "Your session has expired. Please sign in again.",
+      "invalidCredentials": "Email or password is incorrect.",
+      "accountNotFound": "No account is associated with this email address.",
+      "accountLocked": "Your account is temporarily locked. Please try again later."
+    },
+    "authorization": {
+      "forbidden": "You do not have permission to access this resource.",
+      "insufficientPermissions": "You do not have enough permissions to complete this action."
+    },
+    "resources": {
+      "notFound": "The requested resource was not found.",
+      "conflict": "That item already exists.",
+      "inUse": "That resource is currently in use."
+    },
+    "rateLimits": {
+      "tooManyRequests": "Too many requests were sent. Please try again later.",
+      "scanLimitReached": "You have reached your scan limit for this month. See pricing to upgrade.",
+      "walletLimitReached": "You have reached your daily limit.",
+      "retryAfter": "Try again in {seconds} seconds."
+    },
+    "payment": {
+      "paymentRequired": "Payment is required to access this feature.",
+      "paymentFailed": "Payment failed. Please try again.",
+      "invalidPaymentMethod": "The payment method is invalid.",
+      "paymentProcessing": "Your payment is processing.",
+      "refundInitiated": "Your refund has been initiated. It should reflect in your account within 5-7 business days."
+    },
+    "subscription": {
+      "subscriptionRequired": "This feature is available only for premium members.",
+      "planUpgradeRequired": "See pricing to upgrade your plan.",
+      "invalidPlan": "The selected plan is no longer available.",
+      "activePlanExists": "You already have an active plan."
+    },
+    "server": {
+      "internalError": "An internal error occurred. Please contact support if this continues.",
+      "serviceUnavailable": "The service is currently unavailable. Please try again later.",
+      "externalServiceError": "{service} is currently unavailable. Please try again later.",
+      "databaseError": "A database error occurred.",
+      "timeout": "The request timed out. Please try again."
+    },
+    "upload": {
+      "fileRequired": "Please upload a file.",
+      "invalidFileType": "Only PDF files are supported.",
+      "fileTooLarge": "The file is too large. Please upload a smaller file.",
+      "uploadFailed": "File upload failed. Please try again.",
+      "corruptedFile": "The file is corrupted or unavailable."
+    },
+    "network": {
+      "connectionError": "There is a problem with your internet connection. Please check it and try again.",
+      "offline": "You are offline.",
+      "requestFailed": "The request failed. Please try again."
+    }
+  },
+  "notifications": {
+    "success": {
+      "accountCreated": "Your account has been created. Welcome!",
+      "loginSuccess": "You signed in successfully.",
+      "logoutSuccess": "You signed out successfully.",
+      "passwordReset": "Your password has been reset.",
+      "profileUpdated": "Your profile has been updated.",
+      "itemSaved": "Item saved successfully.",
+      "itemDeleted": "Item deleted successfully.",
+      "paymentSuccessful": "Your payment was successful.",
+      "subscriptionActivated": "Your subscription has been activated.",
+      "scanComplete": "Your policy analysis is complete."
+    },
+    "warnings": {
+      "confirmDelete": "Are you sure? This action cannot be undone.",
+      "unsavedChanges": "You have unsaved changes.",
+      "sessionEndingSoon": "Your session will end soon. Click here to stay signed in.",
+      "dataDelayed": "The data update is delayed."
+    },
+    "info": {
+      "welcomeBack": "Welcome back!",
+      "upgradeAvailable": "A new feature is now available.",
+      "maintenanceScheduled": "We will be under maintenance on {date}.",
+      "newsUpdate": "News update: {title}"
+    }
+  },
+  "seoClusterPage": {
+    "metadata": {
+      "notFoundTitle": "Not Found",
+      "titleSuffix": "InsuranceClarity",
+      "siteName": "InsuranceClarity"
+    },
+    "breadcrumbs": {
+      "home": "Home",
+      "insuranceGuides": "Insurance Guides"
+    },
+    "hero": {
+      "badge": "Knowledge Hub",
+      "fallbackDescription": "In-depth guides, expert comparisons, and latest updates to help you navigate this coverage."
+    },
+    "list": {
+      "heading": "Latest Articles & Guides",
+      "topicsCount": "{count} Topics",
+      "emptyTitle": "No content yet",
+      "emptyDescription": "Our experts are actively writing deep-dive content for this cluster. Check back soon!",
+      "intentFallback": "Informational",
+      "cardDescriptionFallback": "Discover comprehensive insights, policies, and expert analysis in this deep-dive article.",
+      "dateFallback": "Just Now",
+      "readCta": "Read"
+    }
+  },
+  "cookiePolicyPage": {
+    "metadata": {
+      "title": "Cookie Policy | InsuranceClarity India",
+      "description": "Cookie Policy for InsuranceClarity India - How we use cookies and how to manage your preferences."
+    },
+    "badge": "LEGAL",
+    "title": "Cookie Policy",
+    "lastUpdatedLabel": "Last updated",
+    "lastUpdatedDate": "January 9, 2026",
+    "sections": {
+      "whatAreCookies": {
+        "title": "1. What Are Cookies?",
+        "description": "Cookies are small text files stored on your device when you visit websites. They help websites remember your preferences and track usage patterns. Cookies cannot access other data on your device or harm your computer."
+      },
+      "cookiesUse": {
+        "title": "2. Cookies We Use",
+        "essential": {
+          "title": "Essential Cookies (No Consent Required)",
+          "description": "These are necessary for the website to function:",
+          "table": {
+            "headers": {
+              "cookieName": "Cookie Name",
+              "purpose": "Purpose",
+              "lifespan": "Lifespan",
+              "consent": "Consent"
+            },
+            "rows": {
+              "themePreference": {
+                "purpose": "Remembers dark/light mode",
+                "lifespan": "1 year",
+                "consent": "No"
+              },
+              "cookieConsent": {
+                "purpose": "Stores your cookie preferences",
+                "lifespan": "1 year",
+                "consent": "No (meta-cookie)"
+              }
+            }
+          }
+        },
+        "analytics": {
+          "title": "Analytics Cookies (Requires Consent)",
+          "description": "These help us understand how you use the website:",
+          "table": {
+            "headers": {
+              "cookieName": "Cookie Name",
+              "provider": "Provider",
+              "purpose": "Purpose",
+              "lifespan": "Lifespan"
+            },
+            "rows": {
+              "ga": {
+                "provider": "Google Analytics 4",
+                "purpose": "Tracks unique visitors",
+                "lifespan": "2 years"
+              },
+              "gaWildcard": {
+                "provider": "Google Analytics 4",
+                "purpose": "Tracks sessions and events",
+                "lifespan": "1 year"
+              },
+              "gat": {
+                "provider": "Google Analytics 4",
+                "purpose": "Throttles request rate",
+                "lifespan": "10 minutes"
+              }
+            }
+          }
+        },
+        "advertising": {
+          "title": "Advertising Cookies",
+          "boldLead": "We do NOT use advertising cookies.",
+          "description": "We do not display targeted ads or use any advertising networks (Meta Pixel, Google Ads, etc.)."
+        }
+      },
+      "managingPreferences": {
+        "title": "3. Managing Your Cookie Preferences",
+        "bannerOption": {
+          "title": "Option 1: Cookie Banner (First Visit)",
+          "description": "When you first visit, a cookie banner appears with options to:",
+          "items": {
+            "acceptAllLabel": "?Accept All?",
+            "acceptAllDescription": "Accept all non-essential cookies",
+            "rejectLabel": "?Reject Non-Essential?",
+            "rejectDescription": "Use essential cookies only",
+            "manageLabel": "?Manage Preferences?",
+            "manageDescription": "Choose what cookies to accept"
+          }
+        },
+        "browserSettings": {
+          "title": "Option 2: Browser Settings",
+          "description": "You can control cookies in your browser:",
+          "options": {
+            "chrome": "Chrome: Settings -> Privacy & Security -> Cookies",
+            "safari": "Safari: Preferences -> Privacy -> Cookies",
+            "firefox": "Firefox: Settings -> Privacy & Security -> Cookies",
+            "edge": "Edge: Settings -> Privacy & Security -> Cookies"
+          },
+          "note": "Note: Disabling essential cookies may break website functionality."
+        },
+        "optOut": {
+          "title": "Option 3: Opt-Out of Analytics",
+          "descriptionPrefix": "You can exclude yourself from GA4 tracking by installing the",
+          "linkLabel": "Google Analytics Opt-out Browser Extension"
+        }
+      },
+      "thirdPartyDisclosure": {
+        "title": "4. Third-Party Cookie Disclosure",
+        "notEmbeddedLead": "Our website does NOT embed:",
+        "notEmbedded": {
+          "socialPixels": "Social media tracking pixels (Meta Pixel, Twitter Pixel, etc.)",
+          "adNetworks": "Advertising networks (Google Ads, Facebook Ads, etc.)",
+          "crmTracking": "CRM tracking (HubSpot, Marketo, etc.)"
+        },
+        "onlyTrackersLead": "Only trackers present:",
+        "onlyTrackers": {
+          "ga4": "Google Analytics 4 (marketing analytics, with PII blocking enabled)",
+          "posthog": "PostHog (product analytics, enabled only when configured and consented)",
+          "sentry": "Sentry (error monitoring, with PII redaction)"
+        }
+      },
+      "dataProtection": {
+        "title": "5. How We Protect Cookie Data",
+        "items": {
+          "piiBlocking": "PII Blocking: We block age, email, phone, and other sensitive fields from analytics cookies",
+          "ipAnonymization": "IP Anonymization: Last octet of IP address is removed before analytics processing",
+          "dataMinimization": "Data Minimization: We only track non-identifying, aggregated usage patterns",
+          "secureTransmission": "Secure Transmission: All cookies are transmitted over HTTPS only"
+        }
+      },
+      "changes": {
+        "title": "6. Changes to This Cookie Policy",
+        "description": "We may update this policy to reflect new cookies or service providers. Changes will be posted here with an updated ?Last modified? date. If we add new analytics or tracking cookies, we will request your consent again."
+      },
+      "contact": {
+        "title": "7. Contact",
+        "description": "For questions about our cookie use:",
+        "emailLabel": "Email:",
+        "responseTime": "Response time: 30 days"
+      }
+    },
+    "relatedLinks": {
+      "privacy": "Privacy Policy ->",
+      "terms": "Terms of Service ->"
+    }
+  },
+  "privacyPolicyPage": {
+    "metadata": {
+      "title": "Privacy Policy | InsuranceClarity India",
+      "description": "Privacy Policy for InsuranceClarity India - How we collect, use, and protect your information under DPDP Act 2023."
+    },
+    "badge": "LEGAL",
+    "title": "Privacy Policy",
+    "header": {
+      "lastUpdatedLabel": "Last updated",
+      "lastUpdatedDate": "January 9, 2026",
+      "versionLabel": "Version",
+      "versionValue": "2.0 (DPDP 2023-Compliant)"
+    },
+    "relatedLinks": {
+      "terms": "Terms of Service ->",
+      "cookies": "Cookie Policy"
+    },
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction",
+        "description": "InsuranceClarity India (\"we,\" \"us,\" or \"our\") operates insuranceclarity.in in compliance with applicable Indian laws, including:",
+        "laws": {
+          "itAct": "Information Technology Act, 2000 and Rules",
+          "dpdp": "Digital Personal Data Protection Act, 2023 (DPDP Act)",
+          "itRules": "IT (Reasonable Security Practices and Procedures) Rules, 2011",
+          "consumerAct": "Consumer Protection Act, 2019"
+        },
+        "closing": "This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website."
+      },
+      "processingPrinciples": {
+        "title": "2. Data Processing Principles (DPDP Act Section 6)",
+        "description": "We process personal data based on these legal principles:",
+        "items": {
+          "purposeLimitation": "Purpose Limitation: Data collected only for stated purposes (website operation, error monitoring, analytics)",
+          "dataMinimization": "Data Minimization: We collect only what is strictly necessary",
+          "storageLimitation": "Storage Limitation: Data retained per section 8(2) of DPDP Act",
+          "accuracy": "Accuracy: We keep records current where in our control",
+          "integrityConfidentiality": "Integrity and Confidentiality: Technical safeguards via HTTPS, encryption, and access controls"
+        }
+      },
+      "dataCategories": {
+        "title": "3. Personal Data vs. Sensitive Personal Data (SPD)",
+        "personalData": {
+          "title": "3.1 Personal Data We Collect",
+          "description": "When you visit our website, we may automatically collect:",
+          "items": {
+            "ipAddress": "IP address (anonymized - last octet removed)",
+            "deviceBrowser": "Device and browser information (type, version, operating system)",
+            "pagesVisited": "Pages visited and time spent on site",
+            "referrer": "Referring website or source",
+            "geoRegion": "General geographic region (country/state level only)",
+            "contactData": "Optional contact data (name, email) if you contact us voluntarily"
+          }
+        },
+        "sensitiveData": {
+          "title": "3.2 Sensitive Personal Data (SPD) - We Actively Avoid",
+          "warningTitle": "We have explicit policies not to collect:",
+          "items": {
+            "financialData": "Financial data (income, bank details, sum insured)",
+            "healthData": "Health data (medical history, age for underwriting purposes)",
+            "biometricData": "Biometric data",
+            "casteReligionPolitical": "Caste, religion, or political affiliation",
+            "governmentIds": "Aadhaar, PAN, or other government identifiers"
+          },
+          "rationaleLabel": "Rationale:",
+          "rationaleBody": "These are sensitive personal data under DPDP Act section 3(36) and require explicit consent under section 8(3). We do not need them for educational content, so we do not collect them. Calculator inputs (age, sum) are processed locally in your browser and are not transmitted to our servers."
+        }
+      },
+      "lawfulBasis": {
+        "title": "4. Lawful Basis for Processing (DPDP Act Section 4)",
+        "items": {
+          "analytics": "Analytics (Google Analytics / PostHog): Consent via cookie banner",
+          "errorMonitoring": "Error Monitoring (Sentry): Legitimate interest (website stability) - no PII retained",
+          "websiteFunctionality": "Website Functionality: Lawful processing without specific consent",
+          "grievanceRedressal": "Grievance Redressal: Legal obligation"
+        }
+      },
+      "rights": {
+        "title": "5. Your Rights Under DPDP Act Section 18-20",
+        "know": {
+          "title": "5.1 Right to Know (Section 18)",
+          "requestLabel": "Request:",
+          "requestValue": "\"What personal data do you have about me?\"",
+          "items": {
+            "responseTimeLabel": "Response time:",
+            "responseTimeValue": "30 days",
+            "contactLabel": "Contact:",
+            "contactValue": "privacy@insuranceclarity.in",
+            "providedLabel": "What we will provide:",
+            "providedValue": "Copy of data we process, purpose of processing, recipients (Google, PostHog, Sentry), retention period"
+          }
+        },
+        "correction": {
+          "title": "5.2 Right to Correction (Section 19)",
+          "requestLabel": "Request:",
+          "requestValue": "\"My data is wrong, please fix it.\"",
+          "items": {
+            "correctableDataLabel": "Correctable data:",
+            "correctableDataValue": "Name, email (if provided by you)",
+            "responseTimeLabel": "Response time:",
+            "responseTimeValue": "30 days"
+          }
+        },
+        "erasure": {
+          "title": "5.3 Right to Erasure (Section 20)",
+          "requestLabel": "Request:",
+          "requestValue": "\"Delete all my data.\"",
+          "items": {
+            "canDeleteLabel": "What we can delete:",
+            "canDeleteValue": "Contact details you provided voluntarily",
+            "cannotDeleteLabel": "What we cannot delete:",
+            "cannotDeleteValue": "Analytics aggregates (already anonymized), legal compliance records",
+            "responseTimeLabel": "Response time:",
+            "responseTimeValue": "30 days"
+          }
+        },
+        "withdrawConsent": {
+          "title": "5.4 Right to Withdraw Consent",
+          "description": "You can withdraw consent for cookies at any time via:",
+          "items": {
+            "managePreferences": "Cookie banner -> Manage Preferences",
+            "browserSettings": "Browser settings to disable cookies",
+            "functionalCookiesNote": "Note: Some website features may not work without functional cookies"
+          }
+        }
+      },
+      "grievance": {
+        "title": "6. Grievance Redressal (DPDP Act Section 21-22)",
+        "tier1": {
+          "title": "Tier 1: Internal Grievance Officer",
+          "nameLabel": "Name:",
+          "nameValue": "Grievance Officer, InsuranceClarity India",
+          "responseTimeLabel": "Response time:",
+          "responseTimeValue": "30 days maximum"
+        },
+        "tier2": {
+          "title": "Tier 2: Appeal to Data Protection Board",
+          "description": "If we do not respond within 30 days, or if you are dissatisfied with our response:",
+          "items": {
+            "contactLabel": "Contact:",
+            "contactValue": "Data Protection Board of India",
+            "websiteLabel": "Website:",
+            "websiteValue": "https://www.dpdp.gov.in",
+            "filingFeeLabel": "Filing fee:",
+            "filingFeeValue": "INR 100-500 (per Board rules)",
+            "timeLimitLabel": "Time limit:",
+            "timeLimitValue": "Within 3 months of our response"
+          }
+        }
+      },
+      "retention": {
+        "title": "7. Data Retention Schedule (DPDP Act Section 8(2))",
+        "columns": {
+          "dataType": "Data Type",
+          "retentionPeriod": "Retention Period",
+          "reason": "Reason"
+        },
+        "rows": {
+          "analyticsData": {
+            "dataType": "Google Analytics data",
+            "retentionPeriod": "14 months",
+            "reason": "GA4 default; anonymized"
+          },
+          "sentryLogs": {
+            "dataType": "Sentry error logs",
+            "retentionPeriod": "90 days",
+            "reason": "Error identification and fixing"
+          },
+          "contactEmails": {
+            "dataType": "Contact emails (if provided)",
+            "retentionPeriod": "Until deletion requested",
+            "reason": "Grievance handling"
+          },
+          "analyticsCookies": {
+            "dataType": "Analytics cookies",
+            "retentionPeriod": "2 years (or until deleted)",
+            "reason": "Analytics tracking"
+          }
+        }
+      },
+      "technicalSafeguards": {
+        "title": "8. Technical Safeguards - Verified Configuration",
+        "analyticsBlocking": {
+          "title": "8.1 Analytics Events - PII Blocking",
+          "description": "Custom analytics events sent to GA4 and PostHog pass through the same PII blocking layer:",
+          "items": {
+            "ageFields": "age, user_age, sum_insured, sum_assured",
+            "personalIdentifiers": "phone, email, mobile, aadhaar, pan",
+            "demographicFields": "dob, date_of_birth, name, full_name, address, income"
+          },
+          "bucketingLabel": "Bucketing applied:",
+          "bucketingValue": "Age sent as ranges (18-24, 25-34, etc.), sum insured as ranges (under_10L, 10L-25L, etc.) - not exact values."
+        },
+        "sentryRedaction": {
+          "title": "8.2 Sentry - PII Redaction",
+          "description": "We have configured Sentry to:",
+          "items": {
+            "queryParams": "Scrub all URL query parameters",
+            "requestBody": "Redact all request body data",
+            "formBreadcrumbs": "Exclude breadcrumb data from forms",
+            "sensitivePatterns": "Block error messages containing SSN, phone, and email patterns"
+          }
+        },
+        "ipAnonymization": {
+          "title": "8.3 IP Anonymization",
+          "description": "We configure Google Analytics to anonymize the last octet of your IP address (for example, 192.168.1.123 -> 192.168.1.0). This prevents identification of your exact location."
+        }
+      },
+      "thirdParty": {
+        "title": "9. Third-Party Services and Data Transfers",
+        "description": "We use the following third-party services:",
+        "ga4": {
+          "title": "Google Analytics 4",
+          "description": "Data is transferred to Google's servers per Google's standard Data Processing Agreement. Google acts as processor; we are controller. DPDP Act compliance follows Google's terms.",
+          "linkLabel": "Google Privacy Policy ->"
+        },
+        "posthog": {
+          "title": "PostHog",
+          "description": "Product analytics is sent to PostHog only when it is configured and you have opted into analytics cookies. We disable session recording and rely on the same client-side PII blocking rules used for other analytics events.",
+          "linkLabel": "PostHog Privacy Policy ->"
+        },
+        "sentry": {
+          "title": "Sentry (Error Monitoring)",
+          "description": "Data is transferred to Sentry servers. No SPD is transferred; only sanitized error logs. Sentry acts as processor; we are controller.",
+          "linkLabel": "Sentry Privacy Policy ->"
+        }
+      },
+      "cookies": {
+        "title": "10. Cookies",
+        "descriptionPrefix": "Our website uses cookies for analytics and functionality. For detailed information, please see our",
+        "descriptionSuffix": "."
+      },
+      "securityMeasures": {
+        "title": "11. Security and Privacy Measures (IT Rules 2011)",
+        "description": "Technical safeguards we implement:",
+        "items": {
+          "encryption": "Encryption: HTTPS (TLS 1.3+) for all data in transit",
+          "piiRedaction": "PII Redaction: Sensitive fields blocked from GA4 and Sentry",
+          "accessControl": "Access Control: Limited staff access to analytics dashboards",
+          "securityHeaders": "Security Headers: X-Frame-Options DENY, X-Content-Type-Options nosniff, CSP configured"
+        },
+        "dnt": {
+          "title": "11.2 Do Not Track (DNT) Support",
+          "description": "We respect your browser's Do Not Track (DNT) signal. If you have DNT enabled, we skip all analytics tracking for your session regardless of your cookie banner choice."
+        }
+      },
+      "changes": {
+        "title": "12. Changes to This Policy",
+        "description": "We will notify you of material changes via an updated Last Modified date on this page and a homepage notice for 30 days."
+      },
+      "contact": {
+        "title": "13. Contact and Data Protection Officer",
+        "officerLabel": "Data Protection Officer / Grievance Officer:",
+        "location": "India - InsuranceClarity is an online-only educational platform.",
+        "responseGuaranteeLabel": "Response guarantee:",
+        "responseGuaranteeValue": "30 days maximum for any grievance."
+      }
+    }
+  },
+  "termsOfServicePage": {
+    "metadata": {
+      "title": "Terms of Service | InsuranceClarity India",
+      "description": "Terms of Service for InsuranceClarity India - Please read these terms carefully before using our website."
+    },
+    "badge": "LEGAL",
+    "title": "Terms of Service",
+    "header": {
+      "lastUpdatedLabel": "Last updated",
+      "lastUpdatedDate": "March 7, 2026",
+      "versionLabel": "Version",
+      "versionValue": "2.0 (Consumer Protection Act Compliant)"
+    },
+    "relatedLinks": {
+      "privacy": "Privacy Policy ->",
+      "cookies": "Cookie Policy ->"
+    },
+    "notice": {
+      "title": "Regulatory Notice - IRDAI Compliance",
+      "whatIs": {
+        "title": "What InsuranceClarity Is:",
+        "items": {
+          "educationalContent": "Educational content platform",
+          "comparisonTool": "Generic comparison tool (unranked, non-advisory)",
+          "informationAggregator": "Information aggregator from IRDAI and insurer websites"
+        }
+      },
+      "whatIsNot": {
+        "title": "What InsuranceClarity Is Not:",
+        "items": {
+          "licensedIntermediary": "IRDAI-licensed agent, broker, or intermediary",
+          "insuranceAdvisor": "Insurance advisor or recommender",
+          "distributionPlatform": "Policy distribution or sales platform",
+          "commissionEntity": "Entity earning commissions from insurers"
+        }
+      },
+      "weDoNot": {
+        "title": "We Do Not:",
+        "items": {
+          "advisePolicyPurchase": "Advise you on which policy to buy",
+          "rankPolicies": "Rank policies as best or worst",
+          "solicitApplications": "Solicit insurance applications",
+          "collectUnderwritingData": "Collect your data for underwriting",
+          "forwardDataToInsurers": "Forward your data to insurers",
+          "earnFinancialBenefit": "Earn any financial benefit from your insurance purchases"
+        }
+      },
+      "youMust": {
+        "title": "You Must:",
+        "items": {
+          "readPolicy": "Read the full policy document from the insurer",
+          "verifyExclusions": "Verify exclusions and terms directly with the insurer",
+          "consultAdvisor": "Consult an IRDAI-licensed advisor before buying",
+          "confirmEligibility": "Confirm eligibility with the insurer",
+          "askPremiums": "Ask the insurer about current premiums (ours are indicative only)"
+        }
+      },
+      "complaints": {
+        "title": "IRDAI Complaints:",
+        "description": "If you believe we have violated IRDAI regulations:",
+        "websiteLabel": "Website:",
+        "portalLabel": "Bima Bharosa Portal",
+        "irdaiLabel": "www.irdai.gov.in",
+        "emailLine": "Email: complaints@irdai.gov.in",
+        "phoneLine": "Phone: 155255 / 1800-4254-732 (toll-free)"
+      }
+    },
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "description": "By accessing or using InsuranceClarity India (the Website), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Website."
+      },
+      "natureOfService": {
+        "title": "2. Nature of Service",
+        "providesLabel": "InsuranceClarity provides:",
+        "provides": {
+          "educationalContent": "Educational content about insurance products in India",
+          "informationalTools": "Informational tools such as premium calculators and policy comparisons",
+          "claimsAndExclusions": "General information about insurance claims and exclusions"
+        },
+        "notProvideLabel": "We do not provide:",
+        "notProvide": {
+          "professionalAdvice": "Financial, insurance, legal, or tax advice",
+          "salesServices": "Insurance sales, solicitation, or intermediation services",
+          "personalizedRecommendations": "Personalized policy recommendations",
+          "claimsServicing": "Claims processing or policy servicing"
+        }
+      },
+      "noProfessionalAdvice": {
+        "title": "3. No Professional Advice",
+        "description": "All content on this Website is for general informational and educational purposes only. It does not constitute professional financial, insurance, legal, or tax advice.",
+        "beforeDecisionLabel": "Before making any insurance decisions, you should:",
+        "items": {
+          "consultAdvisor": "Consult with a qualified, IRDAI-licensed insurance advisor",
+          "readPolicyDocs": "Read the complete policy documents from the insurer",
+          "verifyTerms": "Verify all terms, conditions, and exclusions directly with the insurer",
+          "considerCircumstances": "Consider your specific circumstances and needs"
+        }
+      },
+      "accuracy": {
+        "title": "4. Accuracy of Information",
+        "description": "We strive to provide accurate and up-to-date information. However:",
+        "items": {
+          "productsChange": "Insurance products, terms, and premiums change frequently",
+          "latestOfferings": "Information may not reflect the latest insurer offerings",
+          "estimatesIndicative": "Calculator estimates are indicative only and may not match actual premiums",
+          "comparisonIncomplete": "Comparison data is based on publicly available information and may be incomplete"
+        },
+        "disclaimer": "We do not guarantee the accuracy, completeness, or timeliness of any information on this Website."
+      },
+      "liability": {
+        "title": "5. Limitation of Liability (Revised)",
+        "notLiableTitle": "5.1 What We Are Not Liable For",
+        "notLiableDescription": "To the maximum extent permitted by applicable law, we are not liable for:",
+        "notLiableItems": {
+          "indirectDamages": "Indirect, incidental, or consequential damages, including lost profits, lost opportunity, or emotional distress",
+          "directDamages": "Direct damages from your use, including insurance purchasing decisions, denied claims, premium changes, or coverage gaps",
+          "thirdPartyConduct": "Actions of insurers, payment gateways, or other service providers"
+        },
+        "claimTitle": "5.2 What We Are Potentially Liable For",
+        "claimDescription": "You may have a claim against us only if you prove:",
+        "claimItems": {
+          "falseStatement": "We made a materially false statement on our website",
+          "reasonableReliance": "You reasonably relied on that statement",
+          "directLoss": "You suffered direct financial loss",
+          "causation": "Our false statement directly caused the loss"
+        },
+        "capTitle": "5.3 Cap on Liability",
+        "capDescription": "Maximum liability per claim:",
+        "capItems": {
+          "baselineCap": "The greater of INR 50,000 (baseline cap) or actual damages proven",
+          "unlimitedIf": "Liability is unlimited if we commit gross negligence, willful misconduct, or breach data protection law (DPDP Act)"
+        }
+      },
+      "intellectualProperty": {
+        "title": "6. Intellectual Property",
+        "description": "All content on this Website is the property of InsuranceClarity or its licensors and is protected by intellectual property laws. Insurer names, logos, and trademarks belong to their respective owners and are used solely for identification and educational purposes."
+      },
+      "prohibitedUses": {
+        "title": "7. Prohibited Uses",
+        "description": "You may not:",
+        "items": {
+          "unlawfulPurpose": "Use the Website for any unlawful purpose",
+          "scrapeCopy": "Scrape, copy, or reproduce content without permission",
+          "unauthorizedAccess": "Attempt to gain unauthorized access to our systems",
+          "malware": "Transmit malware, viruses, or harmful code",
+          "misrepresentAffiliation": "Misrepresent your affiliation with us"
+        }
+      },
+      "thirdPartyLinks": {
+        "title": "8. Third-Party Links",
+        "description": "This Website may contain links to third-party websites. We do not control these websites and are not responsible for their content, privacy practices, or terms of service."
+      },
+      "monetization": {
+        "title": "9. Monetization and Independence",
+        "currentState": "As of the date of these terms, we do not receive commissions, referral fees, or compensation from any insurance company for leads, sales, or placements.",
+        "futureDisclosure": "If this changes in the future, we will update this section and clearly disclose any commercial relationships that may affect our content."
+      },
+      "indemnification": {
+        "title": "10. Indemnification (Mutual)",
+        "userTitle": "10.1 Your Indemnification of Us",
+        "userDescription": "You agree to indemnify and hold harmless InsuranceClarity from any claims, damages, or expenses arising from your violation of these Terms, misuse of information, or third-party claims related to your conduct.",
+        "userException": "Exception: You are not required to indemnify us if the claim arises from our gross negligence, willful misconduct, or breach of privacy laws.",
+        "companyTitle": "10.2 Our Indemnification of You",
+        "companyDescription": "We agree to indemnify and hold harmless you from any third-party claims arising from our violation of intellectual property law or misrepresentation of facts that expose your data."
+      },
+      "governingLaw": {
+        "title": "11. Governing Law and Jurisdiction",
+        "description": "These Terms are governed by and construed in accordance with the laws of India. Any disputes are subject to the exclusive jurisdiction of the courts in India."
+      },
+      "changes": {
+        "title": "12. Changes to Terms",
+        "description": "We reserve the right to modify these Terms at any time. Changes are effective upon posting with an updated Last Modified date. Your continued use constitutes acceptance."
+      },
+      "consumerProtection": {
+        "title": "13. Consumer Protection and Grievance Redressal",
+        "rightsTitle": "13.1 Consumer Rights Under Consumer Protection Act, 2019",
+        "rightsDescription": "You have the right to:",
+        "rightsItems": {
+          "accurateInfo": "Receive accurate, clear information about our service",
+          "fileComplaint": "File a complaint if you believe this website caused financial loss",
+          "seekCompensation": "Seek compensation for misleading information (if proven)",
+          "timelyResponse": "Get a response within the time frames specified below"
+        },
+        "grievanceOfficerTitle": "13.2 Grievance Redressal Officer",
+        "tier1": {
+          "title": "Tier 1: Grievance Officer (Direct Contact)",
+          "nameLabel": "Name:",
+          "nameValue": "Grievance Officer, InsuranceClarity India",
+          "location": "India - Online-only educational platform",
+          "responseTimeLabel": "Response Time:",
+          "responseTimes": {
+            "acknowledgment": "Acknowledgment: 5 working days",
+            "resolution": "Resolution: 30 days maximum"
+          }
+        },
+        "tier2": {
+          "title": "Tier 2: District Consumer Protection Authority",
+          "description": "If you are not satisfied with our response within 30 days, you may escalate to:",
+          "items": {
+            "districtForum": "District Consumer Disputes Redressal Forum of your jurisdiction",
+            "filingFee": "Filing fee: INR 100-5,000 (per authority rules)",
+            "timeLimit": "Time limit: Within 2 years from date of issue",
+            "website": "Website: consumerhelpline.gov.in"
+          }
+        },
+        "tier3": {
+          "title": "Tier 3: State and National Consumer Commission",
+          "description": "For claims exceeding INR 1 crore, you may file before the State or National Consumer Disputes Redressal Commission."
+        },
+        "complaintProcess": {
+          "title": "13.3 How to File a Complaint",
+          "step1Title": "Step 1: Written Notice",
+          "step1Body": "Send a detailed complaint to grievance@insuranceclarity.in including your name, email, phone, date of issue, description of grievance, specific loss suffered (if any), proof (screenshots), and requested remedy.",
+          "step2Title": "Step 2: We Acknowledge",
+          "step2Body": "Within 5 working days, we will send an acknowledgment with a reference number.",
+          "step3Title": "Step 3: We Investigate and Respond",
+          "step3Body": "Within 30 days, we will send our response with a remediation proposal or dispute explanation.",
+          "step4Title": "Step 4: Escalation",
+          "step4Body": "If dissatisfied, file with your District Consumer Protection Authority."
+        },
+        "refundPolicy": {
+          "title": "13.4 Refund / Service Withdrawal Policy",
+          "description": "Since we provide free educational tools, there is no refund policy. If we discontinue a tool, we provide 30 days notice. No payment has been collected, so no refund applies."
+        }
+      },
+      "contact": {
+        "title": "14. Contact",
+        "description": "For questions about these Terms:"
+      }
+    }
+  },
+  "unsubscribePage": {
+    "title": "Unsubscribe from Emails",
+    "description": "Enter your email address to stop receiving Insurance Clarity emails.",
+    "fields": {
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Tell us why (optional)"
+    },
+    "actions": {
+      "submitting": "Submitting...",
+      "unsubscribe": "Unsubscribe"
+    },
+    "status": {
+      "securityTokenMissing": "Security token missing. Please refresh and try again.",
+      "unsubscribeFailed": "Unsubscribe failed.",
+      "unsubscribed": "You have been unsubscribed."
+    }
+  },
+  "trackPage": {
+    "hero": {
+      "title": "Track Your Application",
+      "descriptionPrefix": "Enter your tracking",
+      "quoteIdHighlight": "Quote ID",
+      "descriptionSuffix": "to retrieve your binding policy, review coverage, or download your official PDF documents."
+    },
+    "form": {
+      "placeholder": "e.g. POL-12345 or Database UUID",
+      "locate": "Locate"
+    },
+    "validation": {
+      "tooShort": "Tracking ID is too short",
+      "tooLong": "Tracking ID is too long",
+      "required": "Tracking ID is required"
+    },
+    "errors": {
+      "noRecordFound": "No record found for the provided ID.",
+      "requestFailedLog": "Tracking request failed:",
+      "requestFailed": "Something went wrong communicating with the servers. Please try again."
+    },
+    "result": {
+      "quoteVerified": "Quote Verified",
+      "generatingPdf": "Generating PDF...",
+      "insuranceType": "Insurance Type",
+      "basePremiumDue": "Base Premium Due",
+      "perMonth": "/month",
+      "totalCoverageValue": "Total Coverage Value",
+      "applicationDate": "Application Date",
+      "bundleDescription": "Your comprehensive document bundle is being compiled. If the status is pending, check back in a few minutes.",
+      "downloadPdf": "Download PDF",
+      "notAvailable": "---"
+    }
+  },
+  "layoutMeta": {
+    "title": "InsuranceClarity India - Compare Insurance | Discover Hidden Facts",
+    "description": "India's most transparent insurance platform. Compare Life, Health, Motor, Home & Travel insurance. Discover hidden exclusions and understand claim settlements.",
+    "keywords": "insurance India, health insurance, life insurance, motor insurance, policy comparison, claim settlement ratio",
+    "authorName": "InsuranceClarity India",
+    "openGraph": {
+      "title": "InsuranceClarity India - Compare Insurance | Discover Hidden Facts",
+      "description": "India's most transparent insurance platform. Compare policies, discover hidden exclusions.",
+      "siteName": "InsuranceClarity India"
+    },
+    "twitter": {
+      "title": "InsuranceClarity India",
+      "description": "India's most transparent insurance platform."
+    },
+    "jsonLd": {
+      "website": {
+        "name": "InsuranceClarity India",
+        "description": "India's most transparent insurance platform."
+      },
+      "organization": {
+        "name": "InsuranceClarity India",
+        "description": "India's most transparent insurance comparison and advisory platform.",
+        "contactType": "customer support",
+        "languages": {
+          "english": "English",
+          "hindi": "Hindi"
+        }
+      }
+    },
+    "skipToContent": "Skip to main content"
+  },
+  "resourcesPage": {
+    "hero": {
+      "badge": "KNOWLEDGE HUB",
+      "title": "Insurance Resources",
+      "description": "Guides, calculators, and official resources to help you make informed decisions."
+    },
+    "sections": {
+      "guides": {
+        "title": "Guides (PDFs)"
+      },
+      "calculators": {
+        "title": "Calculators (Tools)"
+      },
+      "officialExternal": {
+        "title": "Official & External Resources"
+      }
+    },
+    "types": {
+      "pdfGuide": "PDF Guide",
+      "tool": "Tool",
+      "external": "External"
+    },
+    "items": {
+      "guides": {
+        "choosingTermInsurance": "Choosing Term Insurance",
+        "healthInsuranceChecklist": "Health Insurance Buying Checklist",
+        "motorInsuranceClaims": "Motor Insurance Claims Process"
+      },
+      "calculators": {
+        "lifeInsuranceNeed": "Life Insurance Need Calculator",
+        "healthPremiumEstimator": "Health Insurance Premium Estimator",
+        "carIdv": "Car IDV Calculator"
+      },
+      "official": {
+        "irdaiCsr": "IRDAI Claim Settlement Ratio Report",
+        "ombudsmanContacts": "Insurance Ombudsman Contacts",
+        "grievancePortal": "Grievance Redressal Portal"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "questionPrefix": "Q."
+    },
+    "faqs": {
+      "claimSettlementRatio": {
+        "question": "What is Claim Settlement Ratio?",
+        "answer": "CSR is the percentage of claims paid vs claims received. Higher is better."
+      },
+      "idv": {
+        "question": "What is IDV in motor insurance?",
+        "answer": "Insured Declared Value is the maximum amount you get in case of total loss or theft."
+      },
+      "multipleHealthPolicies": {
+        "question": "Can I have multiple health insurance policies?",
+        "answer": "Yes, you can claim from multiple policies for a single hospitalization."
+      },
+      "freeLookPeriod": {
+        "question": "What is the free look period?",
+        "answer": "15-30 days during which you can return a policy for full refund if not satisfied."
+      }
+    },
+    "cta": {
+      "title": "Have More Questions?",
+      "description": "Contact IRDAI for grievances or the Insurance Ombudsman for dispute resolution.",
+      "irdaiPortal": "IRDAI Grievance Portal",
+      "hiddenFacts": "View Hidden Facts"
+    }
+  },
+  "dashboardPage": {
+    "header": {
+      "welcomeBackPrefix": "Welcome Back,",
+      "anonymousUser": "User",
+      "subtitle": "Your insurance intelligence hub.",
+      "profileStatusLabel": "Profile Status",
+      "profileStatusValue": "Fully Protected"
+    },
+    "stats": {
+      "savedQuotes": "Saved Quotes",
+      "aiScans": "AI Scans",
+      "calculations": "Calculations",
+      "riskScore": "Risk Score"
+    },
+    "recommendations": {
+      "sectionAriaLabel": "Personalized recommendations",
+      "badge": "Personalized Recommendation"
+    },
+    "hints": {
+      "noUser": {
+        "title": "Start with your first scan",
+        "description": "Upload one policy to unlock personalized risk insights and recommendations.",
+        "cta": "Scan Policy"
+      },
+      "noScans": {
+        "title": "Start with your first policy scan",
+        "description": "Scanning a policy helps us tailor exclusions, risk hotspots, and advisor guidance to your profile.",
+        "cta": "Scan First Policy"
+      },
+      "lowScans": {
+        "title": "Compare multiple policies for better clarity",
+        "description": "You have started strong. Add 1-2 more policies to unlock meaningful side-by-side comparison insights.",
+        "cta": "Compare Policies"
+      },
+      "noQuotes": {
+        "title": "Generate your first smart quote",
+        "description": "Quote history improves your personalized recommendations over time.",
+        "cta": "Create Quote"
+      },
+      "freePlan": {
+        "title": "Unlock deeper personalization with Pro",
+        "description": "Pro gives higher scan limits, richer advisor context, and report exports for long-term tracking.",
+        "cta": "View Pro Plan"
+      },
+      "onTrack": {
+        "title": "You are on track",
+        "description": "Keep scanning and reviewing insights to strengthen your insurance portfolio quality.",
+        "cta": "Go to AI Advisor"
+      }
+    },
+    "mainFeed": {
+      "savedQuotes": {
+        "title": "Saved Insurance Quotes",
+        "viewAll": "View All",
+        "emptyTitle": "No quotes saved yet",
+        "emptyDescription": "Generate an interactive quote to see customized pricing and policy details.",
+        "emptyAction": "Get a Quote",
+        "yearlyPremium": "Yearly Premium",
+        "coverage": "Coverage",
+        "policyDoc": "Policy Doc"
+      },
+      "scans": {
+        "title": "Recent Policy Scans",
+        "viewAll": "View All",
+        "emptyTitle": "No policies scanned yet",
+        "emptyDescription": "Upload your insurance brochure to unveil hidden exclusions using AI.",
+        "emptyAction": "Scan Policy",
+        "transparencyScore": "Transparency Score",
+        "risksFound": "Risks Found",
+        "viewScanDetailsAria": "View scan details",
+        "badges": {
+          "analyzing": "Analyzing",
+          "lowRisk": "Low Risk",
+          "moderateRisk": "Moderate Risk",
+          "highRisk": "High Risk"
+        }
+      },
+      "calculations": {
+        "title": "Saved Calculations",
+        "viewAll": "View All",
+        "emptyTitle": "No calculations yet",
+        "emptyDescription": "Use our calculators to find your HLV or Tax savings.",
+        "emptyAction": "Explore Tools",
+        "savedOn": "Saved on",
+        "previewFallback": "Calculation saved successfully.",
+        "previewKeys": {
+          "recommendedCoverage": "Recommended Coverage",
+          "recommendedSumInsured": "Recommended Sum Insured",
+          "taxSavings": "Tax Savings",
+          "annualPremium": "Annual Premium",
+          "hlvResult": "HLV Result"
+        }
+      }
+    },
+    "sidebar": {
+      "quickActions": {
+        "title": "Quick Actions",
+        "subtitle": "Shortcuts to essential tools.",
+        "scanPolicyPdf": "Scan Policy PDF",
+        "bulkScan": "Bulk Scan (Enterprise)",
+        "hlvCalculator": "HLV Calculator",
+        "profileSettings": "Profile Settings"
+      },
+      "premiumSupport": {
+        "title": "Premium Support",
+        "description": "Talk to our neutral insurance advisors today.",
+        "cta": "Talk to an Advisor"
+      }
+    }
+  },
+  "dashboardSubPages": {
+    "profile": {
+      "breadcrumb": "Dashboard",
+      "title": "Profile & Plan",
+      "labels": {
+        "unlimited": "Unlimited"
+      },
+      "actions": {
+        "back": "Back",
+        "managePlan": "Manage Plan",
+        "contactSupport": "Contact Support"
+      },
+      "account": {
+        "label": "Account",
+        "fallbackName": "Insurance Clarity User"
+      },
+      "usage": {
+        "monthlyScanUsage": "Monthly Scan Usage",
+        "accountRole": "Account Role",
+        "memberSince": "Member Since",
+        "planExpiry": "Plan Expiry",
+        "notSet": "Not set"
+      },
+      "stats": {
+        "totalScans": "Total Scans",
+        "savedQuotes": "Saved Quotes",
+        "calculations": "Calculations"
+      },
+      "referral": {
+        "program": "Referral Program",
+        "shareLinkPrefix": "Share this link with friends:",
+        "visits": "Visits",
+        "conversions": "Conversions"
+      }
+    },
+    "quotes": {
+      "breadcrumb": "Dashboard",
+      "title": "Saved Quotes",
+      "actions": {
+        "back": "Back"
+      },
+      "empty": {
+        "title": "No saved quotes yet",
+        "description": "Generate a quote from our interactive tools and it will appear here.",
+        "cta": "Get Quote"
+      },
+      "labels": {
+        "premium": "Premium",
+        "coverage": "Coverage",
+        "savedOn": "Saved on"
+      }
+    },
+    "scans": {
+      "breadcrumb": "Dashboard",
+      "title": "Your Policy Scans",
+      "actions": {
+        "back": "Back",
+        "viewReport": "View Report"
+      },
+      "empty": {
+        "title": "No scans yet",
+        "description": "Upload your first policy PDF to start getting risk analysis.",
+        "cta": "Scan a Policy"
+      },
+      "badges": {
+        "pendingScore": "Pending Score",
+        "lowRisk": "Low Risk",
+        "moderateRisk": "Moderate Risk",
+        "highRisk": "High Risk"
+      },
+      "labels": {
+        "status": "Status",
+        "risks": "{count} risks",
+        "unlocked": "Unlocked",
+        "paywalled": "Paywalled"
+      }
+    },
+    "calculations": {
+      "breadcrumb": "Dashboard",
+      "title": "Saved Calculations",
+      "actions": {
+        "back": "Back"
+      },
+      "empty": {
+        "title": "No saved calculations yet",
+        "description": "Use the calculators and we will auto-save your latest results here.",
+        "cta": "Open Calculators"
+      },
+      "labels": {
+        "savedOn": "Saved on"
+      },
+      "preview": {
+        "fallback": "Calculation saved successfully.",
+        "keys": {
+          "recommendedCoverage": "Recommended Coverage",
+          "recommendedSumInsured": "Recommended Sum Insured",
+          "taxSavings": "Tax Savings",
+          "annualPremium": "Annual Premium"
+        }
+      }
+    }
+  },
+  "adminDashboard": {
+    "layout": {
+      "nav": {
+        "overview": "Overview",
+        "crmHub": "CRM Hub"
+      },
+      "badges": {
+        "secureSession": "Secure Session",
+        "systemHealthOperational": "System Health: Operational"
+      },
+      "footer": {
+        "copyright": "InsuranceClarity Node-Central Â© 2026. All rights reserved.",
+        "vercelOperational": "Vercel Operational",
+        "liveTelemetry": "Live Telemetry"
+      }
+    },
+    "page": {
+      "loading": {
+        "syncingTelemetry": "Synchronizing telemetry data..."
+      },
+      "error": {
+        "accessDenied": "Access Denied",
+        "returnToPlatform": "Return to Platform"
+      },
+      "header": {
+        "internalAdmin": "Internal Admin",
+        "executiveCore": "Executive Core",
+        "realtimeHealth": "Real-time ecosystem health"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "crm": "CRM"
+      },
+      "actions": {
+        "refresh": "Refresh dashboard data"
+      }
+    },
+    "kpis": {
+      "grossLeads": {
+        "label": "Gross Leads",
+        "badge": "Total engagement"
+      },
+      "pipeline": {
+        "label": "Pipeline (ARR)",
+        "value": "Rs {value}",
+        "badge": "Annualized pipeline"
+      },
+      "paidSubscriptions": {
+        "label": "Paid Subscriptions",
+        "badge": "Active paying users"
+      },
+      "aiCompute": {
+        "label": "AI Compute",
+        "zero": "0",
+        "badge": "Est. Cost: ${cost}"
+      }
+    },
+    "aiTelemetry": {
+      "title": "AI Performance Monitoring",
+      "subtitle": "Real-time inference telemetry (Gemini-2.0-Flash)",
+      "healthNominal": "Health: Nominal",
+      "totalInferenceLoad": "Total Inference Load",
+      "utilizationWithinQuota": "Utilization within quota (75%)",
+      "aggregateTokenCount": "Aggregate Token Count",
+      "tokensSuffix": "tokens",
+      "blendedOpex": "Blended OPEX (Est)",
+      "usdSuffix": "USD",
+      "latency": "Latency: 1.4s (avg)",
+      "successRate": "Success Rate: 99.8%",
+      "viewFullLogs": "View Full Logs"
+    },
+    "jobHealth": {
+      "aria": "Background jobs health",
+      "title": "Background Jobs Health",
+      "subtitle": "Operational watch for queue and cron backlog signals.",
+      "status": {
+        "healthy": "Healthy",
+        "attention": "Needs Attention"
+      },
+      "metrics": {
+        "pendingPaymentReconciliation": "Pending Payment Reconciliation",
+        "staleCreatedPayments": "Stale Created Payments",
+        "staleScans": "Stale Scans",
+        "deadLetterJobs": "Dead Letter Jobs",
+        "recentCronErrors1h": "Recent Cron Errors (1h)",
+        "recentCronErrors24h": "Recent Cron Errors (24h)",
+        "recentCronErrors7d": "Recent Cron Errors (7d)",
+        "recentQueueErrors1h": "Recent Queue Errors (1h)",
+        "recentQueueErrors24h": "Recent Queue Errors (24h)",
+        "recentQueueErrors7d": "Recent Queue Errors (7d)",
+        "recentCronErrors30d": "Recent Cron Errors (30d)",
+        "recentQueueErrors30d": "Recent Queue Errors (30d)"
+      },
+      "trend": {
+        "title": "Error Trend Signals",
+        "cron": "Cron Error Rate",
+        "queue": "Queue Error Rate",
+        "currentVsBaseline": "{current}/h vs {baseline}/h baseline",
+        "last24hVs7d": "{current}/24h vs {baseline}/day 7d baseline",
+        "level": {
+          "ok": "OK",
+          "warning": "Watch",
+          "critical": "Critical"
+        },
+        "spikeAlert": "Spike detected in the last hour compared with 24h baseline."
+      },
+      "redisConfigured": "Redis configured",
+      "redisNotConfigured": "Redis not configured",
+      "footer": "Queue provider: {queueProvider} | {redis}",
+      "alertsConfigured": "{count} destinations ({channels})",
+      "alertsNotConfigured": "not configured",
+      "alertsFooter": "Alert routing: {alerts}"
+    },
+    "businessReadiness": {
+      "aria": "Business readiness visibility",
+      "badge": "Revenue visibility live",
+      "title": "Business Readiness",
+      "subtitle": "Funnel conversion and monetization visibility for the last {days} days.",
+      "generatedAt": "Generated",
+      "funnel": {
+        "signup": "Signups",
+        "scan": "Scans",
+        "pay": "Payments",
+        "retain": "Retained"
+      },
+      "conversion": {
+        "title": "Conversion checkpoints",
+        "signupToScan": "Signup to Scan",
+        "scanToPay": "Scan to Pay",
+        "payToRetain": "Pay to Retain"
+      },
+      "supporting": {
+        "title": "Supporting operating signals",
+        "totalLeads": "Total leads",
+        "scansInWindow": "Scans in last {days} days",
+        "capturedPaymentsInWindow": "Captured payments in last {days} days",
+        "activeSubscriptions": "Active subscriptions"
+      }
+    },
+    "quotes": {
+      "title": "Recent Policy Applications",
+      "headers": {
+        "quoteId": "Quote ID",
+        "created": "Created",
+        "type": "Type",
+        "coverage": "Coverage",
+        "premium": "Premium",
+        "status": "Status"
+      },
+      "empty": "No quotes generated yet.",
+      "currencyValue": "Rs {value}"
+    },
+    "leads": {
+      "title": "CRM / Lead Management",
+      "exportCsv": "Export CSV",
+      "headers": {
+        "name": "Name",
+        "contactInfo": "Contact Info",
+        "policyType": "Policy Type",
+        "source": "Source",
+        "acquired": "Acquired",
+        "status": "Status"
+      },
+      "empty": "No leads indexed yet.",
+      "statusAria": "Status for {name}"
+    }
+  },
+  "hubsPage": {
+    "emptyTitle": "No knowledge hubs available",
+    "emptyDescription": "Our editorial team is working on fresh topic clusters. Please check back later.",
+    "title": "Knowledge Hubs",
+    "subtitle": "Deep topic clusters curated for SEO and user intent. Dive into a hub to explore related guides, comparisons, and news.",
+    "fallbackDescription": "Explore this knowledge hub."
+  },
+  "hubDetail": {
+    "resourceHubBadge": "Resource Hub",
+    "pillarTitle": "Pillar Articles & Guides",
+    "pillarSubtitle": "Deep dive into {count} specialist articles curated for this hub.",
+    "postFallbackDescription": "Read our comprehensive guide to learn more about this topic and protect yourself.",
+    "readGuide": "Read Guide",
+    "recently": "Recently",
+    "emptyTitle": "Check back soon",
+    "emptyDescription": "We are currently compiling expert guides and resources for the \"{hubTitle}\" hub."
+  },
+  "blogIndex": {
+    "titleInsurance": "Insurance",
+    "titleInsights": "Insights",
+    "subtitle": "Expert guides, policy breakdowns, and industry news to help you make informed decisions.",
+    "recentlyPublished": "Recently published",
+    "readArticle": "Read Article",
+    "emptyTitle": "No Articles Found",
+    "emptyDescription": "We're currently preparing comprehensive insurance guides. They will appear here once published manually via the Sanity Studio."
+  },
+  "blogPost": {
+    "defaultAuthor": "InsuranceClarity Expert",
+    "backToInsights": "Back to Insights",
+    "noContentYet": "This article has no content yet."
+  },
+  "auditI18n": {
+    "authPanel": {
+      "secureAccess": "Secure Access",
+      "title": "Sign in to Insurance Clarity",
+      "subtitle": "Continue to your dashboard, saved analyses, payment history, and advisor tools.",
+      "continueWithGoogle": "Continue with Google",
+      "orEmailOtp": "Or email OTP",
+      "emailAddress": "Email Address",
+      "otpCode": "6-Digit Code",
+      "changeEmail": "Change email",
+      "verifyAndSignIn": "Verify and Sign In",
+      "verifyAndSignInShort": "Verify & Sign In",
+      "sendLoginCode": "Send Login Code",
+      "privacyPolicy": "Privacy Policy",
+      "terms": "Terms",
+      "welcome": "Welcome",
+      "back": "Back",
+      "checkEmail": "Check your email",
+      "magicLinkPrefix": "We've sent a secure magic link to",
+      "magicLinkSuffix": "Click the link to sign in instantly.",
+      "consent": "By signing in, you agree to our Terms of Service and Privacy Policy. We never share your data with insurance agents without your consent."
+    },
+    "advisorWidget": {
+      "openAria": "Open Clarity Advisor",
+      "askButton": "Ask Clarity Advisor",
+      "title": "Clarity Advisor",
+      "badge": "Insurance Expert AI",
+      "clearChat": "Clear chat",
+      "placeholder": "Ask anything about insurance...",
+      "sendAria": "Send message",
+      "insuranceExpert": "Insurance Expert",
+      "instantAnswers": "Instant Answers"
+    },
+    "aiChatWizard": {
+      "networkError": "Network error communicating with the underwriting engine.",
+      "title": "AI Underwriter",
+      "subtitle": "Powered by Dynamic Rules Engine",
+      "completedPlaceholder": "Chat completed.",
+      "typingPlaceholder": "Type your response...",
+      "messageAria": "Message to AI Underwriter"
+    },
+    "trustSignals": {
+      "heading": "Why Thousands Trust InsuranceClarity",
+      "items": {
+        "irdai": {
+          "title": "IRDAI Certified",
+          "description": "100% compliant with Indian regulatory standards for your safety."
+        },
+        "instantQuotes": {
+          "title": "Instant Quotes",
+          "description": "Compare 50+ Top Insurers instantly with no hidden fees."
+        },
+        "unbiasedAdvice": {
+          "title": "Unbiased Advice",
+          "description": "Our advisors work for you, not the insurance companies."
+        },
+        "claimSupport": {
+          "title": "Lifetime Claim Support",
+          "description": "Free assistance when you need it most at the time of claim."
+        }
+      }
+    },
+    "bulkDropZone": {
+      "title": "Enterprise Bulk Scan",
+      "subtitle": "Upload 2 to 10 policy PDFs in one run. Each file is queued and analyzed independently.",
+      "starting": "Starting Bulk Scan...",
+      "start": "Start Bulk Scan",
+      "upgradePlan": "Upgrade Plan",
+      "resultsTitle": "Bulk Scan Result",
+      "viewReport": "View Report"
+    },
+    "header": {
+      "logoAlt": "InsuranceClarity Logo",
+      "brandAccent": "Clarity",
+      "openNavigationMenu": "Open navigation menu",
+      "closeNavigationMenu": "Close navigation menu",
+      "navigationMenu": "Navigation menu",
+      "mobileNavigation": "Mobile navigation",
+      "personalProtection": "Personal Protection",
+      "businessSolutions": "Business Solutions",
+      "smartToolkit": "Smart Toolkit",
+      "account": "Account",
+      "userFallback": "User",
+      "dashboard": "Dashboard",
+      "signOut": "Sign Out",
+      "signIn": "Sign In",
+      "mainNavAria": "Main navigation",
+      "personalInsurance": "Personal Insurance",
+      "businessAndCyber": "Business & Cyber",
+      "knowledgeCenter": "Knowledge Center",
+      "scanPolicy": "Scan Policy",
+      "referenceHub": "Reference Hub",
+      "supportProject": "SUPPORT PROJECT",
+      "transparencyTagline": "Insurance transparency for everyone",
+      "preferences": "Preferences",
+      "personalize": "Personalize",
+      "language": "Language",
+      "switchToEnglish": "Switch language to English",
+      "switchToHindi": "Switch language to Hindi",
+      "navigation": "Navigation",
+      "closeMenu": "Close menu",
+      "scanMyPolicy": "SCAN MY POLICY"
+    },
+    "dropZone": {
+      "uploadInputAria": "Upload insurance policy PDF",
+      "dropzoneAria": "Drop your insurance policy PDF here or click to select",
+      "uploadProgressAria": "Upload progress"
+    },
+    "insuranceGuide": {
+      "metadataNotFoundTitle": "Not Found | InsuranceClarity",
+      "metadataTitle": "{title} | InsuranceClarity",
+      "metadataDescription": "Comprehensive guide to {title}. Learn everything you need to know about this policy on InsuranceClarity India.",
+      "recentlyUpdated": "Recently Updated",
+      "readTime": "8 min read",
+      "detailedGuideComingSoon": "Detailed Guide Coming Soon",
+      "guideInProgress": "Our experts are currently writing the comprehensive guide for {title}.",
+      "top": "Top",
+      "plansInIndia": "Plans in India",
+      "viewDetails": "View Details",
+      "aPolicy": "a Policy",
+      "leadTitle": "Need Help Choosing {category}?",
+      "leadSubtitle": "Let our IRDAI-certified experts design a custom plan for your unique needs.",
+      "exploreKnowledgeHubs": "Explore Knowledge Hubs",
+      "comparePoliciesNow": "Compare Policies Now"
+    },
+    "bulkScanPage": {
+      "metadataTitle": "Bulk Scan | Insurance Clarity",
+      "metadataDescription": "Enterprise bulk upload for policy scan and AI analysis.",
+      "badge": "Enterprise",
+      "title": "Bulk Policy Scan",
+      "description": "This workflow is available on Enterprise plans. If your plan does not include bulk scan, the API will return an upgrade prompt.",
+      "viewPlanLimits": "View plan limits"
+    },
+    "errorMonitoring": {
+      "metadataTitle": "Error Monitoring Dashboard | Insurance Clarity Admin",
+      "metadataDescription": "Real-time error tracking and monitoring for Insurance Clarity API",
+      "errorLoadingDashboard": "Error Loading Dashboard",
+      "heading": "Error Monitoring Dashboard",
+      "monitoringLastDays": "Monitoring last {days} days",
+      "autoRefreshOn": "Auto-refresh ON",
+      "autoRefreshOff": "Auto-refresh OFF",
+      "filters": {
+        "days": "Days",
+        "severity": "Severity",
+        "autoRefresh": "Auto-refresh (30s)"
+      },
+      "severityOptions": {
+        "all": "All",
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "cards": {
+        "totalErrors": "Total Errors",
+        "errorCodes": "Error Codes",
+        "affectedRoutes": "Affected Routes",
+        "affectedUsers": "Affected Users"
+      },
+      "topErrorCodes": "Top Error Codes",
+      "severityDistribution": "Severity Distribution",
+      "errorsByRoute": "Errors by Route",
+      "table": {
+        "route": "Route",
+        "method": "Method",
+        "count": "Count",
+        "trend": "Trend"
+      },
+      "rateLimitAnomalies": "Rate Limit Anomalies",
+      "scopeLabel": "Scope:",
+      "mostImpactedUsers": "Most Impacted Users",
+      "refreshing": "Refreshing...",
+      "refresh": "Refresh",
+      "requestsInWindow": "{count} requests in {seconds}s",
+      "anonymousUser": "Anonymous",
+      "errorsCount": "{count} errors"
+    },
+    "scanActivityChart": {
+      "ariaLabel": "Scan activity chart over the last 30 days",
+      "title": "Scan Activity",
+      "last30Days": "Last 30 days",
+      "scans": "Scans",
+      "risksFound": "Risks Found"
+    },
+    "productTour": {
+      "dialogAria": "Welcome to InsuranceClarity quick product tour",
+      "skipTour": "Skip tour",
+      "stepProgress": "Step {current} of {total}",
+      "goToStep": "Go to step {step}",
+      "previousStep": "Previous step",
+      "back": "Back",
+      "startScanningFree": "Start Scanning Free",
+      "nextStep": "Next step",
+      "next": "Next",
+      "steps": {
+        "upload": {
+          "title": "Upload Your Policy PDF",
+          "body": "Upload any Indian insurance policy - Health, Term Life, Motor, Home, or Travel. Our AI reads 100+ pages in under 60 seconds.",
+          "highlight": "Works with all IRDAI-registered insurers"
+        },
+        "risks": {
+          "title": "AI Finds Hidden Risks",
+          "body": "Our GPT-powered engine analyses your policy against 500+ known claim traps, exclusions, and red flags that your insurer counts on you missing.",
+          "highlight": "87% of policies contain at least 3 hidden risks"
+        },
+        "unlock": {
+          "title": "Unlock Your Full Report",
+          "body": "See the first 3 risks free. Unlock the complete risk report for just Rs 199 - a one-time payment with a 7-day refund guarantee.",
+          "highlight": "One-time Rs 199 - No subscription required"
+        }
+      }
+    },
+    "razorpay": {
+      "successUnlocking": "Payment successful! Your report is unlockingâ€¦",
+      "processing": "Processingâ€¦"
+    },
+    "authSignInPage": {
+      "metadataTitle": "Sign In | Insurance Clarity",
+      "metadataDescription": "Access your Insurance Clarity dashboard, saved reports, and advisor tools."
+    },
+    "comparePage": {
+      "metadataTitle": "Compare Policies | InsuranceClarity",
+      "metadataDescription": "Compare multiple insurance policies side-by-side to find the right coverage."
+    },
+    "errorBoundary": {
+      "title": "Something went wrong",
+      "message": "This section encountered an error. The issue has been reported automatically.",
+      "retryLabel": "Try Again",
+      "retryAriaLabel": "Try again"
+    },
+    "advisorChat": {
+      "actions": {
+        "calculatorGuide": "Calculator Guide",
+        "claimCases": "Claim Cases",
+        "expertGuides": "Expert Guides",
+        "hiddenFacts": "Hidden Facts",
+        "calculator": "Calculator",
+        "calculatePremium": "Calculate Premium"
+      }
+    },
+    "remaining": {
+      "allPolicies": "All Policies",
+      "loadingFacts": "Loading facts...",
+      "unlockFullReport": "Unlock Full Report",
+      "unlockFullPolicyReport": "Unlock Full Policy Report",
+      "regimes": {
+        "old": "Old Regime",
+        "new": "New Regime"
+      },
+      "noteLabel": "Note"
+    }
   }
 }

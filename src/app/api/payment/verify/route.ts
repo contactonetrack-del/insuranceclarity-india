@@ -15,13 +15,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { auth } from '@/auth';
 
-import { prisma } from '@/lib/prisma';
 import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
 import { validateCsrfRequest } from '@/lib/security/csrf';
+import { verifyScanClaimToken } from '@/lib/security/scan-claim';
 import { getRazorpayCredentials } from '@/lib/security/env';
 import { trackFunnelStep } from '@/lib/analytics/funnel';
 import { ErrorFactory } from '@/lib/api/error-response';
+import {
+    canAccessScan,
+    capturePaymentAndUnlockScan,
+    findPaymentByOrderId,
+    getClientIpFromHeaders,
+    markPaymentFailedById,
+} from '@/services/payment.service';
 import type { VerifyPaymentRequest, VerifyPaymentResponse } from '@/types/report.types';
 
 // ─── Signature Verification ───────────────────────────────────────────────────
@@ -44,41 +51,6 @@ function verifyRazorpaySignature(
     );
 }
 
-function getClientIp(request: NextRequest): string | null {
-    const forwarded = request.headers.get('x-forwarded-for');
-    if (forwarded) {
-        const first = forwarded.split(',')[0]?.trim();
-        if (first) return first;
-    }
-
-    const realIp = request.headers.get('x-real-ip')?.trim();
-    return realIp || null;
-}
-
-function canAccessScan(params: {
-    isAdmin: boolean;
-    sessionUserId: string | null;
-    ownerUserId: string | null;
-    claimTokenValid: boolean;
-    requestIp: string | null;
-    ownerIp: string | null;
-}): boolean {
-    if (params.isAdmin) return true;
-
-    if (params.ownerUserId) {
-        return params.sessionUserId === params.ownerUserId;
-    }
-
-    if (params.claimTokenValid) return true;
-
-    // Temporary legacy fallback for pre-token scans in non-production only.
-    if (process.env.NODE_ENV !== 'production') {
-        return Boolean(params.ownerIp && params.requestIp && params.ownerIp === params.requestIp);
-    }
-
-    return false;
-}
-
 // ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
@@ -87,7 +59,7 @@ export async function POST(request: NextRequest) {
         if (csrfError) return csrfError;
 
         const { keySecret: secret } = getRazorpayCredentials();
-        const requestIp = getClientIp(request);
+        const requestIp = getClientIpFromHeaders(request.headers);
         const claimToken = request.headers.get('x-claim-token');
         const session = await auth();
         const sessionUserId = (session?.user as { id?: string } | undefined)?.id ?? null;
@@ -109,20 +81,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 1. Find payment record in DB
-        const payment = await prisma.payment.findUnique({
-            where: { razorpayOrderId },
-            select: {
-                id: true,
-                status: true,
-                scanId: true,
-                scan: {
-                    select: {
-                        userId: true,
-                        ipAddress: true,
-                    },
-                },
-            },
-        });
+        const payment = await findPaymentByOrderId(razorpayOrderId);
 
         if (!payment) {
             return ErrorFactory.notFound('Payment record not found.');
@@ -138,11 +97,9 @@ export async function POST(request: NextRequest) {
             return ErrorFactory.validationError('Payment does not belong to this scan.');
         }
 
-        let claimTokenValid = false;
-        if (claimToken && !payment.scan.userId && redisClient.isConfigured()) {
-            const claimedScanId = await redisClient.get<string>(`scan:claim:${claimToken}`);
-            claimTokenValid = claimedScanId === scanId;
-        }
+        const claimTokenValid = !payment.scan.userId
+            ? await verifyScanClaimToken(claimToken, scanId)
+            : false;
 
         const isAllowed = canAccessScan({
             isAdmin,
@@ -181,10 +138,7 @@ export async function POST(request: NextRequest) {
         );
 
         if (!isValid) {
-            await prisma.payment.update({
-                where: { id: payment.id },
-                data: { status: 'FAILED' },
-            }).catch(() => {
+            await markPaymentFailedById(payment.id).catch(() => {
                 // no-op; we still return signature failure
             });
 
@@ -197,20 +151,12 @@ export async function POST(request: NextRequest) {
         }
 
         // 3. Update payment status and unlock scan report (atomic transaction)
-        await prisma.$transaction([
-            prisma.payment.update({
-                where: { razorpayOrderId },
-                data: {
-                    status: 'CAPTURED',
-                    razorpayPaymentId,
-                    razorpaySignature,
-                },
-            }),
-            prisma.scan.update({
-                where: { id: payment.scanId },
-                data: { isPaid: true, isPaywalled: false },
-            }),
-        ]);
+        await capturePaymentAndUnlockScan({
+            razorpayOrderId,
+            razorpayPaymentId,
+            razorpaySignature,
+            scanId: payment.scanId,
+        });
 
         // 4. Invalidate the cached report so next fetch returns full data
         await redisClient.del(`report:${payment.scanId}`);

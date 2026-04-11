@@ -25,7 +25,7 @@ export function successResponse<T>(data: T, message?: string) {
 }
 
 // Helper to create error response (though ApiError.toJSON() is preferred)
-export function errorResponse(code: string, message: string, status: number) {
+export function errorResponse(code: string, message: string, _status: number) {
   return {
     success: false,
     error: {

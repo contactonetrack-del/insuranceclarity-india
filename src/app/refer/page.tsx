@@ -1,52 +1,54 @@
-'use client';
+'use client'
 
-import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
-type State = 'idle' | 'saving' | 'done' | 'error';
+type State = 'idle' | 'saving' | 'done' | 'error'
 
 export default function ReferPage() {
-    const params = useSearchParams();
-    const code = useMemo(() => params.get('code')?.trim() ?? '', [params]);
+    const t = useTranslations('refer')
+    const params = useSearchParams()
+    const code = useMemo(() => params.get('code')?.trim() ?? '', [params])
 
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [state, setState] = useState<State>('idle');
-    const [message, setMessage] = useState<string | null>(null);
+    const [name, setName] = useState('')
+    const [email, setEmail] = useState('')
+    const [phone, setPhone] = useState('')
+    const [state, setState] = useState<State>('idle')
+    const [message, setMessage] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!code) return;
+        if (!code) return
         void fetch('/api/referrals', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ event: 'visit', code }),
-        });
-    }, [code]);
+        })
+    }, [code])
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        if (!code) return;
+        event.preventDefault()
+        if (!code) return
 
-        setState('saving');
-        setMessage(null);
+        setState('saving')
+        setMessage(null)
 
         try {
             const response = await fetch('/api/referrals', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code, name, email, phone }),
-            });
-            const body = await response.json().catch(() => ({} as { error?: string }));
+            })
+            const body = await response.json().catch(() => ({} as { error?: string }))
             if (!response.ok) {
-                throw new Error(body.error ?? 'Could not submit referral form.');
+                throw new Error(body.error ?? t('errors.submitFailed'))
             }
 
-            setState('done');
-            setMessage('Thanks. We received your referral request and our team will reach out.');
+            setState('done')
+            setMessage(t('messages.success'))
         } catch (error) {
-            setState('error');
-            setMessage(error instanceof Error ? error.message : 'Could not submit referral form.');
+            setState('error')
+            setMessage(error instanceof Error ? error.message : t('errors.submitFailed'))
         }
     }
 
@@ -54,26 +56,26 @@ export default function ReferPage() {
         return (
             <main className="min-h-screen pt-24 px-6">
                 <div className="mx-auto max-w-xl rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-800">
-                    Missing referral code. Please use the complete referral URL.
+                    {t('missingCode')}
                 </div>
             </main>
-        );
+        )
     }
 
     return (
         <main className="min-h-screen pt-24 px-6 pb-12">
             <div className="mx-auto max-w-xl space-y-6">
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-accent">Referral Program</p>
-                    <h1 className="mt-1 text-3xl font-bold text-theme-primary">Get Personalized Policy Guidance</h1>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-accent">{t('badge')}</p>
+                    <h1 className="mt-1 text-3xl font-bold text-theme-primary">{t('title')}</h1>
                     <p className="mt-2 text-sm text-theme-secondary">
-                        You were invited with code <span className="font-semibold">{code}</span>. Share your details and we will help you compare suitable plans.
+                        {t('subtitlePrefix')} <span className="font-semibold">{code}</span>. {t('subtitleSuffix')}
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="glass-strong rounded-2xl border border-default p-6 space-y-4">
                     <div>
-                        <label className="mb-1 block text-sm font-medium text-theme-primary" htmlFor="refer-name">Name</label>
+                        <label className="mb-1 block text-sm font-medium text-theme-primary" htmlFor="refer-name">{t('fields.name.label')}</label>
                         <input
                             id="refer-name"
                             value={name}
@@ -83,7 +85,7 @@ export default function ReferPage() {
                         />
                     </div>
                     <div>
-                        <label className="mb-1 block text-sm font-medium text-theme-primary" htmlFor="refer-email">Email</label>
+                        <label className="mb-1 block text-sm font-medium text-theme-primary" htmlFor="refer-email">{t('fields.email.label')}</label>
                         <input
                             id="refer-email"
                             type="email"
@@ -94,7 +96,7 @@ export default function ReferPage() {
                         />
                     </div>
                     <div>
-                        <label className="mb-1 block text-sm font-medium text-theme-primary" htmlFor="refer-phone">Phone (optional)</label>
+                        <label className="mb-1 block text-sm font-medium text-theme-primary" htmlFor="refer-phone">{t('fields.phone.label')}</label>
                         <input
                             id="refer-phone"
                             value={phone}
@@ -107,18 +109,21 @@ export default function ReferPage() {
                         disabled={state === 'saving' || state === 'done'}
                         className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                     >
-                        {state === 'saving' ? 'Submitting...' : state === 'done' ? 'Submitted' : 'Submit Referral Request'}
+                        {state === 'saving' ? t('actions.submitting') : state === 'done' ? t('actions.submitted') : t('actions.submit')}
                     </button>
                 </form>
 
                 {message && (
-                    <div className={`rounded-lg border p-3 text-sm ${
-                        state === 'error' ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                    }`}>
+                    <div
+                        className={`rounded-lg border p-3 text-sm ${state === 'error'
+                            ? 'border-danger-500/25 bg-danger-500/10 text-danger-500'
+                            : 'border-success-500/25 bg-success-500/10 text-success-500'
+                            }`}
+                    >
                         {message}
                     </div>
                 )}
             </div>
         </main>
-    );
+    )
 }

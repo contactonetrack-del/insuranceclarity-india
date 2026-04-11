@@ -14,8 +14,6 @@ interface TiltCardProps {
     perspective?: number
     scaleOnHover?: number
     glareOpacity?: number
-    glareColor?: string
-    darkGlareColor?: string
 }
 
 export function TiltCard({
@@ -27,7 +25,6 @@ export function TiltCard({
     perspective = 1000,
     scaleOnHover = 1.02,
     glareOpacity = 0.4,
-    glareColor = "255, 255, 255",
 }: TiltCardProps) {
     const ref = useRef<HTMLDivElement>(null)
     const [isHovered, setIsHovered] = useState(false)
@@ -118,7 +115,7 @@ export function TiltCard({
                 >
                     <div className="absolute inset-0 bg-gradient-radial from-white via-transparent to-transparent opacity-0 dark:opacity-100"
                         style={{
-                            background: `radial-gradient(circle at ${50}% ${50}%, rgba(${glareColor}, 0.8), transparent 70%)`,
+                            background: 'radial-gradient(circle at 50% 50%, rgb(var(--token-surface-elevated) / 0.8), transparent 70%)',
                             // We can't easily animate gradient position with basic CSS vars in Framer Motion efficiently without custom values, 
                             // so we rely on the container rotation to catch the light or use a pseudo element moving.
                             // For simplicity and performance, a static radial gradient that fades in is often enough or we can try to move it.
@@ -128,7 +125,8 @@ export function TiltCard({
                     <motion.div
                         className="absolute inset-[-100%] z-10 w-[300%] h-[300%]"
                         style={{
-                            background: `radial-gradient(circle, rgba(${glareColor}, ${glareOpacity}) 0%, transparent 60%)`,
+                            background: 'radial-gradient(circle, rgb(var(--token-surface-elevated) / 0.55) 0%, transparent 60%)',
+                            opacity: glareOpacity,
                             x: glareTranslateX,
                             y: glareTranslateY,
                             left: -50 + '%',

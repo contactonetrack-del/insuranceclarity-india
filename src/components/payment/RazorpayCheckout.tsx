@@ -10,6 +10,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { BRAND_PRIMARY_HEX } from '@/lib/theme/brand';
 
 
 
@@ -68,17 +70,20 @@ export default function RazorpayCheckout({
     scanId,
     planId = 'PRO',
     amount,
-    label = 'Unlock Full Report',
+    label,
     onSuccess,
     onError,
     className = '',
     variant = 'primary',
     isSubscription = false,
 }: RazorpayCheckoutProps) {
+    const t = useTranslations('auditI18n.razorpay');
+    const copyT = useTranslations('auditI18n.remaining');
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const resolvedLabel = label ?? copyT('unlockFullReport');
 
     // ── Per-scan unlock flow ────────────────────────────────────────────────────
     const handleScanUnlock = async () => {
@@ -126,9 +131,9 @@ export default function RazorpayCheckout({
             amount: orderData.amount,
             currency: orderData.currency,
             name: 'InsuranceClarity',
-            description: 'Unlock Full Policy Report',
+            description: copyT('unlockFullPolicyReport'),
             order_id: orderData.orderId,
-            theme: { color: '#4f46e5' },
+            theme: { color: BRAND_PRIMARY_HEX },
             modal: {
                 ondismiss: () => setLoading(false),
             },
@@ -228,7 +233,7 @@ export default function RazorpayCheckout({
         return (
             <div className="razorpay-success" role="status" aria-live="polite">
                 <span aria-hidden="true">✅</span>
-                <span>Payment successful! Your report is unlocking…</span>
+                <span>{t('successUnlocking')}</span>
             </div>
         );
     }
@@ -248,12 +253,12 @@ export default function RazorpayCheckout({
                 {loading ? (
                     <>
                         <span className="spinner" aria-hidden="true" />
-                        Processing…
+                        {t('processing')}
                     </>
                 ) : (
                     <>
                         <span aria-hidden="true">{isSubscription ? '🚀' : '🔓'}</span>
-                        {label}
+                        {resolvedLabel}
                     </>
                 )}
             </button>

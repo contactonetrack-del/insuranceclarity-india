@@ -1,27 +1,36 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import Link from 'next/link'
 import {
-    Bot, ArrowRight, ShieldCheck, Sparkles, Send, Activity, User, Briefcase, Zap
+    Activity,
+    ArrowRight,
+    Bot,
+    Briefcase,
+    Send,
+    ShieldCheck,
+    Sparkles,
+    User,
+    Zap,
 } from 'lucide-react'
 import {
+    GlassCard,
+    GradientText,
+    IconContainer,
     RevealOnScroll,
     StaggerContainer,
     StaggerItem,
-    GlassCard,
-    GradientText,
-    IconContainer
 } from '@/components/premium'
-import { findBestMatches, type MatchResult } from '@/services/ai-matcher.service';
+import { useTranslations } from 'next-intl'
+import { findBestMatches, type MatchResult } from '@/services/ai-matcher.service'
 
 export default function AdvisorClient() {
+    const t = useTranslations('tools.aiAdvisorClient')
     const [query, setQuery] = useState('')
     const [isThinking, setIsThinking] = useState(false)
     const [results, setResults] = useState<MatchResult[] | null>(null)
     const [searchedQuery, setSearchedQuery] = useState('')
 
-    // Auto-scroll to results
     const resultsRef = useRef<HTMLDivElement>(null)
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -33,11 +42,10 @@ export default function AdvisorClient() {
         setResults(null)
 
         try {
-            // Using server action running on the Edge compute
             const matches = await findBestMatches(query, 3)
             setResults(matches)
         } catch (error) {
-            console.error("Failed to fetch matches:", error)
+            console.error(t('errors.fetchMatchesLog'), error)
         } finally {
             setIsThinking(false)
             setTimeout(() => {
@@ -47,72 +55,68 @@ export default function AdvisorClient() {
     }
 
     const suggestionChips = [
-        "I just started a retail bakery and worry about fires",
-        "Looking to protect my family's income if I die",
-        "My company servers might get hacked",
-        "I am pregnant and need to cover delivery costs"
+        t('suggestions.one'),
+        t('suggestions.two'),
+        t('suggestions.three'),
+        t('suggestions.four'),
     ]
 
     return (
         <div className="min-h-screen pt-20">
-            {/* Hero Section */}
-            <section className="py-20 px-6 overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 pointer-events-none -z-10" />
-                <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-indigo-500/10 blur-[120px] rounded-full mix-blend-screen pointer-events-none -z-10" />
+            <section className="relative overflow-hidden px-6 py-20">
+                <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-accent/5 to-accent-hover/5" />
+                <div className="pointer-events-none absolute -left-[10%] -top-[10%] -z-10 h-[50%] w-[50%] rounded-full bg-accent/10 blur-[120px] mix-blend-screen" />
 
-                <div className="max-w-4xl mx-auto text-center">
+                <div className="mx-auto max-w-4xl text-center">
                     <RevealOnScroll direction="down" delay={0.1}>
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400
-                           text-sm rounded-full mb-6 font-bold shadow-lg shadow-indigo-500/10 border border-indigo-500/20">
-                            <Bot className="w-4 h-4" />
-                            AI RISK ADVISOR (EDGE ENGINE)
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-4 py-2 text-sm font-bold text-accent shadow-lg shadow-accent/10">
+                            <Bot className="h-4 w-4" />
+                            {t('hero.badge')}
                         </div>
                     </RevealOnScroll>
 
-                    <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-5xl text-theme-primary leading-tight mb-6">
-                        Discover Your Perfect Protection with <br />
-                        <GradientText className="from-indigo-500 to-purple-600">Semantic AI Matching</GradientText>
+                    <h1 className="mb-6 font-display text-4xl font-bold leading-tight text-theme-primary md:text-5xl lg:text-5xl">
+                        {t('hero.titlePrefix')} <br />
+                        <GradientText className="from-accent to-accent-hover">{t('hero.titleHighlight')}</GradientText>
                     </h1>
 
-                    <p className="text-xl text-theme-secondary mb-12 max-w-2xl mx-auto leading-relaxed">
-                        Don't know what policy you need? Just tell our AI about your life, business, or specific fears in plain English. We'll search 500+ global insurance products instantly via Edge compute.
+                    <p className="mx-auto mb-12 max-w-2xl text-xl leading-relaxed text-theme-secondary">
+                        {t('hero.subtitle')}
                     </p>
 
-                    {/* Input Interface */}
-                    <RevealOnScroll direction="up" delay={0.2} className="relative z-10 max-w-2xl mx-auto">
-                        <GlassCard className="p-2 border-indigo-500/30 shadow-2xl shadow-indigo-500/10">
+                    <RevealOnScroll direction="up" delay={0.2} className="relative z-10 mx-auto max-w-2xl">
+                        <GlassCard className="border-accent/30 p-2 shadow-2xl shadow-accent/10">
                             <form onSubmit={handleSubmit} className="relative flex items-center">
-                                <Sparkles className="absolute left-6 w-6 h-6 text-indigo-500" />
+                                <Sparkles className="absolute left-6 h-6 w-6 text-accent" />
                                 <input
                                     type="text"
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
-                                    placeholder="e.g., I run a bakery and I'm worried about a flood..."
-                                    className="w-full bg-transparent border-none py-6 pl-16 pr-24 text-lg text-theme-primary placeholder:text-theme-secondary/50 focus:ring-0 outline-none"
+                                    placeholder={t('search.placeholder')}
+                                    className="w-full border-none bg-transparent py-6 pl-16 pr-24 text-lg text-theme-primary outline-none placeholder:text-theme-secondary/50 focus:ring-0"
                                 />
                                 <button
                                     type="submit"
                                     disabled={!query.trim() || isThinking}
-                                    className="absolute right-3 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold
-                                           hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center gap-2"
+                                    className="absolute right-3 flex items-center gap-2 rounded-xl bg-gradient-accent px-6 py-3 font-bold text-white transition-all active:scale-95 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {isThinking ? (
-                                        <Activity className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>Analyze <Send className="w-4 h-4" /></>
-                                    )}
-                                </button>
+                                            <Activity className="h-5 w-5 animate-spin" />
+                                        ) : (
+                                            <>
+                                                {t('search.analyze')} <Send className="h-4 w-4" />
+                                            </>
+                                        )}
+                                    </button>
                             </form>
                         </GlassCard>
 
-                        {/* Suggestion Chips */}
                         <div className="mt-6 flex flex-wrap justify-center gap-3">
                             {suggestionChips.map((chip, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setQuery(chip)}
-                                    className="px-4 py-2 rounded-full text-sm border border-default bg-theme-bg/50 text-theme-secondary
-                                             hover:border-indigo-500 hover:text-indigo-600 transition-colors"
+                                    className="rounded-full border border-default bg-theme-bg/50 px-4 py-2 text-sm text-theme-secondary transition-colors hover:border-accent hover:text-accent"
                                 >
                                     "{chip}"
                                 </button>
@@ -122,28 +126,26 @@ export default function AdvisorClient() {
                 </div>
             </section>
 
-            {/* Results Section */}
-            <div ref={resultsRef} className="pb-24 px-6 min-h-[400px]">
+            <div ref={resultsRef} className="min-h-[400px] px-6 pb-24">
                 {isThinking && (
-                    <div className="max-w-4xl mx-auto text-center py-20 animate-pulse">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500/10 mb-6">
-                            <Bot className="w-8 h-8 text-indigo-500 animate-bounce" />
+                    <div className="mx-auto max-w-4xl animate-pulse py-20 text-center">
+                        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
+                            <Bot className="h-8 w-8 animate-bounce text-accent" />
                         </div>
-                        <h3 className="text-2xl font-bold text-theme-primary mb-2">Analyzing Ontology at Edge...</h3>
-                        <p className="text-theme-secondary">Scanning 500+ IRDAI and global classifications for exact risk-parameter matches using Edge runtime.</p>
+                        <h3 className="mb-2 text-2xl font-bold text-theme-primary">{t('loading.title')}</h3>
+                        <p className="text-theme-secondary">{t('loading.description')}</p>
                     </div>
                 )}
 
                 {results && results.length > 0 && (
-                    <div className="max-w-6xl mx-auto py-12">
-                        <div className="text-center mb-12">
-                            <h2 className="text-2xl font-bold text-theme-primary">AI Inference Complete</h2>
-                            <p className="text-theme-secondary">Top {results.length} recommended coverage types for: "{searchedQuery}"</p>
+                    <div className="mx-auto max-w-6xl py-12">
+                        <div className="mb-12 text-center">
+                            <h2 className="text-2xl font-bold text-theme-primary">{t('results.title')}</h2>
+                            <p className="text-theme-secondary">{t('results.topForQuery', { count: results.length, query: searchedQuery })}</p>
                         </div>
 
-                        <StaggerContainer className="grid md:grid-cols-3 gap-6" staggerDelay={0.15}>
+                        <StaggerContainer className="grid gap-6 md:grid-cols-3" staggerDelay={0.15}>
                             {results.map((result, index) => {
-                                // Choose icon based on sector
                                 const sectorLower = result.product.sector.toLowerCase()
                                 let SectorIcon = ShieldCheck
                                 if (sectorLower.includes('life')) SectorIcon = User
@@ -153,57 +155,56 @@ export default function AdvisorClient() {
 
                                 return (
                                     <StaggerItem key={index}>
-                                        <GlassCard hover className={`h-full border-t-4 flex flex-col relative
-                                            ${index === 0 ? 'border-t-indigo-500 shadow-xl shadow-indigo-500/10' : 'border-t-default'}`}
-                                        >
+                                        <GlassCard hover className={`relative flex h-full flex-col border-t-4 ${index === 0 ? 'border-t-accent shadow-xl shadow-accent/10' : 'border-t-default'}`}>
                                             {index === 0 && (
-                                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold rounded-full shadow-lg">
-                                                    BEST MATCH
+                                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-accent px-3 py-1 text-xs font-bold text-white shadow-lg">
+                                                    {t('results.bestMatch')}
                                                 </div>
                                             )}
 
-                                            <div className="flex justify-between items-start mb-6 mt-2">
-                                                <IconContainer icon={SectorIcon} className="text-indigo-500 bg-indigo-500/10" />
+                                            <div className="mb-6 mt-2 flex items-start justify-between">
+                                                <IconContainer icon={SectorIcon} className="bg-accent/10 text-accent" />
 
-                                                {/* Confidence Ring */}
                                                 <div className="flex flex-col items-center justify-center">
-                                                    <div className="relative w-12 h-12 flex items-center justify-center">
-                                                        <svg className="w-full h-full transform -rotate-90">
+                                                    <div className="relative flex h-12 w-12 items-center justify-center">
+                                                        <svg className="h-full w-full -rotate-90 transform">
                                                             <circle cx="24" cy="24" r="20" className="stroke-default fill-none" strokeWidth="4" />
-                                                            <circle cx="24" cy="24" r="20" className="stroke-indigo-500 fill-none" strokeWidth="4"
-                                                                strokeDasharray={`${result.score * 1.25} 125`} />
+                                                            <circle
+                                                                cx="24"
+                                                                cy="24"
+                                                                r="20"
+                                                                className="fill-none stroke-accent"
+                                                                strokeWidth="4"
+                                                                strokeDasharray={`${result.score * 1.25} 125`}
+                                                            />
                                                         </svg>
                                                         <span className="absolute text-xs font-bold text-theme-primary">{result.score}%</span>
                                                     </div>
-                                                    <span className="text-[10px] text-theme-secondary mt-1 uppercase font-bold tracking-wider">Confidence</span>
+                                                    <span className="mt-1 text-[10px] font-bold uppercase tracking-wider text-theme-secondary">{t('results.confidence')}</span>
                                                 </div>
                                             </div>
 
-                                            <h3 className="text-xl font-bold text-theme-primary mb-2 line-clamp-2">
-                                                {result.product.name}
-                                            </h3>
+                                            <h3 className="mb-2 line-clamp-2 text-xl font-bold text-theme-primary">{result.product.name}</h3>
 
-                                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-theme-bg/50 border border-default text-xs font-medium text-theme-secondary mb-4 w-fit">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                                            <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-md border border-default bg-theme-bg/50 px-2.5 py-1 text-xs font-medium text-theme-secondary">
+                                                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
                                                 {result.product.subcategory}
                                             </div>
 
-                                            <p className="text-sm text-theme-secondary flex-1 leading-relaxed mb-6">
-                                                {result.product.description}
-                                            </p>
+                                            <p className="mb-6 flex-1 text-sm leading-relaxed text-theme-secondary">{result.product.description}</p>
 
-                                            <div className="mt-auto space-y-3 pt-4 border-t border-default">
+                                            <div className="mt-auto space-y-3 border-t border-default pt-4">
                                                 <div className="flex justify-between text-xs">
-                                                    <span className="text-theme-secondary">Target Risk:</span>
+                                                    <span className="text-theme-secondary">{t('results.targetRisk')}</span>
                                                     <span className="font-medium text-theme-primary">{result.product.riskType}</span>
                                                 </div>
                                                 <div className="flex justify-between text-xs">
-                                                    <span className="text-theme-secondary">Global Code:</span>
-                                                    <span className="font-mono text-theme-primary bg-theme-bg px-1 rounded">{result.product.id}</span>
+                                                    <span className="text-theme-secondary">{t('results.globalCode')}</span>
+                                                    <span className="rounded bg-theme-bg px-1 font-mono text-theme-primary">{result.product.id}</span>
                                                 </div>
                                                 <div className="flex justify-between text-xs">
-                                                    <span className="text-theme-secondary">Match Reason:</span>
-                                                    <span className="italic text-indigo-500 line-clamp-1 max-w-[150px]" title={result.matchReason}>
+                                                    <span className="text-theme-secondary">{t('results.matchReason')}</span>
+                                                    <span className="line-clamp-1 max-w-[150px] italic text-accent" title={result.matchReason}>
                                                         {result.matchReason}
                                                     </span>
                                                 </div>
@@ -215,24 +216,24 @@ export default function AdvisorClient() {
                         </StaggerContainer>
 
                         <div className="mt-12 text-center">
-                            <Link href="/insurance/directory" className="inline-flex items-center gap-2 text-indigo-500 font-bold hover:text-purple-600 transition-colors">
-                                Browse the full 500+ item directory <ArrowRight className="w-5 h-5" />
+                            <Link href="/insurance/directory" className="inline-flex items-center gap-2 font-bold text-accent transition-colors hover:text-accent-hover">
+                                {t('results.browseDirectory')} <ArrowRight className="h-5 w-5" />
                             </Link>
                         </div>
                     </div>
                 )}
 
                 {results && results.length === 0 && (
-                    <div className="max-w-md mx-auto text-center py-20">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-500/10 mb-6">
-                            <ShieldCheck className="w-8 h-8 text-rose-500" />
+                    <div className="mx-auto max-w-md py-20 text-center">
+                        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-rose-500/10">
+                            <ShieldCheck className="h-8 w-8 text-rose-500" />
                         </div>
-                        <h3 className="text-2xl font-bold text-theme-primary mb-4">No Direct Matches Found</h3>
-                        <p className="text-theme-secondary mb-8">
-                            We couldn't find an exact product mapping for "{searchedQuery}" in our 500+ item database. Try using different keywords or browsing the full directory.
+                        <h3 className="mb-4 text-2xl font-bold text-theme-primary">{t('empty.title')}</h3>
+                        <p className="mb-8 text-theme-secondary">
+                            {t('empty.description', { query: searchedQuery })}
                         </p>
-                        <Link href="/insurance/directory" className="px-6 py-3 rounded-xl glass-subtle font-bold text-theme-primary border border-default">
-                            Open Full Directory
+                        <Link href="/insurance/directory" className="glass-subtle rounded-xl border border-default px-6 py-3 font-bold text-theme-primary">
+                            {t('empty.openDirectory')}
                         </Link>
                     </div>
                 )}

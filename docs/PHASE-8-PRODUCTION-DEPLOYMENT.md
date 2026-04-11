@@ -1,5 +1,7 @@
 # Phase 8: Production Deployment & Monitoring Setup
 
+> Historical archive: this phase document is retained for audit history only. Current deployment verification lives in [post-deployment-monitoring.md](./post-deployment-monitoring.md), [MASTER-PLAN-STATUS.md](../MASTER-PLAN-STATUS.md), and the `verify:deploy` / `monitor:prod` scripts.
+
 **Status:** Ready for Production Deployment  
 **Deployment Date:** 2026-04-07  
 **Team:** Backend + DevOps + SRE

@@ -196,8 +196,8 @@ export async function processChatStep(
                     tobaccoUser: newState.tobaccoUser
                 });
 
-                // Safely extract the premium. The exact property depends on Prisma model, using any cast to be safe if types aren't synced.
-                const premium = (quoteResult.quote as any).premiumAmount || 0;
+                const quoteRecord = quoteResult.quote as { premiumAmount: number; id: string };
+                const premium = quoteRecord.premiumAmount || 0;
 
                 return {
                     newState,
@@ -208,9 +208,9 @@ export async function processChatStep(
                         type: 'summary'
                     },
                     isComplete: true,
-                    quoteId: (quoteResult.quote as any).id
+                    quoteId: quoteRecord.id
                 };
-            } catch (e) {
+            } catch {
                 // Return an error response instead of mock placeholder data
                 return {
                     newState,

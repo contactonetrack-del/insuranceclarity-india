@@ -3,6 +3,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 async function listModels() {
   if (!process.env.GEMINI_API_KEY) {
     console.error('GEMINI_API_KEY missing');
@@ -14,14 +18,14 @@ async function listModels() {
   try {
     await model.embedContent('test');
     console.log('text-embedding-004 works!');
-  } catch (e: any) {
-    console.error('text-embedding-004 failed:', e.message);
+  } catch (error) {
+    console.error('text-embedding-004 failed:', getErrorMessage(error));
     const model2 = genAI.getGenerativeModel({ model: 'models/embedding-001' });
     try {
       await model2.embedContent('test');
       console.log('embedding-001 works!');
-    } catch (e2: any) {
-      console.error('embedding-001 failed:', e2.message);
+    } catch (fallbackError) {
+      console.error('embedding-001 failed:', getErrorMessage(fallbackError));
     }
   }
 }

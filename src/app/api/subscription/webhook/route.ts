@@ -17,14 +17,17 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { ErrorFactory } from '@/lib/api/error-response';
 import {
     activateSubscription,
     verifyWebhookSignature,
 } from '@/services/subscription.service';
-import { prisma } from '@/lib/prisma';
 import { redisClient } from '@/lib/cache/redis';
 import { logAuditEvent } from '@/services/audit.service';
+import {
+    cancelSubscriptionByRazorpayId,
+    completePauseOrExpireAndDowngrade,
+    findSubscriptionByRazorpayId,
+} from '@/services/subscription-webhook.service';
 
 // Razorpay webhook events we care about
 type RazorpayWebhookEvent =
@@ -135,15 +138,9 @@ export async function POST(request: NextRequest) {
 
             case 'subscription.cancelled': {
                 // Mark as cancelled — plan stays active until period end
-                const sub = await prisma.subscription.findUnique({
-                    where: { razorpaySubscriptionId: subscription.id },
-                    select: { id: true, userId: true, plan: true },
-                });
+                const sub = await findSubscriptionByRazorpayId(subscription.id);
 
-                await prisma.subscription.update({
-                    where: { razorpaySubscriptionId: subscription.id },
-                    data: { status: 'CANCELLED', cancelledAt: new Date() },
-                }).catch((err: unknown) => {
+                await cancelSubscriptionByRazorpayId(subscription.id).catch((err: unknown) => {
                     logger.warn({ action: 'subscription.cancel.db.failed', error: String(err) });
                 });
 
@@ -194,27 +191,17 @@ export async function POST(request: NextRequest) {
             case 'subscription.paused':
             case 'subscription.expired': {
                 // Downgrade user plan to FREE
-                const sub = await prisma.subscription.findUnique({
-                    where: { razorpaySubscriptionId: subscription.id },
-                    select: { id: true, userId: true, plan: true },
-                });
+                const sub = await findSubscriptionByRazorpayId(subscription.id);
                 if (sub) {
-                    await prisma.$transaction([
-                        prisma.subscription.update({
-                            where: { razorpaySubscriptionId: subscription.id },
-                            data: {
-                                status: event === 'subscription.completed'
-                                    ? 'COMPLETED'
-                                    : event === 'subscription.expired'
-                                        ? 'EXPIRED'
-                                        : 'PAUSED',
-                            },
-                        }),
-                        prisma.user.update({
-                            where: { id: sub.userId },
-                            data: { plan: 'FREE', planExpiresAt: null },
-                        }),
-                    ]);
+                    await completePauseOrExpireAndDowngrade({
+                        razorpaySubscriptionId: subscription.id,
+                        status: event === 'subscription.completed'
+                            ? 'COMPLETED'
+                            : event === 'subscription.expired'
+                                ? 'EXPIRED'
+                                : 'PAUSED',
+                        userId: sub.userId,
+                    });
 
                     // Audit log
                     await logAuditEvent({

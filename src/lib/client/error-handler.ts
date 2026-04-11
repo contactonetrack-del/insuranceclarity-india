@@ -8,6 +8,20 @@
 import type { ClientError } from './api-client';
 import type { ApiErrorResponse } from './api-client';
 
+interface RetryAfterDetails {
+  retryAfterSeconds?: number;
+}
+
+interface ClientErrorWithRetryContext extends ClientError {
+  context: ClientError['context'] & {
+    details?: RetryAfterDetails;
+  };
+}
+
+function hasRetryAfterDetails(error: ClientError): error is ClientErrorWithRetryContext {
+  return typeof error.context === 'object' && error.context !== null && 'details' in error.context;
+}
+
 export interface ErrorHandlerConfig {
   showToast?: (message: string, type: 'error' | 'warning' | 'info') => void;
   redirectOnAuth?: boolean;
@@ -66,9 +80,11 @@ export function parseError(error: unknown, config?: ErrorHandlerConfig): UserFri
       retryable = true;
 
       // Extract retry-after if available
-      const details = (error as any).context?.details;
-      if (typeof details === 'object' && details?.retryAfterSeconds) {
-        retryAfterSeconds = details.retryAfterSeconds;
+      if (hasRetryAfterDetails(clientError)) {
+        const retryAfter = clientError.context.details?.retryAfterSeconds;
+        if (typeof retryAfter === 'number') {
+          retryAfterSeconds = retryAfter;
+        }
       }
     } else if (code.includes('SERVICE_UNAVAILABLE')) {
       severity = 'warning';

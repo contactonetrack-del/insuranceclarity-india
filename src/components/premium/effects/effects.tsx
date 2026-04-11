@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { springTransition, smoothTransition } from '@/lib/constants/animations'
+
 
 interface AnimatedBlobProps {
     className?: string
@@ -30,7 +30,7 @@ const blurClasses = {
  */
 export function AnimatedBlob({
     className,
-    color = 'rgba(var(--color-accent-rgb), 0.3)',
+    color = 'rgba(var(--token-accent-rgb), 0.3)',
     blur = 'lg',
     duration = 8,
     opacity = 0.6
@@ -77,9 +77,9 @@ interface AnimatedGradientBgProps {
 export function AnimatedGradientBg({
     className,
     colors = [
-        'rgba(var(--color-accent-rgb), 0.15)',
+        'rgba(var(--token-accent-rgb), 0.15)',
         'rgba(var(--color-accent-light), 0.1)',
-        'rgba(var(--color-accent-rgb), 0.15)'
+        'rgba(var(--token-accent-rgb), 0.15)'
     ],
     duration = 8
 }: AnimatedGradientBgProps) {
@@ -167,7 +167,7 @@ export function Shimmer({
             <motion.div
                 className="w-full h-full"
                 style={{
-                    background: 'linear-gradient(90deg, rgba(var(--color-text-muted), 0.1) 0%, rgba(var(--color-text-muted), 0.2) 50%, rgba(var(--color-text-muted), 0.1) 100%)',
+                    background: 'linear-gradient(90deg, rgba(var(--token-text-muted), 0.1) 0%, rgba(var(--token-text-muted), 0.2) 50%, rgba(var(--token-text-muted), 0.1) 100%)',
                     backgroundSize: '200% 100%'
                 }}
                 animate={{

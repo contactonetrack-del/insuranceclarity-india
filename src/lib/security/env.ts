@@ -1,4 +1,5 @@
 import { logger } from '@/lib/logger';
+import type { SubscriptionPlan } from '@/lib/domain/enums';
 
 const PLACEHOLDER_MARKERS = [
     'replace_with',
@@ -22,14 +23,12 @@ export function isPlaceholderValue(value: string | null | undefined): boolean {
     return PLACEHOLDER_MARKERS.some((marker) => v.includes(marker));
 }
 
-type SubscriptionPlan = 'PRO' | 'ENTERPRISE';
-
 function shouldEnforceHostedProductionChecks(): boolean {
     return process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'production';
 }
 
 export function requireStrongNextAuthSecret(): string {
-    const secret = process.env.NEXTAUTH_SECRET?.trim() ?? '';
+    const secret = (process.env.NEXTAUTH_SECRET?.trim() ?? process.env.BETTER_AUTH_SECRET?.trim() ?? '');
     const isWeak = secret.length < 32 || isPlaceholderValue(secret) || secret.includes('insurance-clarity-secret-key');
 
     if (isWeak) {
@@ -44,6 +43,60 @@ export function requireStrongNextAuthSecret(): string {
     }
 
     return secret;
+}
+
+export function requireStrongBetterAuthSecret(): string {
+    const secret = process.env.BETTER_AUTH_SECRET?.trim() ?? process.env.NEXTAUTH_SECRET?.trim() ?? '';
+    const isWeak = secret.length < 32 || isPlaceholderValue(secret) || secret.includes('insurance-clarity-secret-key');
+
+    if (isWeak) {
+        const message =
+            'BETTER_AUTH_SECRET is weak or placeholder. Generate a secure secret: openssl rand -base64 32';
+
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error(message);
+        }
+
+        logger.warn({ action: 'auth.secret.weak', message });
+    }
+
+    return secret;
+}
+
+export function getBetterAuthBaseUrl(): string {
+    const candidates = [
+        process.env.BETTER_AUTH_URL,
+        process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+        process.env.NEXTAUTH_URL,
+        process.env.NEXT_PUBLIC_APP_URL,
+        process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '',
+        process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '',
+    ];
+
+    const baseUrl = candidates
+        .map((value) => value?.trim() ?? '')
+        .find((value) => value && !isPlaceholderValue(value));
+
+    if (baseUrl) {
+        return baseUrl.replace(/\/$/, '');
+    }
+
+    const message =
+        'Better Auth base URL is missing. Configure BETTER_AUTH_URL or NEXT_PUBLIC_APP_URL.';
+
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error(message);
+    }
+
+    logger.warn({ action: 'auth.base_url.missing', message });
+    return 'http://localhost:3000';
+}
+
+export function getAdminEmails(): string[] {
+    return (process.env.ADMIN_EMAILS ?? '')
+        .split(',')
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean);
 }
 
 export function getGoogleOAuthConfig(): { clientId: string; clientSecret: string } | null {
@@ -69,6 +122,22 @@ export function getGoogleOAuthConfig(): { clientId: string; clientSecret: string
 
     logger.warn({ action: 'auth.google.disabled', message });
     return null;
+}
+
+export function getGeminiApiKey(): string {
+    const apiKey = process.env.GEMINI_API_KEY?.trim() ?? '';
+
+    if (!apiKey || isPlaceholderValue(apiKey)) {
+        const message = 'GEMINI_API_KEY is missing or placeholder. AI scan analysis will fail.';
+
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error(message);
+        }
+
+        logger.warn({ action: 'ai.gemini_key.missing', message });
+    }
+
+    return apiKey;
 }
 
 export function getRazorpayCredentials(): { keyId: string; keySecret: string; webhookSecret: string } {

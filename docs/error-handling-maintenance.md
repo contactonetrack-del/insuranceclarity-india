@@ -1,5 +1,7 @@
 # Error Handling Maintenance & Troubleshooting
 
+> Historical note: this document predates the PostgreSQL search migration. Meilisearch references below should be read as legacy examples only.
+
 Operational guide for maintaining error handling systems, troubleshooting common issues, and best practices for production support.
 
 ## Table of Contents
@@ -39,8 +41,8 @@ psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "SELECT NOW();"
 echo "Checking Razorpay..."
 curl -s https://api.razorpay.com/v1/keys/id -u $RAZORPAY_KEY:$RAZORPAY_SECRET | jq .
 
-echo "Checking Meilisearch..."
-curl -s https://meilisearch.example.com/health | jq .
+echo "Checking runtime dependencies..."
+curl -s https://your-app.vercel.app/api/health/runtime | jq .
 ```
 
 ### Hourly Monitoring
@@ -82,7 +84,7 @@ ORDER BY count DESC;
 
 **Common Causes:**
 
-1. **External Service Down (Razorpay, Meilisearch)**
+1. **External Service Down (Razorpay, Gemini, Sanity, storage provider)**
    ```typescript
    // Check integration status
    const razorpayStatus = await fetch('https://api.razorpay.com/v1/health');

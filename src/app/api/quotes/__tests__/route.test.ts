@@ -18,6 +18,11 @@ const { mockEnforceRole } = vi.hoisted(() => ({
     mockEnforceRole: vi.fn(),
 }));
 
+const { mockLoggerInfo, mockLoggerError } = vi.hoisted(() => ({
+    mockLoggerInfo: vi.fn(),
+    mockLoggerError: vi.fn(),
+}));
+
 vi.mock('@/lib/auth/session', () => ({
     enforceRole: mockEnforceRole
 }));
@@ -29,8 +34,8 @@ vi.mock('@/lib/security/csrf', () => ({
 
 vi.mock('@/lib/logger', () => ({
     logger: {
-        info: vi.fn(),
-        error: vi.fn(),
+        info: mockLoggerInfo,
+        error: mockLoggerError,
     }
 }));
 
@@ -87,5 +92,21 @@ describe('POST /api/quotes', () => {
         expect(response.status).toBe(403);
         expect(json.error).toBe('Unauthorized');
         expect(mockDispatch).not.toHaveBeenCalled();
+    });
+
+    it('should return 500 when queue dispatch fails', async () => {
+        mockEnforceRole.mockResolvedValue(true);
+        mockDispatch.mockRejectedValue(new Error('queue unavailable'));
+
+        const request = createRequest({ quoteId: 'QDOC-1234' });
+        const response = await POST(request);
+        const json = await response.json();
+
+        expect(response.status).toBe(500);
+        expect(json.error).toBe('Failed to process quote');
+        expect(mockLoggerError).toHaveBeenCalledWith({
+            action: 'quote.error',
+            error: 'queue unavailable',
+        });
     });
 });

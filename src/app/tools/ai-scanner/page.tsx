@@ -15,7 +15,9 @@ import {
     X
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useAuthSession } from '@/lib/auth-client';
+import { useTranslations } from 'next-intl';
 
 interface ScanResult {
     policyName: string;
@@ -27,10 +29,27 @@ interface ScanResult {
 
 export default function AIScannerPage() {
     useAuthSession();
+    const router = useRouter();
+    const t = useTranslations('tools.aiScannerPage');
     const [file, setFile] = useState<File | null>(null);
     const [isScanning, setIsScanning] = useState(false);
     const [result, setResult] = useState<ScanResult | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    async function getCsrfToken(): Promise<string | null> {
+        if (typeof document !== 'undefined') {
+            const match = document.cookie.match(/(?:^|;\s*)__csrf=([^;]+)/);
+            if (match) return decodeURIComponent(match[1]);
+        }
+        try {
+            const res = await fetch('/api/csrf');
+            if (!res.ok) return null;
+            const data = await res.json() as { csrfToken?: string };
+            return data.csrfToken ?? null;
+        } catch {
+            return null;
+        }
+    }
 
     async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
         const selectedFile = e.target.files?.[0];
@@ -38,7 +57,7 @@ export default function AIScannerPage() {
             setFile(selectedFile);
             setError(null);
         } else {
-            setError("Please upload a valid PDF file.");
+            setError(t('errors.invalidPdf'));
         }
     }
 
@@ -52,18 +71,30 @@ export default function AIScannerPage() {
         formData.append("file", file);
 
         try {
-            const resp = await fetch("/api/ai/scan-policy", {
+            const csrfToken = await getCsrfToken();
+            const resp = await fetch("/api/upload", {
                 method: "POST",
+                headers: {
+                    ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
+                },
                 body: formData,
             });
 
             if (!resp.ok) {
                 const err = await resp.json();
-                throw new Error(err.error || "Failed to scan policy");
+                throw new Error(err.error || t('errors.scanFailedFallback'));
             }
 
-            const data = await resp.json();
-            setResult(data);
+            const data = await resp.json() as { scanId?: string; claimToken?: string };
+            if (!data.scanId) {
+                throw new Error(t('errors.scanFailedFallback'));
+            }
+
+            if (data.claimToken && typeof window !== 'undefined') {
+                sessionStorage.setItem(`scan_claim_${data.scanId}`, data.claimToken);
+            }
+
+            router.push(`/scan/result/${data.scanId}`);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : String(err));
         } finally {
@@ -77,19 +108,17 @@ export default function AIScannerPage() {
                 <header className="mb-12">
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent text-sm rounded-full mb-4 font-bold">
                         <Zap className="w-4 h-4" />
-                        AI POLICY AUDITOR
+                        {t('hero.badge')}
                     </div>
                     <h1 className="text-4xl md:text-6xl font-display font-bold text-theme-primary">
-                        Reveal <span className="text-gradient">Hidden Exclusions</span>
+                        {t('hero.titlePrefix')} <span className="text-gradient">{t('hero.titleHighlight')}</span>
                     </h1>
                     <p className="text-theme-muted mt-4 text-lg max-w-2xl leading-relaxed">
-                        Upload any insurance brochure or policy wording PDF. Our AI will scan
-                        thousands of words to find the traps insurers don&apos;t want you to see.
+                        {t('hero.subtitle')}
                     </p>
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                    {/* Main Content Area */}
                     <div className="lg:col-span-12">
                         {!result && !isScanning ? (
                             <motion.div
@@ -98,8 +127,7 @@ export default function AIScannerPage() {
                                 className="max-w-3xl mx-auto"
                             >
                                 <div
-                                    className={`glass-strong rounded-[2.5rem] p-12 border-2 border-dashed transition-all cursor-pointer hover:border-accent group relative overflow-hidden ${file ? "border-accent bg-accent/5" : "border-default"
-                                        }`}
+                                    className={`glass-strong rounded-[2.5rem] p-12 border-2 border-dashed transition-all cursor-pointer hover:border-accent group relative overflow-hidden ${file ? "border-accent bg-accent/5" : "border-default"}`}
                                     onClick={() => document.getElementById("file-upload")?.click()}
                                 >
                                     <div className="absolute top-0 right-0 p-8 opacity-5">
@@ -113,18 +141,18 @@ export default function AIScannerPage() {
                                         {file ? (
                                             <div className="space-y-2">
                                                 <h3 className="text-2xl font-bold text-theme-primary">{file.name}</h3>
-                                                <p className="text-theme-muted">{(file.size / 1024 / 1024).toFixed(2)} MB • PDF Document</p>
+                                                <p className="text-theme-muted">{(file.size / 1024 / 1024).toFixed(2)} MB • {t('upload.pdfDocument')}</p>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); setFile(null); }}
                                                     className="text-rose-500 text-xs font-bold hover:underline flex items-center justify-center gap-1 mx-auto mt-2"
                                                 >
-                                                    <X className="w-3 h-3" /> Remove File
+                                                    <X className="w-3 h-3" /> {t('actions.removeFile')}
                                                 </button>
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
-                                                <h3 className="text-2xl font-bold text-theme-primary">Drop brochure here</h3>
-                                                <p className="text-theme-muted">Click or drag and drop your insurance PDF</p>
+                                                <h3 className="text-2xl font-bold text-theme-primary">{t('upload.dropTitle')}</h3>
+                                                <p className="text-theme-muted">{t('upload.dropDescription')}</p>
                                             </div>
                                         )}
 
@@ -133,7 +161,7 @@ export default function AIScannerPage() {
                                             type="file"
                                             accept=".pdf"
                                             className="hidden"
-                                            aria-label="Upload insurance policy brochure"
+                                            aria-label={t('upload.ariaLabel')}
                                             onChange={handleFileUpload}
                                         />
 
@@ -142,16 +170,16 @@ export default function AIScannerPage() {
                                                 onClick={(e) => { e.stopPropagation(); startScan(); }}
                                                 className="btn-accent px-10 py-5 rounded-2xl font-bold text-lg shadow-xl shadow-accent/20 active:scale-95 transition-all"
                                             >
-                                                Start AI Audit
+                                                {t('actions.startAudit')}
                                             </button>
                                         )}
                                     </div>
                                 </div>
 
                                 <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 opacity-60">
-                                    <FeatureItem icon={<ShieldAlert className="w-4 h-4" />} text="Discovers Sub-limits" />
-                                    <FeatureItem icon={<Clock className="w-4 h-4" />} text="Extracts Waiting Periods" />
-                                    <FeatureItem icon={<AlertTriangle className="w-4 h-4" />} text="Identifies Red Flags" />
+                                    <FeatureItem icon={<ShieldAlert className="w-4 h-4" />} text={t('features.subLimits')} />
+                                    <FeatureItem icon={<Clock className="w-4 h-4" />} text={t('features.waitingPeriods')} />
+                                    <FeatureItem icon={<AlertTriangle className="w-4 h-4" />} text={t('features.redFlags')} />
                                 </div>
                             </motion.div>
                         ) : isScanning ? (
@@ -163,10 +191,9 @@ export default function AIScannerPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-3">
-                                    <h3 className="text-2xl font-bold text-theme-primary animate-pulse">Analyzing Policy Wording...</h3>
+                                    <h3 className="text-2xl font-bold text-theme-primary animate-pulse">{t('scanning.title')}</h3>
                                     <p className="text-theme-muted leading-relaxed">
-                                        Our AI is scanning thousands of clauses to find hidden exclusions.
-                                        This usually takes 15-30 seconds.
+                                        {t('scanning.description')}
                                     </p>
                                 </div>
                                 <div className="w-full h-1.5 bg-theme-secondary rounded-full overflow-hidden">
@@ -184,11 +211,10 @@ export default function AIScannerPage() {
                                 animate={{ opacity: 1 }}
                                 className="grid grid-cols-1 lg:grid-cols-12 gap-10"
                             >
-                                {/* Score & Verdict Side */}
                                 <div className="lg:col-span-4 space-y-8">
                                     <div className="glass-strong rounded-[2.5rem] p-10 border border-default shadow-xl sticky top-32">
                                         <div className="text-center space-y-6">
-                                            <p className="text-theme-muted font-bold text-xs uppercase tracking-widest">Global Transparency Score</p>
+                                            <p className="text-theme-muted font-bold text-xs uppercase tracking-widest">{t('result.globalTransparencyScore')}</p>
                                             <div className="relative inline-block">
                                                 <svg className="w-40 h-40 transform -rotate-90">
                                                     <circle cx="80" cy="80" r="70" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="12" fill="none" />
@@ -206,7 +232,7 @@ export default function AIScannerPage() {
                                                 </svg>
                                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                                                     <span className="text-4xl font-black text-theme-primary">{result.overallScore}</span>
-                                                    <span className="text-[10px] font-bold text-theme-muted">OUT OF 100</span>
+                                                    <span className="text-[10px] font-bold text-theme-muted">{t('result.outOf100')}</span>
                                                 </div>
                                             </div>
 
@@ -223,19 +249,17 @@ export default function AIScannerPage() {
                                                 onClick={() => { setResult(null); setFile(null); }}
                                                 className="text-accent text-sm font-bold hover:underline flex items-center justify-center gap-1 mx-auto"
                                             >
-                                                Scan Another Policy <ChevronRight className="w-4 h-4" />
+                                                {t('actions.scanAnotherPolicy')} <ChevronRight className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Detailed Findings Side */}
                                 <div className="lg:col-span-8 space-y-12">
-                                    {/* Red Flags Section */}
                                     <div className="space-y-6">
                                         <h2 className="text-2xl font-bold text-theme-primary flex items-center gap-3">
                                             <ShieldAlert className="w-6 h-6 text-rose-500" />
-                                            Critical Red Flags & Exclusions
+                                            {t('result.redFlagsTitle')}
                                         </h2>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {result.redFlags.map((flag, idx) => (
@@ -243,13 +267,13 @@ export default function AIScannerPage() {
                                                     <div className="flex items-center justify-between mb-3">
                                                         <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${flag.severity === "High" ? "bg-rose-500/10 text-rose-500" :
                                                                 flag.severity === "Medium" ? "bg-amber-500/10 text-amber-500" :
-                                                                    "bg-blue-500/10 text-blue-500"
+                                                                    "bg-info-500/10 text-info-500"
                                                             }`}>
-                                                            {flag.severity} Severity
+                                                            {t(`severity.${flag.severity.toLowerCase()}`)} {t('severity.suffix')}
                                                         </span>
                                                         <AlertTriangle className={`w-4 h-4 ${flag.severity === "High" ? "text-rose-500" :
                                                                 flag.severity === "Medium" ? "text-amber-500" :
-                                                                    "text-blue-500"
+                                                                    "text-info-500"
                                                             }`} />
                                                     </div>
                                                     <h4 className="font-bold text-theme-primary mb-2">{flag.item}</h4>
@@ -259,11 +283,10 @@ export default function AIScannerPage() {
                                         </div>
                                     </div>
 
-                                    {/* Waiting Periods Section */}
                                     <div className="space-y-6">
                                         <h2 className="text-2xl font-bold text-theme-primary flex items-center gap-3">
                                             <Clock className="w-6 h-6 text-accent" />
-                                            Waiting Periods
+                                            {t('result.waitingPeriodsTitle')}
                                         </h2>
                                         <div className="space-y-4">
                                             {result.waitingPeriods.map((wp, idx) => (
@@ -273,22 +296,21 @@ export default function AIScannerPage() {
                                                             {wp.duration}
                                                         </div>
                                                         <div>
-                                                            <h4 className="font-bold text-theme-primary">{wp.type} Waiting Period</h4>
+                                                            <h4 className="font-bold text-theme-primary">{wp.type} {t('result.waitingPeriodSuffix')}</h4>
                                                             <p className="text-xs text-theme-muted">{wp.details}</p>
                                                         </div>
                                                     </div>
                                                     <div className="p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <CheckCircle className="w-5 h-5 text-emerald-500" />
+                                                        <CheckCircle className="w-5 h-5 text-success-500" />
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
 
-                                    {/* Disclaimer */}
                                     <div className="p-6 rounded-3xl bg-slate-100 dark:bg-slate-900 border border-default text-xs text-theme-muted leading-relaxed">
                                         <p>
-                                            <strong>AI Disclosure:</strong> This audit is generated by our AI model scanning the text of the PDF you provided. While highly accurate, insurance wording is complex. Always double-check these findings with your policy agent or the official policy schedule.
+                                            <strong>{t('result.aiDisclosureLabel')}</strong> {t('result.aiDisclosureText')}
                                         </p>
                                     </div>
                                 </div>

@@ -1,5 +1,7 @@
 # PHASE 7 & 8: COMPLETE IMPLEMENTATION SUMMARY
 
+> Historical archive: retained for implementation history. Current operational status is tracked in [MASTER-PLAN-STATUS.md](../MASTER-PLAN-STATUS.md).
+
 **Project Status:** ✅ PRODUCTION READY  
 **Date:** April 7, 2026  
 **Phases Completed:** 6.4, 6.5, 7, 8

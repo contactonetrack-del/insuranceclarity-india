@@ -1,12 +1,15 @@
+import type { UserRole } from '@/lib/domain/enums';
+
 /**
  * Role-Based Access Control (RBAC) Definitions
  * 
  * Defines the strict authorization matrix for the platform.
  */
 
-export type Role = 'GUEST' | 'CUSTOMER' | 'AGENT' | 'ADMIN';
+export type Role = UserRole;
 
 export type Permission =
+    | 'session:read'
     | 'quotes:read'
     | 'quotes:write'
     | 'policies:read'
@@ -19,6 +22,7 @@ export type Permission =
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     GUEST: ['quotes:write'], // Guests can only generate new quotes
     CUSTOMER: [
+        'session:read',
         'quotes:read',
         'quotes:write',
         'policies:read',
@@ -26,6 +30,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         'claims:write', // Customers can file claims against their policies
     ],
     AGENT: [
+        'session:read',
         'quotes:read',
         'quotes:write',
         'policies:read',
@@ -34,6 +39,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
         'users:read',
     ],
     ADMIN: [
+        'session:read',
         'quotes:read',
         'quotes:write',
         'policies:read',

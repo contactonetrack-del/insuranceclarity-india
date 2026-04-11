@@ -1,5 +1,5 @@
 import { createClient } from 'next-sanity';
-import { createImageUrlBuilder } from '@sanity/image-url';
+import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url';
 import { getSanityConfig } from '@/lib/security/env';
 
 const sanityConfig = getSanityConfig();
@@ -14,7 +14,7 @@ export const client = createClient({
 const builder = createImageUrlBuilder(client);
 
 export function urlFor(source: unknown) {
-    return builder.image(source as any);
+    return builder.image(source as SanityImageSource);
 }
 
 export async function getPosts() {

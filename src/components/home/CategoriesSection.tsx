@@ -1,34 +1,37 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { ArrowRight, Shield, Briefcase } from 'lucide-react'
 import { RevealOnScroll, StaggerContainer, StaggerItem, TiltCard, GlassCard, IconContainer } from '@/components/premium'
 import { insuranceCategories, businessCategories } from '@/config/home-data'
 
 export function CategoriesSection() {
+    const t = useTranslations('home.categoriesSection')
+
     return (
         <>
             {/* Insurance Categories */}
             <section className="py-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <RevealOnScroll className="text-center mb-12">
-                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent 
+                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent 
                            text-sm rounded-full mb-4 font-medium">
                             <Shield className="w-4 h-4" />
-                            BROWSE INSURANCE
+                            {t('insurance.badge')}
                         </span>
                         <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary">
-                            Explore Insurance Types
+                            {t('insurance.title')}
                         </h2>
                         <p className="text-theme-secondary mt-4 max-w-xl mx-auto">
-                            Comprehensive guides for every insurance category with hidden facts and real claim cases.
+                            {t('insurance.description')}
                         </p>
                     </RevealOnScroll>
 
                     <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
                         {insuranceCategories.map((cat) => (
                             <StaggerItem key={cat.href} className="h-full">
-                                <Link href={cat.href} className="block h-full">
+                                <Link href={cat.href} className="interactive-focus block h-full rounded-3xl">
                                     <TiltCard containerClassName="h-full" className="h-full">
                                         <GlassCard
                                             hover
@@ -40,8 +43,8 @@ export function CategoriesSection() {
                                                     icon={cat.icon}
                                                     size="lg"
                                                     variant="gradient"
-                                                    gradientFrom={`from-${cat.color.split(' ')[0].replace('from-', '')}`}
-                                                    gradientTo={`to-${cat.color.split(' ')[1].replace('to-', '')}`}
+                                                    tone={cat.tone}
+                                                    surface={cat.surface}
                                                 />
                                                 <div className="flex-1">
                                                     <h3 className="font-display font-semibold text-lg text-theme-primary mb-1 
@@ -66,23 +69,23 @@ export function CategoriesSection() {
             <section className="pb-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <RevealOnScroll className="text-center mb-12">
-                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-10 text-accent 
+                        <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 text-accent 
                            text-sm rounded-full mb-4 font-medium">
                             <Briefcase className="w-4 h-4" />
-                            COMMERCIAL & EMERGING
+                            {t('business.badge')}
                         </span>
                         <h2 className="font-display font-bold text-3xl md:text-4xl text-theme-primary">
-                            Business & Advanced Insurance
+                            {t('business.title')}
                         </h2>
                         <p className="text-theme-secondary mt-4 max-w-xl mx-auto">
-                            Protect your enterprise with comprehensive coverage for modern risks, liabilities, and emerging technologies.
+                            {t('business.description')}
                         </p>
                     </RevealOnScroll>
 
                     <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center" staggerDelay={0.08}>
                         {businessCategories.map((cat) => (
                             <StaggerItem key={cat.href} className="h-full">
-                                <Link href={cat.href} className="block h-full">
+                                <Link href={cat.href} className="interactive-focus block h-full rounded-3xl">
                                     <TiltCard containerClassName="h-full" className="h-full">
                                         <GlassCard
                                             hover
@@ -94,8 +97,8 @@ export function CategoriesSection() {
                                                     icon={cat.icon}
                                                     size="lg"
                                                     variant="gradient"
-                                                    gradientFrom={`from-${cat.color.split(' ')[0].replace('from-', '')}`}
-                                                    gradientTo={`to-${cat.color.split(' ')[1].replace('to-', '')}`}
+                                                    tone={cat.tone}
+                                                    surface={cat.surface}
                                                 />
                                                 <div className="flex-1">
                                                     <h3 className="font-display font-semibold text-lg text-theme-primary mb-1 

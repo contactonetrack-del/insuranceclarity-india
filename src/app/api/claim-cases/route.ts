@@ -1,17 +1,13 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { getDbFallbackErrorMessage, isExpectedDbFallbackError } from '@/lib/prisma-fallback';
+import { claimsService } from '@/services/claims.service';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const cases = await prisma.claimCase.findMany({
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        const cases = await claimsService.listAllClaims();
 
         return NextResponse.json(cases);
     } catch (error) {

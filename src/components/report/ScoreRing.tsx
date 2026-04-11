@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface ScoreRingProps {
     score: number;
@@ -17,19 +18,19 @@ interface ScoreRingProps {
 }
 
 function getScoreColor(score: number): string {
-    if (score >= 80) return '#22c55e'; // Green  — Excellent
-    if (score >= 60) return '#f59e0b'; // Amber  — Good
-    if (score >= 40) return '#f97316'; // Orange — Average
-    if (score >= 20) return '#ef4444'; // Red    — Poor
-    return '#991b1b';                   // Dark Red — Very Poor
+    if (score >= 80) return 'rgb(var(--token-semantic-success))';
+    if (score >= 60) return 'rgb(var(--token-semantic-warning))';
+    if (score >= 40) return 'rgb(var(--token-semantic-warning))';
+    if (score >= 20) return 'rgb(var(--token-semantic-danger))';
+    return 'rgb(var(--token-semantic-danger))';
 }
 
-function getScoreLabel(score: number): string {
-    if (score >= 80) return 'Excellent';
-    if (score >= 60) return 'Good';
-    if (score >= 40) return 'Average';
-    if (score >= 20) return 'Poor';
-    return 'Very Poor';
+function getScoreLabel(score: number): 'excellent' | 'good' | 'average' | 'poor' | 'veryPoor' {
+    if (score >= 80) return 'excellent';
+    if (score >= 60) return 'good';
+    if (score >= 40) return 'average';
+    if (score >= 20) return 'poor';
+    return 'veryPoor';
 }
 
 export function ScoreRing({
@@ -39,6 +40,7 @@ export function ScoreRing({
     animated      = true,
     className     = '',
 }: ScoreRingProps) {
+    const t = useTranslations('scan.resultPage.report.scoreRing');
     const clampedScore = Math.max(0, Math.min(100, Math.round(score)));
 
     const radius      = (size - strokeWidth) / 2;
@@ -46,7 +48,7 @@ export function ScoreRing({
     const center      = size / 2;
 
     const color = getScoreColor(clampedScore);
-    const label = getScoreLabel(clampedScore);
+    const label = t(`labels.${getScoreLabel(clampedScore)}`);
 
     // Animate from 0 to target score
     const [displayScore, setDisplayScore] = useState(animated ? 0 : clampedScore);
@@ -84,8 +86,8 @@ export function ScoreRing({
 
     return (
         <figure
-            className={`score-ring ${className}`}
-            aria-label={`Policy transparency score: ${clampedScore} out of 100 — ${label}`}
+            className={`m-0 flex shrink-0 flex-col items-center gap-1.5 ${className}`}
+            aria-label={t('ariaLabel', { score: clampedScore, label })}
             role="img"
         >
             <svg
@@ -100,7 +102,7 @@ export function ScoreRing({
                     cy={center}
                     r={radius}
                     fill="none"
-                    stroke="var(--color-border, #e5e7eb)"
+                    stroke="rgb(var(--token-border-subtle))"
                     strokeWidth={strokeWidth}
                 />
 
@@ -116,7 +118,7 @@ export function ScoreRing({
                     strokeDashoffset={dashOffset}
                     strokeLinecap="round"
                     transform={`rotate(-90 ${center} ${center})`}
-                    className="score-ring__progress"
+                    style={{ transition: 'stroke-dashoffset 0.05s linear' }}
                 />
 
                 {/* Score text */}
@@ -139,15 +141,15 @@ export function ScoreRing({
                     y={center + size * 0.15}
                     textAnchor="middle"
                     fontSize={size * 0.085}
-                    fill="var(--color-text-secondary, #6b7280)"
+                    fill="rgb(var(--color-text-secondary))"
                     fontFamily="inherit"
                 >
                     {label}
                 </text>
             </svg>
 
-            <figcaption className="score-ring__caption">
-                Transparency Score
+            <figcaption className="text-xs font-semibold uppercase tracking-[0.08em] text-token-text-muted">
+                {t('caption')}
             </figcaption>
         </figure>
     );

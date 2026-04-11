@@ -1,227 +1,331 @@
-import NextAuth, { type DefaultSession } from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
-import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { getGoogleOAuthConfig, requireStrongNextAuthSecret } from "@/lib/security/env";
-import { logger, logSecurityEvent } from "@/lib/logger";
-import { redisClient } from "@/lib/cache/redis";
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { emailOTP } from 'better-auth/plugins/email-otp';
+import { nextCookies, toNextJsHandler } from 'better-auth/next-js';
+import { headers } from 'next/headers';
+import { prisma } from '@/lib/prisma';
 import {
-    normalizeEmailForOtp,
-    normalizeOtpCode,
-    secureOtpEquals,
-} from '@/lib/security/otp';
-
-/**
- * Auth.js v5 Configuration
- * 
- * This file replaces the NextAuth options in the API route.
- * It provides the main `auth()`, `signIn()`, and `signOut()` functions
- * used throughout the application.
- */
+    getBetterAuthBaseUrl,
+    getGoogleOAuthConfig,
+    requireStrongBetterAuthSecret,
+} from '@/lib/security/env';
+import { logger } from '@/lib/logger';
+import { sendOtpEmail } from '@/services/email.service';
+import { isE2eOtpHarnessEnabled, setE2eOtp } from '@/lib/auth/e2e-otp-store';
+import {
+    resolveAuthPlan,
+    resolveAuthRole,
+    toAppAuthSession,
+    type AppAuthSession,
+} from '@/lib/auth/session-shape';
 
 const googleOAuth = getGoogleOAuthConfig();
-const OTP_MAX_VERIFY_ATTEMPTS = 8;
-const OTP_VERIFY_WINDOW_SECONDS = 10 * 60;
-const OTP_LOCK_SECONDS = 15 * 60;
+const betterAuthBaseUrl = getBetterAuthBaseUrl();
+const betterAuthDatabaseRateLimitEnabled =
+    (process.env.BETTER_AUTH_DB_RATE_LIMIT_ENABLED?.trim() ?? '')
+        .toLowerCase() === 'true' ||
+    (process.env.BETTER_AUTH_DB_RATE_LIMIT_ENABLED == null &&
+        process.env.NODE_ENV === 'production');
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-    adapter: PrismaAdapter(prisma),
-    session: { strategy: "jwt" },
-    trustHost: true, // Required for reliable host header processing in Vercel
-    cookies: {
-        sessionToken: {
-            name: process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "next-auth.session-token",
-            options: {
-                httpOnly: true,
-                sameSite: "lax",
-                path: "/",
-                secure: process.env.NODE_ENV === "production",
-            },
-        },
+function getAllowedHosts(): string[] {
+    const allowedHosts = new Set<string>([
+        'localhost:3000',
+        '127.0.0.1:3000',
+        '*.vercel.app',
+    ]);
+
+    try {
+        allowedHosts.add(new URL(betterAuthBaseUrl).host);
+    } catch {
+        // Base URL validation is handled by env helpers.
+    }
+
+    return [...allowedHosts];
+}
+
+function withLocaleHeader(source: Headers, locale?: string): Headers {
+    const nextHeaders = new Headers(source);
+    if (locale) {
+        nextHeaders.set('x-auth-locale', locale);
+    }
+    return nextHeaders;
+}
+
+export const authApi = betterAuth({
+    appName: 'Insurance Clarity',
+    baseURL: {
+        allowedHosts: getAllowedHosts(),
+        fallback: betterAuthBaseUrl,
+        protocol: process.env.NODE_ENV === 'development' ? 'http' : 'auto',
     },
-    providers: [
-        ...(googleOAuth ? [
-            GoogleProvider({
+    basePath: '/api/auth',
+    secret: requireStrongBetterAuthSecret(),
+    database: prismaAdapter(prisma, {
+        provider: 'postgresql',
+        transaction: true,
+    }),
+    emailAndPassword: {
+        enabled: false,
+    },
+    socialProviders: googleOAuth
+        ? {
+            google: {
                 clientId: googleOAuth.clientId,
                 clientSecret: googleOAuth.clientSecret,
-            })
-        ] : []),
-        CredentialsProvider({
-            id: 'email-otp',
-            name: 'Email OTP',
-            credentials: {
-                email: { label: "Email", type: "email" },
-                otp: { label: "OTP", type: "text" }
+                prompt: 'select_account consent',
             },
-            async authorize(credentials) {
-                const { email, otp } = credentials ?? {};
-                if (!email || !otp) {
-                    throw new Error("Email and OTP are required");
+        }
+        : {},
+    user: {
+        modelName: 'User',
+        fields: {
+            emailVerified: 'betterAuthEmailVerified',
+        },
+        additionalFields: {
+            role: {
+                type: 'string',
+                required: false,
+                defaultValue: 'CUSTOMER',
+                input: false,
+            },
+            plan: {
+                type: 'string',
+                required: false,
+                defaultValue: 'FREE',
+                input: false,
+            },
+        },
+    },
+    session: {
+        modelName: 'AuthSession',
+        cookieCache: {
+            enabled: true,
+            maxAge: 300,
+        },
+    },
+    account: {
+        modelName: 'AuthAccount',
+        accountLinking: {
+            trustedProviders: ['google'],
+        },
+        encryptOAuthTokens: true,
+    },
+    verification: {
+        modelName: 'AuthVerification',
+        storeIdentifier: 'hashed',
+    },
+    ...(betterAuthDatabaseRateLimitEnabled
+        ? {
+            rateLimit: {
+                enabled: true,
+                storage: 'database' as const,
+                modelName: 'AuthRateLimit',
+                window: 60,
+                max: 100,
+                customRules: {
+                    '/email-otp/send-verification-otp': {
+                        window: 60,
+                        max: 3,
+                    },
+                    '/sign-in/email-otp': {
+                        window: 600,
+                        max: 8,
+                    },
+                    '/sign-in/social': {
+                        window: 60,
+                        max: 20,
+                    },
+                },
+            },
+        }
+        : {}),
+    advanced: {
+        trustedProxyHeaders: true,
+        cookiePrefix: 'insurance-clarity',
+        cookies: {
+            session_token: {
+                name:
+                    process.env.NODE_ENV === 'production'
+                        ? '__Secure-insurance-clarity.session-token'
+                        : 'insurance-clarity.session-token',
+                attributes: {
+                    httpOnly: true,
+                    sameSite: 'lax',
+                    path: '/',
+                    secure: process.env.NODE_ENV === 'production',
+                },
+            },
+        },
+    },
+    plugins: [
+        nextCookies(),
+        emailOTP({
+            otpLength: 6,
+            expiresIn: 300,
+            allowedAttempts: 8,
+            disableSignUp: false,
+            storeOTP: 'hashed',
+            ...(betterAuthDatabaseRateLimitEnabled
+                ? {
+                    rateLimit: {
+                        window: 60,
+                        max: 3,
+                    },
                 }
+                : {}),
+            async sendVerificationOTP(data, ctx) {
+                const localeHeader = ctx?.request?.headers.get('x-auth-locale') ?? undefined;
+                const locale =
+                    localeHeader?.toLowerCase().startsWith('hi') ? 'hi' : 'en';
 
-                const normalizedEmail = normalizeEmailForOtp(String(email));
-                const normalizedOtp = normalizeOtpCode(String(otp));
-                if (normalizedOtp.length !== 6) {
-                    throw new Error('Invalid or expired OTP');
-                }
-
-                const otpKey = `auth:otp:${normalizedEmail}`;
-                const failKey = `auth:otp:fail:${normalizedEmail}`;
-                const lockKey = `auth:otp:lock:${normalizedEmail}`;
-
-                const isLocked = await redisClient.get<string>(lockKey);
-                if (isLocked) {
-                    throw new Error('Too many attempts. Please request a new OTP in 15 minutes.');
-                }
-
-                const storedOtpHash = await redisClient.get<string>(otpKey);
-                const otpIsValid = Boolean(storedOtpHash && secureOtpEquals(storedOtpHash, normalizedEmail, normalizedOtp));
-
-                if (!otpIsValid) {
-                    const failures = await redisClient.incr(failKey);
-                    if (failures === 1) {
-                        await redisClient.expire(failKey, OTP_VERIFY_WINDOW_SECONDS);
-                    }
-
-                    if (failures >= OTP_MAX_VERIFY_ATTEMPTS) {
-                        await redisClient.set(lockKey, '1', { ex: OTP_LOCK_SECONDS });
-                        await redisClient.del(otpKey);
-                    }
-
-                    throw new Error("Invalid or expired OTP");
-                }
-
-                await redisClient.del(otpKey);
-                await redisClient.del(failKey);
-                await redisClient.del(lockKey);
-
-                let user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-                if (!user) {
-                    user = await prisma.user.create({
-                        data: {
-                            email: normalizedEmail,
-                            role: 'CUSTOMER',
-                        }
+                if (isE2eOtpHarnessEnabled()) {
+                    setE2eOtp(data.email, data.otp);
+                    logger.info({
+                        action: 'otp.sent.e2e',
+                        email: data.email,
                     });
-
-                    logger.info({ action: 'auth.user_created', userId: user.id, provider: 'email-otp' });
-                    const { trackFunnelStep } = await import('@/lib/analytics/funnel');
-                    await trackFunnelStep('signup', { userId: user.id }).catch(() => { /* non-fatal */ });
+                    return;
                 }
 
-                return user;
-            }
-        })
+                const sent = await sendOtpEmail(data.email, {
+                    otp: data.otp,
+                    locale,
+                });
+
+                if (!sent) {
+                    throw new Error('Failed to send OTP email');
+                }
+            },
+        }),
     ],
-    callbacks: {
-        async jwt({ token, user, trigger }) {
-            if (user?.id) {
-                token.id = user.id;
-
-                const dbUser = await prisma.user.findUnique({
-                    where: { id: user.id },
-                    select: { role: true, plan: true },
-                });
-
-                const adminEmails = (process.env.ADMIN_EMAILS ?? '')
-                    .split(',')
-                    .map((e) => e.trim())
-                    .filter(Boolean);
-                const isAdmin = user.email ? adminEmails.includes(user.email) : false;
-
-                if (isAdmin) {
-                    logSecurityEvent('auth.admin_access_granted', 'medium', {
+    databaseHooks: {
+        user: {
+            create: {
+                async before(data) {
+                    return {
+                        data: {
+                            ...data,
+                            role: resolveAuthRole(data.email, data.role as string | null | undefined),
+                            plan: resolveAuthPlan(data.plan as string | null | undefined),
+                        },
+                    };
+                },
+                async after(user) {
+                    logger.info({
+                        action: 'auth.user_created',
                         userId: user.id,
-                        email: user.email,
-                        source: 'ADMIN_EMAILS env',
                     });
-                }
 
-                token.role = isAdmin ? 'ADMIN' : (dbUser?.role ?? 'CUSTOMER');
-                token.plan = dbUser?.plan ?? 'FREE';
-            }
+                    if (user.emailVerified) {
+                        await prisma.user.update({
+                            where: { id: user.id },
+                            data: {
+                                emailVerified: new Date(),
+                            },
+                        }).catch(() => undefined);
+                    }
 
-            if (trigger === 'update' && token.id) {
-                const dbUser = await prisma.user.findUnique({
-                    where: { id: token.id as string },
-                    select: { role: true, plan: true },
-                });
-                if (dbUser) {
-                    token.role = dbUser.role;
-                    token.plan = dbUser.plan;
-                }
-            }
-
-            // Centralized session revocation via Redis
-            if (token.id && redisClient.isConfigured()) {
-                const isRevoked = await redisClient.get(`auth:revoked:${token.id}`).catch(() => null);
-                if (isRevoked) {
-                    logger.warn({ action: 'auth.session_revoked', userId: token.id });
-                    return {}; // Invalidating JWT payload effectively logs out the user
-                }
-            }
-
-            return token;
+                    const { trackFunnelStep } = await import('@/lib/analytics/funnel');
+                    await trackFunnelStep('signup', { userId: user.id }).catch(() => undefined);
+                },
+            },
+            update: {
+                async before(data) {
+                    return {
+                        data: {
+                            ...data,
+                            ...(data.email
+                                ? {
+                                    role: resolveAuthRole(
+                                        data.email as string,
+                                        data.role as string | null | undefined,
+                                    ),
+                                }
+                                : {}),
+                            ...(data.plan
+                                ? { plan: resolveAuthPlan(data.plan as string) }
+                                : {}),
+                        },
+                    };
+                },
+            },
         },
+        session: {
+            create: {
+                async after(session) {
+                    logger.info({
+                        action: 'auth.sign_in',
+                        userId: session.userId,
+                        sessionId: session.id,
+                    });
 
-        async session({ session, token }) {
-            if (session.user) {
-                session.user.id = (token.id ?? token.sub) as string;
-                session.user.role = token.role as string | undefined;
-                session.user.plan = token.plan as string | undefined;
-            }
-            return session;
+                    const user = await prisma.user.findUnique({
+                        where: { id: session.userId },
+                        select: {
+                            email: true,
+                            role: true,
+                            plan: true,
+                        },
+                    });
+
+                    if (!user) {
+                        return;
+                    }
+
+                    const nextRole = resolveAuthRole(user.email, user.role);
+                    const nextPlan = resolveAuthPlan(user.plan);
+
+                    if (nextRole !== user.role || nextPlan !== user.plan) {
+                        await prisma.user.update({
+                            where: { id: session.userId },
+                            data: {
+                                role: nextRole,
+                                plan: nextPlan,
+                            },
+                        }).catch(() => undefined);
+                    }
+                },
+            },
         },
     },
-    events: {
-        async createUser({ user }) {
-            if (user.id) {
-                await prisma.user.update({
-                    where: { id: user.id },
-                    data: { role: 'CUSTOMER' },
-                }).catch(() => { /* non-fatal */ });
-
-                logger.info({ action: 'auth.user_created', userId: user.id });
-
-                const { trackFunnelStep } = await import('@/lib/analytics/funnel');
-                await trackFunnelStep('signup', { userId: user.id }).catch(() => { /* non-fatal */ });
-            }
-        },
-
-        async signIn({ user, isNewUser }) {
-            logger.info({
-                action: 'auth.sign_in',
-                userId: user.id,
-                isNewUser: isNewUser ?? false,
-            });
-        },
-    },
-    pages: {
-        signIn: '/auth/signin',
-    },
-    secret: requireStrongNextAuthSecret() || undefined,
 });
 
-// ─── Type Augmentations for Auth.js v5 ─────────────────────────────────────────
+export const handlers = toNextJsHandler(authApi);
 
-declare module "next-auth" {
-    interface Session {
-        user: {
-            id: string;
-            role?: string;
-            plan?: string;
-        } & DefaultSession["user"];
+type HeaderSource = Headers | Request | null | undefined;
+
+async function resolveHeaders(source?: HeaderSource): Promise<Headers> {
+    if (source instanceof Headers) {
+        return source;
     }
 
-    interface User {
-        role?: string;
-        plan?: string;
+    if (source instanceof Request) {
+        return source.headers;
     }
 
-    interface JWT {
-        id?: string;
-        role?: string;
-        plan?: string;
-    }
+    return new Headers(await headers());
+}
+
+export async function auth(source?: HeaderSource): Promise<AppAuthSession | null> {
+    const session = await authApi.api.getSession({
+        headers: await resolveHeaders(source),
+    });
+
+    return toAppAuthSession(session);
+}
+
+export async function sendSignInOtp(
+    email: string,
+    locale?: string,
+    source?: HeaderSource,
+): Promise<void> {
+    const requestHeaders = await resolveHeaders(source);
+
+    await authApi.api.sendVerificationOTP({
+        headers: withLocaleHeader(requestHeaders, locale),
+        body: {
+            email,
+            type: 'sign-in',
+        },
+    });
 }

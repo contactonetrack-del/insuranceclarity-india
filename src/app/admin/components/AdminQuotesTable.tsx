@@ -1,29 +1,34 @@
-'use client';
+'use client'
 
-import { motion } from 'framer-motion';
-import { FileText } from 'lucide-react';
-import type { QuoteRecord } from '@/types/app.types';
+import { motion } from 'framer-motion'
+import { FileText } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import type { QuoteRecord } from '@/types/app.types'
 
 export function AdminQuotesTable({ quotes }: { quotes: QuoteRecord[] }) {
+    const t = useTranslations('adminDashboard.quotes')
+    const locale = useLocale()
+    const headers = ['quoteId', 'created', 'type', 'coverage', 'premium', 'status'] as const
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="glass rounded-3xl border border-white/20 dark:border-white/10 overflow-hidden"
+            className="glass overflow-hidden rounded-3xl border border-white/20 dark:border-white/10"
         >
-            <div className="p-6 border-b border-default bg-slate-50/50 dark:bg-slate-800/50">
-                <h3 className="font-bold flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-theme-secondary" /> Recent Policy Applications
+            <div className="border-b border-default bg-slate-50/50 p-6 dark:bg-slate-800/50">
+                <h3 className="flex items-center gap-2 font-bold">
+                    <FileText className="h-4 w-4 text-theme-secondary" /> {t('title')}
                 </h3>
             </div>
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full border-collapse text-left">
                     <thead>
                         <tr className="border-b border-default">
-                            {['Quote ID', 'Created', 'Type', 'Coverage', 'Premium', 'Status'].map((h) => (
-                                <th key={h} className="py-4 px-6 text-[10px] font-bold text-theme-muted uppercase tracking-widest last:text-center">
-                                    {h}
+                            {headers.map((headerKey) => (
+                                <th key={headerKey} className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-theme-muted last:text-center">
+                                    {t(`headers.${headerKey}`)}
                                 </th>
                             ))}
                         </tr>
@@ -31,19 +36,27 @@ export function AdminQuotesTable({ quotes }: { quotes: QuoteRecord[] }) {
                     <tbody>
                         {quotes.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="py-12 text-center text-theme-muted text-sm">
-                                    No quotes generated yet.
+                                <td colSpan={6} className="py-12 text-center text-sm text-theme-muted">
+                                    {t('empty')}
                                 </td>
                             </tr>
                         ) : (
                             quotes.map((quote) => (
-                                <tr key={quote.id} className="border-b border-default hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <td className="py-4 px-6 font-mono text-[10px] font-medium text-slate-500">{quote.id.split('-')[0]}…</td>
-                                    <td className="py-4 px-6 text-xs whitespace-nowrap">{new Date(quote.createdAt).toLocaleDateString('en-IN')}</td>
-                                    <td className="py-4 px-6 text-sm font-medium capitalize">{quote.insuranceType}</td>
-                                    <td className="py-4 px-6 text-sm text-right font-medium">₹{(quote.coverageAmount ?? 0).toLocaleString('en-IN')}</td>
-                                    <td className="py-4 px-6 text-sm text-right font-bold text-emerald-600 dark:text-emerald-400">₹{(quote.premiumAmount ?? 0).toLocaleString('en-IN')}</td>
-                                    <td className="py-4 px-6 text-center">
+                                <tr key={quote.id} className="border-b border-default transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                                    <td className="px-6 py-4 font-mono text-[10px] font-medium text-slate-500">
+                                        {quote.id.split('-')[0]}...
+                                    </td>
+                                    <td className="whitespace-nowrap px-6 py-4 text-xs">
+                                        {new Date(quote.createdAt).toLocaleDateString(locale)}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm font-medium capitalize">{quote.insuranceType}</td>
+                                    <td className="px-6 py-4 text-right text-sm font-medium">
+                                        {t('currencyValue', { value: (quote.coverageAmount ?? 0).toLocaleString(locale) })}
+                                    </td>
+                                    <td className="px-6 py-4 text-right text-sm font-bold text-success-500">
+                                        {t('currencyValue', { value: (quote.premiumAmount ?? 0).toLocaleString(locale) })}
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
                                         <StatusBadge status={quote.status} />
                                     </td>
                                 </tr>
@@ -53,18 +66,19 @@ export function AdminQuotesTable({ quotes }: { quotes: QuoteRecord[] }) {
                 </table>
             </div>
         </motion.div>
-    );
+    )
 }
 
 function StatusBadge({ status }: { status: string }) {
     const styles: Record<string, string> = {
-        READY:   'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+        READY: 'border border-success-500/20 bg-success-50 text-success-500',
         PENDING: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-        FAILED:  'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-    };
+        FAILED: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+    }
+
     return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase ${styles[status] ?? styles.PENDING}`}>
+        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${styles[status] ?? styles.PENDING}`}>
             {status}
         </span>
-    );
+    )
 }

@@ -2,33 +2,56 @@ import {
     Heart, HeartPulse, Building2, Users, UserCircle, Activity, Baby, Car, Home, Plane, UserX, Gem, UserCheck,
     Briefcase, Network, Scale, Ship, Zap, Database, Search, Calculator, Bot, FileText, Shield, BarChart3
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import type { Tone, Surface } from '@/lib/theme/tone'
 
-export const insuranceCategories = [
-    { href: '/insurance/life', icon: Heart, title: 'Life Insurance', desc: 'Term, Whole Life, ULIPs', color: 'from-red-500 to-pink-600' },
-    { href: '/insurance/term-life', icon: HeartPulse, title: 'Term Life', desc: 'Pure Protection, High Cover', color: 'from-blue-500 to-cyan-600' },
-    { href: '/insurance/health', icon: Building2, title: 'Health Insurance', desc: 'Individual, Family, Critical Illness', color: 'from-emerald-500 to-teal-600' },
-    { href: '/insurance/family-floater', icon: Users, title: 'Family Floater', desc: 'One Policy, Entire Family', color: 'from-fuchsia-500 to-pink-600' },
-    { href: '/insurance/senior-citizen', icon: UserCircle, title: 'Senior Citizen', desc: 'Care for your Parents', color: 'from-teal-500 to-emerald-600' },
-    { href: '/insurance/critical-illness', icon: Activity, title: 'Critical Illness', desc: 'Life-Changing Illness Cover', color: 'from-rose-500 to-red-600' },
-    { href: '/insurance/maternity', icon: Baby, title: 'Maternity Insurance', desc: 'Welcoming New Life Safely', color: 'from-pink-500 to-rose-600' },
-    { href: '/insurance/motor', icon: Car, title: 'Motor Insurance', desc: 'Car, Bike, Comprehensive', color: 'from-blue-500 to-indigo-600' },
-    { href: '/insurance/home', icon: Home, title: 'Home Insurance', desc: 'Building, Contents, Fire', color: 'from-amber-500 to-orange-600' },
-    { href: '/insurance/travel', icon: Plane, title: 'Travel Insurance', desc: 'Domestic, International', color: 'from-purple-500 to-violet-600' },
-    { href: '/insurance/disability', icon: UserX, title: 'Disability Cover', desc: 'Income Protection for Injuries', color: 'from-indigo-500 to-purple-600' },
-    { href: '/insurance/specialized', icon: Gem, title: 'Specialized', desc: 'Pet, Wedding, Gadget', color: 'from-cyan-500 to-blue-600' },
-    { href: '/insurance/personal-accident', icon: UserCheck, title: 'Personal Accident', desc: 'Disability, Death, Medical', color: 'from-rose-500 to-red-600' },
+type MarketingCategory = {
+    href: string
+    icon: LucideIcon
+    title: string
+    desc: string
+    tone: Tone
+    surface: Surface
+}
+
+type MarketingTool = {
+    href: string
+    icon: LucideIcon
+    title: string
+    desc: string
+    badge: string
+    stat: string
+    statLabel: string
+    tone: Tone
+    surface: Surface
+}
+
+export const insuranceCategories: MarketingCategory[] = [
+    { href: '/insurance/life', icon: Heart, title: 'Life Insurance', desc: 'Term, Whole Life, ULIPs', tone: 'brand', surface: 'gradient' },
+    { href: '/insurance/term-life', icon: HeartPulse, title: 'Term Life', desc: 'Pure Protection, High Cover', tone: 'brand', surface: 'gradient' },
+    { href: '/insurance/health', icon: Building2, title: 'Health Insurance', desc: 'Individual, Family, Critical Illness', tone: 'success', surface: 'gradient' },
+    { href: '/insurance/family-floater', icon: Users, title: 'Family Floater', desc: 'One Policy, Entire Family', tone: 'brand', surface: 'gradient' },
+    { href: '/insurance/senior-citizen', icon: UserCircle, title: 'Senior Citizen', desc: 'Care for your Parents', tone: 'success', surface: 'gradient' },
+    { href: '/insurance/critical-illness', icon: Activity, title: 'Critical Illness', desc: 'Life-Changing Illness Cover', tone: 'danger', surface: 'gradient' },
+    { href: '/insurance/maternity', icon: Baby, title: 'Maternity Insurance', desc: 'Welcoming New Life Safely', tone: 'danger', surface: 'gradient' },
+    { href: '/insurance/motor', icon: Car, title: 'Motor Insurance', desc: 'Car, Bike, Comprehensive', tone: 'neutral', surface: 'gradient' },
+    { href: '/insurance/home', icon: Home, title: 'Home Insurance', desc: 'Building, Contents, Fire', tone: 'warning', surface: 'gradient' },
+    { href: '/insurance/travel', icon: Plane, title: 'Travel Insurance', desc: 'Domestic, International', tone: 'neutral', surface: 'gradient' },
+    { href: '/insurance/disability', icon: UserX, title: 'Disability Cover', desc: 'Income Protection for Injuries', tone: 'neutral', surface: 'gradient' },
+    { href: '/insurance/specialized', icon: Gem, title: 'Specialized', desc: 'Pet, Wedding, Gadget', tone: 'brand', surface: 'gradient' },
+    { href: '/insurance/personal-accident', icon: UserCheck, title: 'Personal Accident', desc: 'Disability, Death, Medical', tone: 'danger', surface: 'gradient' },
 ]
 
-export const businessCategories = [
-    { href: '/insurance/business', icon: Briefcase, title: 'Commercial Package', desc: 'SME, Corporate Property, Interruption', color: 'from-slate-600 to-gray-800' },
-    { href: '/insurance/cyber', icon: Network, title: 'Cyber Security Cover', desc: 'Data Breach, Ransomware, Liability', color: 'from-teal-500 to-emerald-600' },
-    { href: '/insurance/liability', icon: Scale, title: 'Liability Insurance', desc: 'Public, Product, D&O, Professional', color: 'from-amber-500 to-orange-600' },
-    { href: '/insurance/marine', icon: Ship, title: 'Marine & Aviation', desc: 'Cargo, Hull, Freight Liability', color: 'from-blue-500 to-cyan-600' },
-    { href: '/insurance/ev', icon: Zap, title: 'EV & Emerging Tech', desc: 'Electric Vehicles, AI, Parametric', color: 'from-fuchsia-500 to-purple-600' },
-    { href: '/insurance/directory', icon: Database, title: 'Insurance Directory', desc: 'Verified Directory of Indian Insurers', color: 'from-indigo-600 to-blue-700' },
+export const businessCategories: MarketingCategory[] = [
+    { href: '/insurance/business', icon: Briefcase, title: 'Commercial Package', desc: 'SME, Corporate Property, Interruption', tone: 'neutral', surface: 'gradient' },
+    { href: '/insurance/cyber', icon: Network, title: 'Cyber Security Cover', desc: 'Data Breach, Ransomware, Liability', tone: 'info', surface: 'gradient' },
+    { href: '/insurance/liability', icon: Scale, title: 'Liability Insurance', desc: 'Public, Product, D&O, Professional', tone: 'warning', surface: 'gradient' },
+    { href: '/insurance/marine', icon: Ship, title: 'Marine & Aviation', desc: 'Cargo, Hull, Freight Liability', tone: 'neutral', surface: 'gradient' },
+    { href: '/insurance/ev', icon: Zap, title: 'EV & Emerging Tech', desc: 'Electric Vehicles, AI, Parametric', tone: 'brand', surface: 'gradient' },
+    { href: '/insurance/directory', icon: Database, title: 'Insurance Directory', desc: 'Verified Directory of Indian Insurers', tone: 'brand', surface: 'gradient' },
 ]
 
-export const tools = [
+export const tools: MarketingTool[] = [
     {
         href: '/tools/ai-scanner',
         icon: Bot,
@@ -37,8 +60,8 @@ export const tools = [
         badge: 'AI Powered',
         stat: 'Audit',
         statLabel: 'Instant Scan',
-        color: 'from-rose-500 to-red-600',
-        gradient: 'from-rose-500/20 via-red-500/10 to-transparent',
+        tone: 'danger',
+        surface: 'gradient',
     },
     {
         href: '/tools/hlv-calculator',
@@ -48,8 +71,8 @@ export const tools = [
         badge: 'Free',
         stat: 'Smart',
         statLabel: 'HLV Result',
-        color: 'from-emerald-500 to-green-600',
-        gradient: 'from-emerald-500/20 via-green-500/10 to-transparent',
+        tone: 'success',
+        surface: 'gradient',
     },
     {
         href: '/tools/claim-search',
@@ -59,8 +82,8 @@ export const tools = [
         badge: 'New',
         stat: '30+',
         statLabel: 'Case Laws',
-        color: 'from-blue-500 to-indigo-600',
-        gradient: 'from-blue-500/20 via-indigo-500/10 to-transparent',
+        tone: 'info',
+        surface: 'gradient',
     },
     {
         href: '/tools/room-rent',
@@ -70,8 +93,8 @@ export const tools = [
         badge: 'Critical',
         stat: 'Mapper',
         statLabel: 'Loss Check',
-        color: 'from-amber-400 to-orange-500',
-        gradient: 'from-amber-400/20 via-orange-500/10 to-transparent',
+        tone: 'warning',
+        surface: 'gradient',
     },
     {
         href: '/tools/tax-benefit',
@@ -81,8 +104,8 @@ export const tools = [
         badge: 'FY 24-25',
         stat: 'Compare',
         statLabel: 'Tax Logic',
-        color: 'from-indigo-500 to-purple-600',
-        gradient: 'from-indigo-500/20 via-purple-500/10 to-transparent',
+        tone: 'brand',
+        surface: 'gradient',
     },
     {
         href: '/tools/hidden-facts',
@@ -92,8 +115,8 @@ export const tools = [
         badge: 'Expert',
         stat: '150+',
         statLabel: 'Exposed',
-        color: 'from-slate-600 to-gray-800',
-        gradient: 'from-slate-600/20 via-gray-800/10 to-transparent',
+        tone: 'neutral',
+        surface: 'gradient',
     }
 ]
 

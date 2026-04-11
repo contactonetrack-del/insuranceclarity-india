@@ -44,9 +44,9 @@ Update environment values:
 - `RAZORPAY_PLAN_ID_ENTERPRISE` (must be live `plan_*`)
 - `RAZORPAY_WEBHOOK_SECRET`
 
-## 4) NextAuth secret sync
+## 4) Better Auth secret sync
 
-Ensure the rotated `NEXTAUTH_SECRET` is set in all runtime environments:
+Ensure the rotated `BETTER_AUTH_SECRET` is set in all runtime environments. Keep `NEXTAUTH_SECRET` aligned only if you are still carrying a compatibility fallback:
 
 - local `.env`
 - preview/staging

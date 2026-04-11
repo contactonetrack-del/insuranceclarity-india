@@ -13,6 +13,7 @@ interface GlobalState {
 
     // Actions
     setMobileMenuOpen: (isOpen: boolean) => void;
+    toggleMobileMenu: () => void;
     setContactModalOpen: (isOpen: boolean) => void;
     setTheme: (theme: 'light' | 'dark' | 'system') => void;
     setSelectedInsuranceType: (type: string | null) => void;
@@ -30,6 +31,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
 
     // Action Implementations
     setMobileMenuOpen: (isOpen) => set({ mobileMenuOpen: isOpen }),
+    toggleMobileMenu: () => set((state) => ({ mobileMenuOpen: !state.mobileMenuOpen })),
     setContactModalOpen: (isOpen) => set({ contactModalOpen: isOpen }),
     setTheme: (theme) => set({ activeTheme: theme }),
     setSelectedInsuranceType: (type) => set({ selectedInsuranceType: type }),

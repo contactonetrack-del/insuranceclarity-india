@@ -32,4 +32,14 @@ CREATE INDEX IF NOT EXISTS idx_ratelimit_scope_detected ON "RateLimitAnomaly"("s
 CREATE INDEX IF NOT EXISTS idx_usercalc_user_created ON "UserCalculation"("userId", "createdAt" DESC);
 
 -- Audit log queries: compliance and debugging
-CREATE INDEX IF NOT EXISTS idx_auditlog_resource_timestamp ON "AuditLog"("resource", "createdAt" DESC);
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'AuditLog'
+    ) THEN
+        CREATE INDEX IF NOT EXISTS idx_auditlog_resource_timestamp
+            ON "AuditLog"("resource", "createdAt" DESC);
+    END IF;
+END $$;

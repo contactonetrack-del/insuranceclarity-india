@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { createUserCalculation } from "@/services/calculation.service";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,13 +19,11 @@ export async function POST(req: NextRequest) {
         }
 
         // The Prisma schema uses 'Calculation' model, linked to User
-        const calculation = await prisma.userCalculation.create({
-            data: {
-                userId: session.user?.id || "unknown",
-                type,
-                inputData,
-                result
-            }
+        const calculation = await createUserCalculation({
+            userId: session.user?.id || "unknown",
+            type,
+            inputData,
+            result,
         });
 
         return NextResponse.json(calculation);

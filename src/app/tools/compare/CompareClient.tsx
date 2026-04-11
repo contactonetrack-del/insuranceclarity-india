@@ -38,6 +38,7 @@ export default function CompareClient({
     categories: Category[] 
 }) {
     const t = useTranslations('tools.compare')
+    const auditT = useTranslations('auditI18n.remaining')
     const [selected, setSelected] = useState<string[]>(policies.slice(0, 2).map((p) => p.id))
     const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
@@ -78,7 +79,7 @@ export default function CompareClient({
                 <div className="max-w-4xl mx-auto">
                     <Breadcrumbs />
                     <div className="text-center mt-4">
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-accent-10 text-accent 
+                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent 
                                        text-sm rounded-full mb-4 font-medium uppercase tracking-wider">
                             <Scale className="w-4 h-4" />
                             {t('badge')}
@@ -114,7 +115,7 @@ export default function CompareClient({
                                     ? 'bg-accent text-white shadow-lg' 
                                     : 'glass text-theme-secondary hover:text-accent'}`}
                         >
-                            All Policies
+                            {auditT('allPolicies')}
                         </button>
                         {categories.map((cat) => (
                             <button
@@ -179,7 +180,7 @@ export default function CompareClient({
                     >
                         <table className="w-full text-left border-collapse glass overflow-hidden">
                             <thead>
-                                <tr className="border-b border-default bg-accent-5">
+                                <tr className="border-b border-default bg-accent/5">
                                     <th className="py-6 px-6 text-theme-secondary font-semibold uppercase text-xs tracking-widest">{t('feature')}</th>
                                     {selectedPolicies.map((p) => (
                                         <th key={p.id} className="py-6 px-6 text-theme-primary font-bold text-lg min-w-[240px]">
@@ -246,11 +247,11 @@ export default function CompareClient({
                                     ))}
                                 </tr>
                                 <tr>
-                                    <td className="py-5 px-6 text-emerald-600 dark:text-emerald-400 font-medium">{t('pros')}</td>
+                                    <td className="py-5 px-6 text-success-500 font-medium">{t('pros')}</td>
                                     {selectedPolicies.map((p) => (
                                         <td key={p.id} className="py-5 px-6 text-sm">
                                             {p.pros?.map((pro, i) => (
-                                                <div key={i} className="flex items-start gap-1.5 text-emerald-600 dark:text-emerald-400 mb-2">
+                                                <div key={i} className="mb-2 flex items-start gap-1.5 text-success-500">
                                                     <Check className="w-4 h-4 flex-shrink-0 mt-0.5" /> <span>{pro}</span>
                                                 </div>
                                             ))}

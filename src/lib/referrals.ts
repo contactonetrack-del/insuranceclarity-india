@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import { prisma } from '@/lib/prisma';
 import { redisClient } from '@/lib/cache/redis';
+import { reportRepository } from '@/repositories/report.repository';
 
 const REFERRAL_PREFIX = 'ICR';
 const REFERRAL_SECRET = process.env.REFERRAL_CODE_SECRET ?? 'insurance-clarity-referrals';
@@ -45,12 +45,7 @@ export async function getReferralStats(code: string): Promise<{
     const normalized = sanitizeReferralCode(code);
     const [visits, conversions] = await Promise.all([
         getReferralVisitCount(normalized),
-        prisma.lead.count({
-            where: {
-                source: 'REFERRAL',
-                notes: `ref:${normalized}`,
-            },
-        }),
+        reportRepository.countReferralConversionsByCode(normalized),
     ]);
 
     return { visits, conversions };
@@ -68,27 +63,16 @@ export async function recordReferralConversion(params: {
     }
 
     const email = params.email.trim().toLowerCase();
-    const existing = await prisma.lead.findFirst({
-        where: {
-            email,
-            source: 'REFERRAL',
-            notes: `ref:${code}`,
-        },
-        select: { id: true },
-    });
+    const existing = await reportRepository.findReferralConversionByEmailAndCode(email, code);
 
     if (existing) {
         return;
     }
 
-    await prisma.lead.create({
-        data: {
-            name: params.name.trim() || 'Referral User',
-            email,
-            phone: params.phone?.trim() || 'NA',
-            insuranceType: 'REFERRAL',
-            source: 'REFERRAL',
-            notes: `ref:${code}`,
-        },
+    await reportRepository.createReferralConversion({
+        name: params.name.trim() || 'Referral User',
+        email,
+        phone: params.phone?.trim() || 'NA',
+        code,
     });
 }

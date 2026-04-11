@@ -5,8 +5,8 @@
  * Triggers alerts when rate limit thresholds are exceeded.
  */
 
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { reportRepository } from '@/repositories/report.repository';
 
 export interface RateLimitAnomaly {
   ipAddress: string;
@@ -41,13 +41,11 @@ class AnomalyDetector {
   async detectAnomaly(anomaly: RateLimitAnomaly): Promise<void> {
     try {
       // Store anomaly in database
-      await prisma.rateLimitAnomaly.create({
-        data: {
-          ipAddress: anomaly.ipAddress,
-          scope: anomaly.scope,
-          requestCount: anomaly.requestCount,
-          windowSeconds: anomaly.windowSeconds,
-        },
+      await reportRepository.createRateLimitAnomaly({
+        ipAddress: anomaly.ipAddress,
+        scope: anomaly.scope,
+        requestCount: anomaly.requestCount,
+        windowSeconds: anomaly.windowSeconds,
       }).catch((err) => {
         logger.warn({
           action: 'anomaly.store.failed',
@@ -80,14 +78,10 @@ class AnomalyDetector {
 
     // Check spike in recent anomalies
     try {
-      const recentCount = await prisma.rateLimitAnomaly.count({
-        where: {
-          scope: anomaly.scope,
-          detectedAt: {
-            gte: new Date(now - ALERT_THRESHOLDS.SCOPE_SPIKE_WINDOW_MS),
-          },
-        },
-      });
+      const recentCount = await reportRepository.countRecentRateLimitAnomaliesByScope(
+        anomaly.scope,
+        new Date(now - ALERT_THRESHOLDS.SCOPE_SPIKE_WINDOW_MS),
+      );
 
       if (recentCount > ALERT_THRESHOLDS.SCOPE_SPIKE_COUNT) {
         await this.sendAlert({
@@ -133,14 +127,7 @@ class AnomalyDetector {
       const since = new Date();
       since.setHours(since.getHours() - hoursBack);
 
-      const anomalies = await prisma.rateLimitAnomaly.findMany({
-        where: {
-          scope,
-          detectedAt: { gte: since },
-        },
-        orderBy: { detectedAt: 'desc' },
-        take: 100,
-      });
+      const anomalies = await reportRepository.listRateLimitAnomaliesByScope(scope, since, 100);
 
       return anomalies;
     } catch (err) {
@@ -159,14 +146,10 @@ class AnomalyDetector {
   async shouldBlockIP(ipAddress: string): Promise<boolean> {
     try {
       // Get recent anomalies for this IP
-      const recentAnomalies = await prisma.rateLimitAnomaly.count({
-        where: {
-          ipAddress,
-          detectedAt: {
-            gte: new Date(Date.now() - 5 * 60 * 1000), // last 5 min
-          },
-        },
-      });
+      const recentAnomalies = await reportRepository.countRecentRateLimitAnomaliesByIp(
+        ipAddress,
+        new Date(Date.now() - 5 * 60 * 1000),
+      );
 
       // Block if >5 anomalies in 5 minute window
       return recentAnomalies > 5;

@@ -40,7 +40,7 @@ export default function PaywallOverlay({
     if (hiddenCount === 0) return null;
 
     return (
-        <div className="paywall-overlay" id="paywall-section" role="region" aria-label="Premium content locked">
+        <div className="paywall-overlay" id="paywall-section" role="region" aria-label={t('lockedRegionLabel')}>
             {/* Blurred preview */}
             <div className="paywall-blur-zone" aria-hidden>
                 {Array.from({ length: Math.min(hiddenCount, 3) }).map((_, i) => (

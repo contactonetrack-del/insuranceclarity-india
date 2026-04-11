@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -23,8 +24,8 @@ jobs:
       # CI stubs — real values stored in Vercel env vars, not needed for build type-checking
       DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci_db"
       DIRECT_URL: "postgresql://ci:ci@localhost:5432/ci_db"
-      NEXTAUTH_SECRET: "ci-secret-value-with-32-random-chars-abcdef123456"
-      NEXTAUTH_URL: "http://localhost:3000"
+      BETTER_AUTH_SECRET: "ci-secret-value-with-32-random-chars-abcdef123456"
+      BETTER_AUTH_URL: "http://localhost:3000"
       NEXT_PUBLIC_APP_URL: "http://localhost:3000"
       NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS: "true"
       SEARCH_BACKEND: "postgres"
@@ -36,6 +37,7 @@ jobs:
       OPENAI_API_KEY: "sk-ci-placeholder"
       RAZORPAY_KEY_ID: "rzp_test_ci_1234567890"
       RAZORPAY_KEY_SECRET: "ci_razorpay_secret"
+      RAZORPAY_WEBHOOK_SECRET: "test_secret_for_local_e2e"
       NEXT_PUBLIC_RAZORPAY_KEY_ID: "rzp_test_ci_1234567890"
       CLOUDINARY_CLOUD_NAME: "ci-cloud"
       CLOUDINARY_API_KEY: "ci-api-key"
@@ -46,6 +48,13 @@ jobs:
       RAZORPAY_PLAN_ID_PRO: "plan_ci_pro_001"
       RAZORPAY_PLAN_ID_ENTERPRISE: "plan_ci_enterprise_001"
       SCAN_PROCESSING_MODE: "inline"
+      THEME_AUDIT_MAX_FINDINGS: "0"
+      I18N_AUDIT_MAX_FINDINGS: "0"
+      I18N_LOCALE_MAX_FINDINGS: "0"
+      ARCH_AUDIT_MAX_FINDINGS: "0"
+      PERF_MAX_TOTAL_GZIP_KB: "3000"
+      PERF_MAX_LARGEST_GZIP_KB: "800"
+      PERF_MAX_CHUNK_COUNT: "220"
 
     steps:
       - name: Checkout code
@@ -54,8 +63,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'npm'
+          node-version: "24"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -63,17 +72,35 @@ jobs:
       - name: Run ESLint (warnings allowed, errors surfaced)
         run: npm run lint -- --max-warnings 200
 
+      - name: Theme drift audit (strict)
+        run: npm run theme:audit:strict
+
+      - name: i18n drift audit (strict)
+        run: npm run i18n:audit:strict
+
+      - name: i18n locale quality audit (strict)
+        run: npm run i18n:locale:audit:strict
+
+      - name: Architecture boundary audit (strict)
+        run: npm run architecture:audit:strict
+
+      - name: Maintainability hotspot audit (strict)
+        run: npm run hotspot:audit:strict
+
       - name: Run security preflight
         run: npm run security:preflight
 
       - name: TypeScript type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
-      - name: Run unit tests
-        run: npm run test -- --run
+      - name: Run unit tests with governed coverage gates
+        run: npm run test:coverage:governed
 
       - name: Build application
         run: npm run build
+
+      - name: Performance budget audit (strict)
+        run: npm run performance:audit:strict
 
       - name: Security audit
         run: npm audit --audit-level=critical
@@ -83,14 +110,29 @@ jobs:
     needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: insurance_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d insurance_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
 
     env:
-      DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci_db"
-      DIRECT_URL: "postgresql://ci:ci@localhost:5432/ci_db"
-      NEXTAUTH_SECRET: "ci-secret-value-with-32-random-chars-abcdef123456"
-      NEXTAUTH_URL: "http://localhost:3000"
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/insurance_test?schema=public"
+      DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/insurance_test?schema=public"
+      BETTER_AUTH_SECRET: "ci-secret-value-with-32-random-chars-abcdef123456"
+      BETTER_AUTH_URL: "http://localhost:3000"
       NEXT_PUBLIC_APP_URL: "http://localhost:3000"
       NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS: "true"
+      E2E_TEST_SECRET: "ci-e2e-test-secret"
       SEARCH_BACKEND: "postgres"
       MEILISEARCH_HOST: "http://localhost:7700"
       MEILISEARCH_API_KEY: "ci_bypass_key"
@@ -111,7 +153,6 @@ jobs:
       RAZORPAY_PLAN_ID_ENTERPRISE: "plan_ci_enterprise_001"
       SCAN_PROCESSING_MODE: "inline"
 
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -119,11 +160,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'npm'
+          node-version: "24"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Apply Prisma migrations for E2E database
+        run: npx prisma migrate deploy
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -131,7 +175,7 @@ jobs:
       - name: Build for E2E
         run: npm run build
 
-      - name: Start server and run E2E tests
+      - name: Start server and run deterministic E2E suites
         env:
           PLAYWRIGHT_SKIP_WEB_SERVER: "1"
           PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3000"
@@ -139,7 +183,11 @@ jobs:
         run: |
           npm run start -- --hostname 127.0.0.1 --port 3000 &
           npx wait-on http://127.0.0.1:3000 --timeout 60000
-          npm run test:e2e
+          npx playwright test e2e/auth.spec.ts e2e/payment.spec.ts
+          npx playwright test e2e/ux-quality.spec.ts
+          npx playwright test e2e/core-flows.spec.ts e2e/security.spec.ts
+          npx playwright test e2e/seo-accessibility.spec.ts
+          npx playwright test e2e/performance.spec.ts
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

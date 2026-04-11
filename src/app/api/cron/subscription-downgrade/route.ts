@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { sendUrgentWebhook } from '@/lib/observability/alerts';
+import { requireCronAuthorization } from '@/lib/security/cron-auth';
+import { downgradeExpiredSubscription, findExpiredSubscriptions } from '@/services/ops.service';
 
 /**
  * GET /api/cron/subscription-downgrade
@@ -11,10 +12,8 @@ import { sendUrgentWebhook } from '@/lib/observability/alerts';
  */
 export async function GET(request: Request) {
     try {
-        const authHeader = request.headers.get('Authorization');
-        if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        const authFailure = requireCronAuthorization(request, { action: 'cron.subscription-downgrade' });
+        if (authFailure) return authFailure;
 
         const now = new Date();
         let downgradedCount = 0;
@@ -22,37 +21,27 @@ export async function GET(request: Request) {
 
         // Find all subscriptions that have expired (currentPeriodEnd < now)
         // and user is still on paid plan
-        const expiredSubscriptions = await prisma.subscription.findMany({
-            where: {
-                currentPeriodEnd: {
-                    lt: now
-                },
-                status: {
-                    in: ['ACTIVE', 'CANCELLED'] // Include cancelled ones that haven't been processed yet
-                }
-            },
-            include: {
-                user: true
-            }
-        });
+        const expiredSubscriptions = await findExpiredSubscriptions(now);
 
         logger.info(`Found ${expiredSubscriptions.length} expired subscriptions to process`);
 
         for (const subscription of expiredSubscriptions) {
             try {
-                // Downgrade user to FREE plan
-                await prisma.user.update({
-                    where: { id: subscription.userId },
-                    data: { plan: 'FREE' }
-                });
-
-                // Update subscription status to COMPLETED if it was ACTIVE
-                if (subscription.status === 'ACTIVE') {
-                    await prisma.subscription.update({
-                        where: { id: subscription.id },
-                        data: { status: 'COMPLETED' }
+                if (subscription.status !== 'ACTIVE' && subscription.status !== 'CANCELLED') {
+                    logger.warn({
+                        action: 'subscription.downgrade.skip-unsupported-status',
+                        subscriptionId: subscription.id,
+                        status: subscription.status,
                     });
+                    continue;
                 }
+
+                // Downgrade user to FREE plan
+                await downgradeExpiredSubscription(
+                    subscription.id,
+                    subscription.userId,
+                    subscription.status,
+                );
 
                 downgradedCount++;
                 logger.info(`Downgraded user ${subscription.userId} from ${subscription.user.plan} to FREE`);

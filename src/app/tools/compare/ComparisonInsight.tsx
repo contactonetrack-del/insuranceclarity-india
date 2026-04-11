@@ -165,7 +165,7 @@ export default function ComparisonInsight({ policies }: { policies: Policy[] }) 
                                             <div className="space-y-2">
                                                 {verdict.pros.map((pro, idx) => (
                                                     <div key={idx} className="flex items-start gap-2 text-theme-primary text-sm">
-                                                        <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                                                        <Check className="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0" />
                                                         <span>{pro}</span>
                                                     </div>
                                                 ))}

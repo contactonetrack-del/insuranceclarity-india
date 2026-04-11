@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from '@prisma/client';
+import { seedContentData } from './seed-content';
 
 const prisma = new PrismaClient();
 
@@ -594,6 +595,9 @@ async function main() {
     console.log('   → 3 Health (Family Floater), 3 Term Life, 2 Motor');
     console.log('   → 2 Critical Illness, 1 Senior Citizen, 1 ULIP');
     console.log('   → 1 Personal Accident, 1 Cyber, 1 Maternity');
+
+    await seedContentData(prisma);
+    console.log('✅ Search content corpus seeded successfully!');
 }
 
 main()

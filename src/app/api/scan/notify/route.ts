@@ -9,9 +9,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { z } from 'zod';
 
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { validateCsrfRequest } from '@/lib/security/csrf';
+import { createScanNotifyLead, findScanNotifyLead } from '@/services/engagement.service';
 
 const notifySchema = z.object({
     scanId: z.string().min(1).max(100),
@@ -49,26 +49,14 @@ export async function POST(request: NextRequest) {
         const sessionName = (session?.user as { name?: string | null } | undefined)?.name;
         const contactName = parsed.data.name?.trim() || sessionName || email.split('@')[0] || 'there';
 
-        const existing = await prisma.lead.findFirst({
-            where: {
-                email,
-                insuranceType: 'SCAN_NOTIFY',
-                notes: `scan:${scanId}`,
-            },
-            select: { id: true },
-        });
+        const existing = await findScanNotifyLead(email, scanId);
 
         if (!existing) {
-            await prisma.lead.create({
-                data: {
-                    name: contactName,
-                    email,
-                    phone: 'N/A',
-                    insuranceType: 'SCAN_NOTIFY',
-                    source: `scan_notify_${locale}`,
-                    status: 'NEW',
-                    notes: `scan:${scanId}`,
-                },
+            await createScanNotifyLead({
+                name: contactName,
+                email,
+                scanId,
+                locale,
             });
         }
 

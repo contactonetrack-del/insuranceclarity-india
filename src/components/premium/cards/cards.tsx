@@ -36,7 +36,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
             hover = true,
             animatedBorder = false,
             padding = 'md',
-            glowOnHover = false,
+            glowOnHover: _glowOnHover = false,
             className,
             ...props
         },
@@ -63,7 +63,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
                     <motion.div
                         className="absolute inset-0 rounded-2xl pointer-events-none"
                         style={{
-                            background: 'linear-gradient(90deg, transparent, rgba(var(--color-accent-rgb), 0.3), transparent)',
+                            background: 'linear-gradient(90deg, transparent, rgba(var(--token-accent-rgb), 0.3), transparent)',
                             backgroundSize: '200% 100%'
                         }}
                         animate={{
@@ -172,7 +172,7 @@ export const BentoCard = forwardRef<HTMLDivElement, BentoCardProps>(
                     'glass rounded-2xl p-6 overflow-hidden',
                     colSpanClasses[colSpan],
                     rowSpanClasses[rowSpan],
-                    featured && 'bg-gradient-to-br from-accent-5 to-transparent',
+                    featured && 'bg-gradient-to-br from-accent/5 to-transparent',
                     className
                 )}
                 initial={{ opacity: 0, y: 20 }}

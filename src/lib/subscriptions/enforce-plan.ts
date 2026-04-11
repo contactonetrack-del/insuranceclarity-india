@@ -9,7 +9,7 @@
  *   if (!guard.allowed) return NextResponse.json({ error: guard.reason }, { status: 402 });
  */
 
-import { prisma } from '@/lib/prisma';
+import { reportRepository } from '@/repositories/report.repository';
 import { isAtScanLimit, getLimitsForPlan } from './plan-limits';
 
 export type GatedFeature = 'scan' | 'savedQuotes' | 'chat' | 'advisor' | 'exportReport' | 'bulkScan';
@@ -28,7 +28,7 @@ const UPGRADE_URL = '/pricing';
  * Returns the updated scansUsed count if allowed, or throws an error if limit exceeded.
  */
 export async function checkAndIncrementScanLimit(userId: string): Promise<number> {
-  return await prisma.$transaction(async (tx) => {
+  return await reportRepository.runInTransaction(async (tx) => {
     const user = await tx.user.findUnique({
       where: { id: userId },
       select: { plan: true, scansUsed: true },
@@ -65,10 +65,7 @@ export async function enforcePlanLimit(
   userId: string,
   feature: GatedFeature,
 ): Promise<PlanGuardResult> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { plan: true, scansUsed: true, savedFacts: true },
-  });
+  const user = await reportRepository.findUserPlanUsageById(userId);
 
   if (!user) {
     return { allowed: false, reason: 'User account not found.' };

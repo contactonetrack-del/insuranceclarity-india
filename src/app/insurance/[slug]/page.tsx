@@ -2,16 +2,18 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { fetchFromSanity } from "@/sanity/client";
 import { POST_BY_SLUG_QUERY } from "@/sanity/queries";
 import { urlFor } from "@/sanity/client";
 import { Calendar, ShieldCheck, Clock, User } from "lucide-react";
 import { PortableText } from '@portabletext/react';
+import type { PortableTextBlock } from '@portabletext/types';
 import { JsonLd, generateBreadcrumbSchema } from "@/components/seo/JsonLd";
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import LeadCaptureForm from '@/components/ui/LeadCaptureForm';
 import TrustSignals from '@/components/ui/TrustSignals';
-import { prisma } from '@/lib/prisma';
+import { getInsuranceCategoryByPossibleSlugs } from '@/services/taxonomy.service';
 import { ArrowRight, Shield, Check } from 'lucide-react';
 
 export const revalidate = 3600; // Cache for 1 hour
@@ -20,8 +22,6 @@ type SanityImageRef = {
     _type: string;
     asset: { _ref: string; _type: string };
 };
-
-type PortableTextBlock = Record<string, unknown>;
 
 type Post = {
     _id: string;
@@ -36,22 +36,24 @@ type Post = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const resolvedParams = await params;
+    const t = await getTranslations('auditI18n.insuranceGuide');
     const post = await fetchFromSanity<Post | null>(POST_BY_SLUG_QUERY, { slug: resolvedParams.slug }, null);
 
     if (!post) {
         return {
-            title: 'Not Found | InsuranceClarity',
+            title: t('metadataNotFoundTitle'),
         };
     }
 
     return {
-        title: `${post.title} | InsuranceClarity`,
-        description: `Comprehensive guide to ${post.title}. Learn everything you need to know about this policy on InsuranceClarity India.`,
+        title: t('metadataTitle', { title: post.title }),
+        description: t('metadataDescription', { title: post.title }),
     };
 }
 
 export default async function InsuranceGuidePage({ params }: { params: Promise<{ slug: string }> }) {
     const resolvedParams = await params;
+    const t = await getTranslations('auditI18n.insuranceGuide');
     const post = await fetchFromSanity<Post | null>(POST_BY_SLUG_QUERY, { slug: resolvedParams.slug }, null);
 
     if (!post) {
@@ -62,20 +64,7 @@ export default async function InsuranceGuidePage({ params }: { params: Promise<{
 
     // Try matching slug to Prisma categories (either direct match or appending '-insurance')
     const possibleDbSlugs = [resolvedParams.slug, `${resolvedParams.slug}-insurance`];
-    const dbCategory = await prisma.insuranceCategory.findFirst({
-        where: { slug: { in: possibleDbSlugs } },
-        include: {
-            subcat: {
-                include: {
-                    types: {
-                        include: {
-                            policies: { take: 4 } // Get up to 4 top policies per type
-                        }
-                    }
-                }
-            }
-        }
-    });
+    const dbCategory = await getInsuranceCategoryByPossibleSlugs(possibleDbSlugs).catch(() => null);
 
     const breadcrumbSchema = generateBreadcrumbSchema([
         { name: 'Home', item: 'https://insuranceclarity.in' },
@@ -110,11 +99,11 @@ export default async function InsuranceGuidePage({ params }: { params: Promise<{
                         )}
                         <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-slate-400" />
-                            <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Recently Updated'}</span>
+                            <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : t('recentlyUpdated')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4 text-slate-400" />
-                            <span>8 min read</span>
+                            <span>{t('readTime')}</span>
                         </div>
                     </div>
                 </div>
@@ -133,12 +122,12 @@ export default async function InsuranceGuidePage({ params }: { params: Promise<{
 
                 <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-accent hover:prose-a:text-accent-hover prose-img:rounded-2xl">
                     {post.body ? (
-                        <PortableText value={post.body as any} />
+                        <PortableText value={post.body} />
                     ) : (
                         <div className="glass p-12 text-center rounded-3xl border border-dashed border-default">
                             <ShieldCheck className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                            <h3 className="text-2xl font-bold text-theme-primary mb-2">Detailed Guide Coming Soon</h3>
-                            <p className="text-theme-muted">Our experts are currently writing the comprehensive guide for {post.title}.</p>
+                            <h3 className="text-2xl font-bold text-theme-primary mb-2">{t('detailedGuideComingSoon')}</h3>
+                            <p className="text-theme-muted">{t('guideInProgress', { title: post.title })}</p>
                         </div>
                     )}
                 </div>
@@ -147,7 +136,7 @@ export default async function InsuranceGuidePage({ params }: { params: Promise<{
                 {dbCategory && dbCategory.subcat.some(sub => sub.types.some(t => t.policies.length > 0)) && (
                     <div className="mt-16 mb-12">
                         <h2 className="text-3xl font-display font-bold text-theme-primary mb-8">
-                            Top <span className="text-gradient">{dbCategory.name}</span> Plans in India
+                            {t('top')} <span className="text-gradient">{dbCategory.name}</span> {t('plansInIndia')}
                         </h2>
                         
                         <div className="space-y-12">
@@ -177,14 +166,14 @@ export default async function InsuranceGuidePage({ params }: { params: Promise<{
                                                 <ul className="space-y-2 mb-6">
                                                     {policy.benefits.slice(0, 3).map((benefit, i) => (
                                                         <li key={i} className="text-sm text-theme-muted flex items-start gap-2">
-                                                            <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                                                            <Check className="w-4 h-4 text-success-500 shrink-0 mt-0.5" />
                                                             <span className="line-clamp-1">{benefit}</span>
                                                         </li>
                                                     ))}
                                                 </ul>
                                                 
                                                 <Link href={`/tools/compare?policy=${policy.seoSlug}`} className="btn-secondary w-full justify-center group-hover:bg-accent group-hover:text-white transition-all">
-                                                    View Details <ArrowRight className="w-4 h-4 ml-1" />
+                                                    {t('viewDetails')} <ArrowRight className="w-4 h-4 ml-1" />
                                                 </Link>
                                             </div>
                                         ))}
@@ -199,18 +188,18 @@ export default async function InsuranceGuidePage({ params }: { params: Promise<{
 
                 <div className="mt-16 bg-theme-base/30 rounded-3xl p-1 shadow-sm border border-default">
                     <LeadCaptureForm
-                        title={`Need Help Choosing ${post.categories?.[0] || 'a Policy'}?`}
-                        subtitle="Let our IRDAI-certified experts design a custom plan for your unique needs."
+                        title={t('leadTitle', { category: post.categories?.[0] || t('aPolicy') })}
+                        subtitle={t('leadSubtitle')}
                         defaultInsuranceType={post.categories?.[0] || 'Health Insurance'}
                     />
                 </div>
 
                 <div className="mt-8 pt-8 border-t border-default flex justify-between items-center">
                     <Link href="/hubs" className="btn-secondary">
-                        Explore Knowledge Hubs
+                        {t('exploreKnowledgeHubs')}
                     </Link>
                     <Link href="/tools/compare" className="btn-primary">
-                        Compare Policies Now
+                        {t('comparePoliciesNow')}
                     </Link>
                 </div>
             </div>

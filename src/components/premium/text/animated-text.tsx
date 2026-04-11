@@ -28,8 +28,19 @@ export function AnimatedHeading({
     animation = 'wordByWord',
     staggerDelay = 0.05,
     delay = 0,
-    as = 'h1'
+    as = 'span'
 }: AnimatedHeadingProps) {
+    const MotionTag = {
+        h1: motion.h1,
+        h2: motion.h2,
+        h3: motion.h3,
+        h4: motion.h4,
+        h5: motion.h5,
+        h6: motion.h6,
+        p: motion.p,
+        span: motion.span
+    }[as]
+
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
         visible: {
@@ -53,16 +64,58 @@ export function AnimatedHeading({
         }
     }
 
-    const items = animation === 'letterByLetter'
-        ? text.split('')
-        : text.split(' ')
+    const words = text.trim().split(/\s+/)
+
+    if (animation === 'letterByLetter') {
+        let letterIndex = 0
+
+        return (
+            <MotionTag
+                className={cn(
+                    'inline-flex max-w-full flex-wrap items-baseline gap-x-[0.18em] gap-y-[0.08em]',
+                    className
+                )}
+                aria-label={text}
+            >
+                {words.map((word, wordIndex) => (
+                    <span
+                        key={`${word}-${wordIndex}`}
+                        className="inline-flex whitespace-nowrap"
+                        aria-hidden="true"
+                    >
+                        {Array.from(word).map((char, charIndex) => {
+                            const currentIndex = letterIndex++
+
+                            return (
+                                <motion.span
+                                    key={`${char}-${wordIndex}-${charIndex}`}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        duration: 0.4,
+                                        delay: delay + currentIndex * staggerDelay,
+                                        ease: [0.25, 0.46, 0.45, 0.94]
+                                    }}
+                                    className="inline-block"
+                                >
+                                    {char}
+                                </motion.span>
+                            )
+                        })}
+                    </span>
+                ))}
+            </MotionTag>
+        )
+    }
+
+    const items = words
 
     return (
-        <motion.div
+        <MotionTag
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className={cn('inline-flex flex-wrap', className)}
+            className={cn('inline-flex max-w-full flex-wrap', className)}
             aria-label={text}
         >
             {items.map((item, index) => (
@@ -71,13 +124,11 @@ export function AnimatedHeading({
                     variants={itemVariants}
                     className="inline-block"
                 >
-                    {animation === 'letterByLetter'
-                        ? (item === ' ' ? '\u00A0' : item)
-                        : item}
+                    {item}
                     {animation === 'wordByWord' && index < items.length - 1 && '\u00A0'}
                 </motion.span>
             ))}
-        </motion.div>
+        </MotionTag>
     )
 }
 

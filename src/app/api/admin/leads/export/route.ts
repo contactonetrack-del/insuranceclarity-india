@@ -9,9 +9,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { ErrorFactory } from '@/lib/api/error-response';
+import { countLeads, listLeadsBatch } from '@/services/ops.service';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +39,7 @@ export async function GET() {
         }
 
         // Get total count for logging
-        const totalCount = await prisma.lead.count();
+        const totalCount = await countLeads();
 
         // Create a ReadableStream for streaming CSV data
         const stream = new ReadableStream({
@@ -55,12 +55,7 @@ export async function GET() {
 
                     while (hasMore) {
                         // Fetch leads in batches using cursor-based pagination
-                        const leads = await prisma.lead.findMany({
-                            take: BATCH_SIZE,
-                            skip: cursor ? 1 : 0, // Skip the cursor itself
-                            cursor: cursor ? { id: cursor } : undefined,
-                            orderBy: { createdAt: 'desc' },
-                        });
+                        const leads = await listLeadsBatch(cursor, BATCH_SIZE);
 
                         if (leads.length === 0) {
                             hasMore = false;

@@ -38,6 +38,7 @@ function ShieldIcon() {
 export function DropZone() {
     const router      = useRouter();
     const t           = useTranslations('scan.dropzone');
+    const auditT      = useTranslations('auditI18n.dropZone');
     const { setScanId, setUploadProgress, setProcessingStep, setStatus } = useScanStore();
 
     const [isDragging, setIsDragging]     = useState(false);
@@ -140,10 +141,19 @@ export function DropZone() {
         if (!isUploading) fileInputRef.current?.click();
     }, [isUploading]);
 
+    const dropZoneClassName = [
+        'group relative flex min-h-[260px] w-full cursor-pointer flex-col items-center justify-center gap-3.5 rounded-2xl border-2 border-dashed border-token-border-subtle bg-[rgba(var(--color-card-bg),0.80)] px-6 py-9 text-center outline-none backdrop-blur-[16px] transition-[border-color,background,box-shadow,transform] duration-300 ease-out',
+        'hover:border-[rgb(var(--token-brand)/0.5)] hover:bg-[rgb(var(--token-brand)/0.03)] hover:shadow-[0_0_0_4px_rgb(var(--token-brand)/0.08),var(--shadow-md)]',
+        'focus-visible:border-[rgb(var(--token-brand)/0.5)] focus-visible:bg-[rgb(var(--token-brand)/0.03)] focus-visible:shadow-[0_0_0_4px_rgb(var(--token-brand)/0.08),var(--shadow-md)]',
+        isDragging ? 'scale-[1.01] border-[rgb(var(--token-brand))] border-solid bg-[rgb(var(--token-brand)/0.06)] shadow-[0_0_0_4px_rgb(var(--token-brand)/0.15),var(--shadow-lg)]' : '',
+        isUploading ? 'cursor-default border-solid border-[rgb(var(--token-brand)/0.4)]' : '',
+        error ? 'border-[rgb(var(--token-semantic-danger)/0.4)]' : '',
+    ].filter(Boolean).join(' ');
+
     // ─── Render ──────────────────────────────────────────────────────────────
 
     return (
-        <div className="dropzone-wrapper">
+        <div className="flex flex-col gap-2.5">
             {/* Hidden file input */}
             <input
                 ref={fileInputRef}
@@ -151,7 +161,7 @@ export function DropZone() {
                 accept="application/pdf"
                 className="sr-only"
                 onChange={onInputChange}
-                aria-label="Upload insurance policy PDF"
+                aria-label={auditT('uploadInputAria')}
                 id="policy-file-input"
             />
 
@@ -159,18 +169,13 @@ export function DropZone() {
             <div
                 role="button"
                 tabIndex={0}
-                aria-label="Drop your insurance policy PDF here or click to select"
+                aria-label={auditT('dropzoneAria')}
                 onClick={onClickZone}
                 onKeyDown={(e) => e.key === 'Enter' && onClickZone()}
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
-                className={[
-                    'dropzone',
-                    isDragging  ? 'dropzone--dragging'  : '',
-                    isUploading ? 'dropzone--uploading' : '',
-                    error       ? 'dropzone--error'     : '',
-                ].filter(Boolean).join(' ')}
+                className={dropZoneClassName}
             >
                 {isUploading ? (
                     /* Upload in progress */
@@ -178,24 +183,26 @@ export function DropZone() {
                 ) : (
                     /* Default idle state */
                     <>
-                        <div className="dropzone__icon">
+                        <div className="text-[rgba(var(--color-accent),0.7)] transition-transform duration-300 ease-out group-hover:-translate-y-1 group-hover:scale-110">
                             <UploadIcon />
                         </div>
-                        <h3 className="dropzone__headline">
+                        <h3 className="m-0 text-xl font-bold text-token-text-primary">
                             {isDragging ? t('dropHere') : t('uploadTitle')}
                         </h3>
-                        <p className="dropzone__subtext">
+                        <p className="m-0 text-[0.9375rem] leading-6 text-token-text-secondary">
                             {t('dragDropText')}{' '}
-                            <span className="dropzone__browse">{t('browseText')}</span>
+                            <span className="font-semibold text-[rgb(var(--token-brand))] underline decoration-dotted underline-offset-4">
+                                {t('browseText')}
+                            </span>
                         </p>
-                        <div className="dropzone__meta">
-                            <span className="dropzone__badge">
+                        <div className="mt-1 flex flex-wrap justify-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-token-border-subtle bg-[rgba(var(--color-bg-tertiary),0.8)] px-2.5 py-1 text-xs font-medium text-token-text-muted">
                                 <ShieldIcon /> {t('encrypted')}
                             </span>
-                            <span className="dropzone__badge">
-                                {t('pdfOnly').replace('{max}', String(MAX_FILE_SIZE_MB))}
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-token-border-subtle bg-[rgba(var(--color-bg-tertiary),0.8)] px-2.5 py-1 text-xs font-medium text-token-text-muted">
+                                {t('pdfOnly', { max: MAX_FILE_SIZE_MB })}
                             </span>
-                            <span className="dropzone__badge">
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-token-border-subtle bg-[rgba(var(--color-bg-tertiary),0.8)] px-2.5 py-1 text-xs font-medium text-token-text-muted">
                                 {t('freeScan')}
                             </span>
                         </div>
@@ -205,7 +212,7 @@ export function DropZone() {
 
             {/* Error message */}
             {error && (
-                <div role="alert" className="dropzone__error-msg">
+                <div role="alert" className="flex items-center gap-2 rounded-lg border border-[rgb(var(--token-semantic-danger)/0.25)] bg-[rgb(var(--token-semantic-danger)/0.08)] px-3.5 py-2.5 text-sm font-medium text-[rgb(var(--token-semantic-danger))] dark:text-[rgb(var(--token-semantic-danger-soft))]">
                     <span aria-hidden>⚠️</span> {error}
                 </div>
             )}
@@ -263,6 +270,7 @@ function uploadWithProgress(
 
 function UploadProgress({ fileName }: { fileName?: string }) {
     const t = useTranslations('scan.dropzone');
+    const auditT = useTranslations('auditI18n.dropZone');
     const { uploadProgress, processingStep } = useScanStore();
 
     const STEPS = [
@@ -275,42 +283,49 @@ function UploadProgress({ fileName }: { fileName?: string }) {
     const currentStepIndex = STEPS.findIndex(s => s.key === processingStep);
 
     return (
-        <div className="upload-progress" aria-live="polite">
-            <div className="upload-progress__file">
-                <span className="upload-progress__file-icon" aria-hidden>📄</span>
-                <span className="upload-progress__file-name">
+        <div className="flex w-full max-w-[420px] flex-col items-center gap-3" aria-live="polite">
+            <div className="flex items-center gap-2 text-[0.9rem] font-semibold text-token-text-primary">
+                <span className="text-xl" aria-hidden>📄</span>
+                <span className="max-w-[220px] overflow-hidden text-ellipsis whitespace-nowrap">
                     {fileName ?? t('uploadingPlaceholder')}
                 </span>
             </div>
 
             {/* Progress bar */}
             <div
-                className="upload-progress__bar-track"
+                className="h-2 w-full overflow-hidden rounded-full border border-token-border-subtle bg-[rgba(var(--color-bg-tertiary),0.8)]"
                 role="progressbar"
-                aria-label="Upload progress"
+                aria-label={auditT('uploadProgressAria')}
                 aria-valuenow={uploadProgress}
                 aria-valuemin={0}
                 aria-valuemax={100}
             >
                 <div
-                    className="upload-progress__bar-fill"
+                    className="h-full rounded-full bg-token-gradient-primary transition-[width] duration-300 ease-out"
                     style={{ width: `${uploadProgress}%` }}
                 />
             </div>
-            <span className="upload-progress__pct" aria-hidden>{uploadProgress}%</span>
+            <span className="text-[0.8125rem] font-bold text-[rgb(var(--token-brand))]" aria-hidden>{uploadProgress}%</span>
 
             {/* Steps */}
-            <ol className="upload-progress__steps">
+            <ol className="m-0 flex w-full list-none flex-col gap-1.5 self-start p-0">
                 {STEPS.map((step, i) => (
                     <li
                         key={step.key}
                         className={[
-                            'upload-progress__step',
-                            i < currentStepIndex  ? 'upload-progress__step--done'   : '',
-                            i === currentStepIndex ? 'upload-progress__step--active' : '',
+                            'flex items-center gap-2.5 text-[0.8125rem] font-medium text-token-text-muted transition-colors duration-200 ease-out',
+                            i < currentStepIndex  ? 'text-[rgb(var(--token-semantic-success))]' : '',
+                            i === currentStepIndex ? 'font-semibold text-[rgb(var(--token-brand))]' : '',
                         ].filter(Boolean).join(' ')}
                     >
-                        <span className="upload-progress__step-dot" aria-hidden />
+                        <span
+                            className={[
+                                'h-2 w-2 shrink-0 rounded-full bg-token-border-subtle transition-[background,transform,box-shadow] duration-200 ease-out',
+                                i < currentStepIndex ? 'bg-[rgb(var(--token-semantic-success))]' : '',
+                                i === currentStepIndex ? 'scale-125 bg-[rgb(var(--token-brand))] shadow-[0_0_0_3px_rgb(var(--token-brand)/0.25)]' : '',
+                            ].filter(Boolean).join(' ')}
+                            aria-hidden
+                        />
                         {step.label}
                     </li>
                 ))}

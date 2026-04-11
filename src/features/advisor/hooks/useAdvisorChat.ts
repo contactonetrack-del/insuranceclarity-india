@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { api } from '@/lib/api-client'
 import { usePathname } from 'next/navigation'
 import { useAuthSession } from '@/lib/auth-client'
@@ -15,6 +16,7 @@ const ICON_MAP: Record<string, ElementType> = {
 }
 
 export function useAdvisorChat() {
+    const t = useTranslations('auditI18n.advisorChat')
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState<Message[]>([])
     const [inputValue, setInputValue] = useState('')
@@ -30,19 +32,19 @@ export function useAdvisorChat() {
         if (pathname?.includes('/tools/calculator')) {
             return {
                 text: "👋 It looks like you're using the **Premium Calculator**! Need help understanding any fields — like IDV, NCB, or sum insured? Just ask!",
-                actions: [{ label: 'Calculator Guide', href: '/resources', icon: Calculator }]
+                actions: [{ label: t('actions.calculatorGuide'), href: '/resources', icon: Calculator }]
             }
         }
         if (pathname?.includes('/tools/hidden-facts')) {
             return {
                 text: "👋 Welcome to the **Hidden Facts Revealer**! Ask me about any insurance exclusion, or I can explain what any fact means.",
-                actions: [{ label: 'Claim Cases', href: '/tools/claim-cases', icon: FileText }]
+                actions: [{ label: t('actions.claimCases'), href: '/tools/claim-cases', icon: FileText }]
             }
         }
         if (pathname?.includes('/tools/compare')) {
             return {
                 text: "👋 I see you're comparing policies! I can help explain what to look for — CSR ratios, room rent limits, network hospitals, and more.",
-                actions: [{ label: 'Expert Guides', href: '/resources', icon: BookOpen }]
+                actions: [{ label: t('actions.expertGuides'), href: '/resources', icon: BookOpen }]
             }
         }
         if (pathname?.includes('/insurance/')) {
@@ -50,17 +52,17 @@ export function useAdvisorChat() {
             return {
                 text: `👋 You're reading about **${type} insurance**. Ask me anything about it — coverage, exclusions, premiums, or how to claim!`,
                 actions: [
-                    { label: 'Hidden Facts', href: '/tools/hidden-facts', icon: AlertCircle },
-                    { label: 'Calculator', href: '/tools/calculator', icon: Calculator }
+                    { label: t('actions.hiddenFacts'), href: '/tools/hidden-facts', icon: AlertCircle },
+                    { label: t('actions.calculator'), href: '/tools/calculator', icon: Calculator }
                 ]
             }
         }
         return {
             text: "👋 Hi! I'm your **Clarity Advisor** — India's smartest insurance guide.\n\nAsk me about any insurance type, policy exclusions, premiums, claims, or comparisons. I'll give you clear, honest answers!",
             actions: [
-                { label: 'Calculate Premium', href: '/tools/calculator', icon: Calculator },
-                { label: 'Expert Guides', href: '/resources', icon: BookOpen },
-                { label: 'Hidden Facts', href: '/tools/hidden-facts', icon: AlertCircle },
+                { label: t('actions.calculatePremium'), href: '/tools/calculator', icon: Calculator },
+                { label: t('actions.expertGuides'), href: '/resources', icon: BookOpen },
+                { label: t('actions.hiddenFacts'), href: '/tools/hidden-facts', icon: AlertCircle },
             ]
         }
     }

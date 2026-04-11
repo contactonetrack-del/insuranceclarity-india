@@ -3,11 +3,18 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface Props {
     children: ReactNode;
     fallback?: ReactNode;
     onError?: (error: Error, errorInfo: ErrorInfo) => void;
+    copy?: {
+        title: string;
+        message: string;
+        retryLabel: string;
+        retryAriaLabel: string;
+    };
 }
 
 interface State {
@@ -26,7 +33,7 @@ interface State {
  *   <ComponentThatMightError />
  * </ErrorBoundary>
  */
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryInner extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = { hasError: false };
@@ -57,6 +64,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
     render() {
         if (this.state.hasError) {
+            const copy = this.props.copy ?? {
+                title: '',
+                message: '',
+                retryLabel: '',
+                retryAriaLabel: '',
+            };
             // Custom fallback UI
             if (this.props.fallback) {
                 return this.props.fallback;
@@ -69,17 +82,17 @@ export class ErrorBoundary extends Component<Props, State> {
                         <div className="error-boundary__icon">
                             <AlertTriangle className="w-8 h-8 text-danger-500" />
                         </div>
-                        <h3 className="error-boundary__title">Something went wrong</h3>
+                        <h3 className="error-boundary__title">{copy.title}</h3>
                         <p className="error-boundary__message">
-                            This section encountered an error. The issue has been reported automatically.
+                            {copy.message}
                         </p>
                         <button
                             className="error-boundary__retry"
                             onClick={() => this.setState({ hasError: false, error: undefined })}
-                            aria-label="Try again"
+                            aria-label={copy.retryAriaLabel}
                         >
                             <RefreshCw className="w-4 h-4 mr-2" />
-                            Try Again
+                            {copy.retryLabel}
                         </button>
                     </div>
                 </div>
@@ -107,4 +120,22 @@ export function withErrorBoundary<P extends object>(
     WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
 
     return WrappedComponent;
+}
+
+export function ErrorBoundary(props: Props) {
+    const t = useTranslations('auditI18n.errorBoundary')
+
+    return (
+        <ErrorBoundaryInner
+            {...props}
+            copy={
+                props.copy ?? {
+                    title: t('title'),
+                    message: t('message'),
+                    retryLabel: t('retryLabel'),
+                    retryAriaLabel: t('retryAriaLabel'),
+                }
+            }
+        />
+    )
 }

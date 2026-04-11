@@ -37,7 +37,7 @@ export class QuoteService {
                 applicantAge: validatedData.applicantAge,
                 tobaccoUser: validatedData.tobaccoUser,
                 premiumAmount: calculatedPremium,
-                status: 'COMPLETED',   // Synchronous: quotes resolve immediately, no background queue
+                status: 'READY',
             };
 
             const savedQuote = await quoteRepository.create(quoteData);
@@ -50,7 +50,7 @@ export class QuoteService {
             return {
                 quote: savedQuote,
                 documentJobId: syncTrackingId,
-                status: 'COMPLETED'
+                status: 'READY'
             };
         } catch (error) {
             logger.error({ action: 'generateQuote', status: 'persistence_failed', error });

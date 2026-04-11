@@ -13,21 +13,22 @@ model User {
   name          String?
   email         String?           @unique
   emailVerified DateTime?
+  betterAuthEmailVerified Boolean @default(false)
   image         String?
-  plan          String            @default("FREE")
+  plan          UserPlan          @default(FREE)
   scansUsed     Int               @default(0)
   savedFacts    String[]
   savedCases    String[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   planExpiresAt DateTime?
-  role          String            @default("CUSTOMER")
-  accounts      Account[]
+  role          UserRole          @default(CUSTOMER)
+  authAccounts  AuthAccount[]
   chatHistory   ChatHistory[]
   payments      Payment[]
   savedQuotes   SavedQuote[]
   scans         Scan[]
-  sessions      Session[]
+  authSessions  AuthSession[]
   subscriptions Subscription[]
   calculations  UserCalculation[]
   auditLogs     AuditLog[]
@@ -35,6 +36,7 @@ model User {
   @@index([email])
   @@index([plan])
   @@index([role])
+  @@index([betterAuthEmailVerified])
 }
 
 model Scan {
@@ -89,7 +91,7 @@ model Payment {
   amount            Int
   currency          String        @default("INR")
   status            PaymentStatus @default(CREATED)
-  plan              String        @default("SCAN_UNLOCK")
+  plan              PaymentPlan   @default(SCAN_UNLOCK)
   capturedAt        DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
@@ -105,7 +107,7 @@ model Payment {
 model Subscription {
   id                     String             @id @default(cuid())
   userId                 String
-  plan                   String
+  plan                   SubscriptionPlan
   razorpaySubscriptionId String             @unique
   razorpayPlanId         String
   status                 SubscriptionStatus @default(CREATED)
@@ -131,6 +133,7 @@ model HiddenFact {
   whatToCheck      String
   realCase         String
   example          String?
+  embedding        Unsupported("vector(768)")?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -148,6 +151,7 @@ model ClaimCase {
   details   String
   outcome   String
   lesson    String
+  embedding Unsupported("vector(768)")?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -165,38 +169,58 @@ model UserCalculation {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+model AuthAccount {
+  id                    String   @id @default(cuid())
+  userId                String
+  providerId            String
+  accountId             String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@index([providerId])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model AuthSession {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model AuthVerification {
+  id         String   @id @default(cuid())
+  identifier String   @unique
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  @@unique([identifier, token])
+  @@index([expiresAt])
+}
+
+model AuthRateLimit {
+  id          String @unique @default(cuid())
+  key         String @id
+  count       Int
+  lastRequest Int
 }
 
 model SavedQuote {
@@ -235,7 +259,7 @@ model Quote {
   applicantAge   Int
   tobaccoUser    Boolean?
   premiumAmount  Float
-  status         String   @default("PENDING")
+  status         QuoteStatus @default(PENDING)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -289,6 +313,7 @@ model InsurancePolicy {
   financialData   Json
   benefits        String[]
   exclusions      String[]
+  embedding       Unsupported("vector(768)")?
   seoSlug         String        @unique
   createdAt       DateTime      @default(now())
   type            InsuranceType @relation(fields: [typeId], references: [id], onDelete: Cascade)
@@ -300,8 +325,8 @@ model Lead {
   email         String
   phone         String
   insuranceType String
-  status        String   @default("NEW")
-  source        String   @default("ORGANIC")
+  status        LeadStatus   @default(NEW)
+  source        LeadSource   @default(ORGANIC)
   notes         String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -342,6 +367,30 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum UserRole {
+  GUEST
+  CUSTOMER
+  AGENT
+  ADMIN
+}
+
+enum UserPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum PaymentPlan {
+  SCAN_UNLOCK
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionPlan {
+  PRO
+  ENTERPRISE
+}
+
 enum SubscriptionStatus {
   CREATED
   AUTHENTICATED
@@ -350,6 +399,28 @@ enum SubscriptionStatus {
   CANCELLED
   COMPLETED
   EXPIRED
+}
+
+enum QuoteStatus {
+  PENDING
+  READY
+  FAILED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED
+  LOST
+}
+
+enum LeadSource {
+  ORGANIC
+  REFERRAL
+  PAID
+  SOCIAL
+  EMAIL
 }
 
 model ErrorLog {

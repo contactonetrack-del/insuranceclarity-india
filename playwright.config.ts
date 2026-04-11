@@ -2,6 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
 const shouldManageWebServer = process.env.PLAYWRIGHT_SKIP_WEB_SERVER !== '1';
+const forceFreshServer = process.env.PLAYWRIGHT_FORCE_FRESH_SERVER === '1';
+const localE2eSecret = process.env.E2E_TEST_SECRET ?? 'local-e2e-test-secret';
+const devCommand =
+    process.platform === 'win32'
+        ? 'npm run dev -- --webpack --hostname 127.0.0.1 --port 3000'
+        : 'npm run dev -- --hostname 127.0.0.1 --port 3000';
 
 /**
  * Playwright E2E Test Configuration
@@ -73,14 +79,16 @@ export default defineConfig({
     // Run your local dev server before starting the tests
     webServer: shouldManageWebServer
         ? {
-            command: 'npm run dev -- --hostname 127.0.0.1 --port 3000',
+            command: devCommand,
             env: {
                 ...process.env,
                 NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS: 'true',
                 SEARCH_BACKEND: process.env.SEARCH_BACKEND ?? 'postgres',
+                E2E_TEST_SECRET: localE2eSecret,
+                RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET ?? 'test_secret_for_local_e2e',
             },
             url: baseURL,
-            reuseExistingServer: !process.env.CI,
+            reuseExistingServer: !process.env.CI && !forceFreshServer,
             timeout: 120 * 1000,
         }
         : undefined,

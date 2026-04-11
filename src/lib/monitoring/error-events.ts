@@ -12,8 +12,8 @@
  */
 
 import { Prisma } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { reportRepository } from '@/repositories/report.repository';
 
 export enum ErrorSeverity {
   CRITICAL = 'CRITICAL', // Auth failures, payment failures, data corruption
@@ -88,19 +88,17 @@ export async function logErrorEvent(event: ErrorEvent): Promise<void> {
     }
 
     // Store in database
-    await prisma.errorLog.create({
-      data: {
-        errorCode: event.code,
-        message: event.message,
-        route: event.route,
-        method: event.method,
-        httpStatus: event.statusCode,
-        severity,
-        userId: event.userId,
-        ipAddress: event.ipAddress,
-        details: toPrismaJson(event.details),
-        timestamp: event.timestamp || new Date(),
-      },
+    await reportRepository.createErrorLog({
+      errorCode: event.code,
+      message: event.message,
+      route: event.route,
+      method: event.method,
+      httpStatus: event.statusCode,
+      severity,
+      userId: event.userId,
+      ipAddress: event.ipAddress,
+      details: toPrismaJson(event.details),
+      timestamp: event.timestamp || new Date(),
     }).catch((err) => {
       // Log but don't throw — logging failures shouldn't break the app
       logger.error({
@@ -131,8 +129,7 @@ export async function batchLogErrorEvents(events: ErrorEvent[]): Promise<void> {
 
     if (loggableEvents.length === 0) return;
 
-    await prisma.errorLog.createMany({
-      data: loggableEvents.map((e) => ({
+    await reportRepository.createManyErrorLogs(loggableEvents.map((e) => ({
         errorCode: e.code,
         message: e.message,
         route: e.route,
@@ -143,8 +140,7 @@ export async function batchLogErrorEvents(events: ErrorEvent[]): Promise<void> {
         ipAddress: e.ipAddress,
         details: toPrismaJson(e.details),
         timestamp: e.timestamp || new Date(),
-      })),
-    }).catch((err) => {
+      }))).catch((err) => {
       logger.error({
         action: 'error_event.batch_log.failed',
         count: loggableEvents.length,
@@ -167,22 +163,7 @@ export async function getErrorStats(daysBack: number = 7) {
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - daysBack);
 
-    const stats = await prisma.errorLog.groupBy({
-      by: ['errorCode', 'severity'],
-      where: {
-        timestamp: {
-          gte: sinceDate,
-        },
-      },
-      _count: {
-        id: true,
-      },
-      orderBy: {
-        _count: {
-          id: 'desc',
-        },
-      },
-    });
+    const stats = await reportRepository.groupErrorLogsByCodeAndSeverity(sinceDate);
 
     return stats.map((s) => ({
       errorCode: s.errorCode,
@@ -206,16 +187,7 @@ export async function getErrorTimeline(daysBack: number = 7) {
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - daysBack);
 
-    const timeline = await prisma.$queryRaw`
-      SELECT 
-        DATE(timestamp) as date,
-        severity,
-        COUNT(*) as count
-      FROM error_logs
-      WHERE timestamp >= ${sinceDate}
-      GROUP BY DATE(timestamp), severity
-      ORDER BY date ASC, severity
-    ` as Array<{ date: Date; severity: string; count: number }>;
+    const timeline = await reportRepository.getErrorTimeline(sinceDate);
 
     return timeline;
   } catch (error) {

@@ -5,6 +5,7 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
   schedule:
     - cron: "0 0 * * 0" # Weekly scan
 
@@ -18,8 +19,8 @@ jobs:
     env:
       DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci_db"
       DIRECT_URL: "postgresql://ci:ci@localhost:5432/ci_db"
-      NEXTAUTH_SECRET: "ci-secret-value-with-32-random-chars-abcdef123456"
-      NEXTAUTH_URL: "http://localhost:3000"
+      BETTER_AUTH_SECRET: "ci-secret-value-with-32-random-chars-abcdef123456"
+      BETTER_AUTH_URL: "http://localhost:3000"
       NEXT_PUBLIC_APP_URL: "http://localhost:3000"
       NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS: "true"
       SEARCH_BACKEND: "postgres"
@@ -60,6 +61,10 @@ jobs:
 
       - name: Run Static Analysis (ESLint)
         run: npm run lint -- --max-warnings 200
+
+      - name: Theme drift audit (report-only)
+        run: npm run theme:audit
+        continue-on-error: true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3

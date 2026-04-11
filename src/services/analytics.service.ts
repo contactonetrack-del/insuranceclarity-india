@@ -5,7 +5,6 @@
  * Designed to work with Google Analytics 4 and custom backends.
  */
 
-import { logger } from '@/lib/logger';
 import { isRuntimeAnalyticsDisabled } from '@/lib/runtime-flags';
 
 let webVitalsTrackingInitialized = false;
@@ -13,13 +12,13 @@ let webVitalsTrackingInitialized = false;
 // Dev-only logger — tree-shaken in production builds
 function _devLog(...args: unknown[]): void {
     if (process.env.NODE_ENV !== 'production') {
-        logger.debug({ args }, '[Analytics Dev]');
+        console.debug('[Analytics Dev]', ...args);
     }
 }
 
 function _devWarn(message: string, ...args: unknown[]): void {
     if (process.env.NODE_ENV !== 'production') {
-        logger.warn({ args }, message);
+        console.warn(message, ...args);
     }
 }
 

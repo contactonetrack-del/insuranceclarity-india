@@ -9,9 +9,9 @@
  */
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { getCachedResponse, cacheResponse } from '@/lib/cache/response-cache';
 import { logger } from '@/lib/logger';
+import { listHiddenFacts } from '@/services/hidden-facts.service';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,11 +36,7 @@ export async function GET() {
         }
 
         // Cache miss - fetch from database
-        const facts = await prisma.hiddenFact.findMany({
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        const facts = await listHiddenFacts();
 
         logger.info({
             action: 'hidden-facts.cache_miss',

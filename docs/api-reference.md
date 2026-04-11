@@ -1,5 +1,7 @@
 # Insurance Clarity API Reference
 
+> Historical note: this document predates the Better Auth cutover and the current browser-first public API surface. For current platform status, use [MASTER-PLAN-STATUS.md](../MASTER-PLAN-STATUS.md) and [README.md](../README.md).
+
 Complete API documentation for Insurance Clarity endpoints with error handling guides and examples.
 
 ## Table of Contents
@@ -20,7 +22,7 @@ All API requests require a valid API key. Include it in the `Authorization` head
 Authorization: Bearer YOUR_API_KEY
 ```
 
-For authentication endpoints that don't require an API key, follow the NextAuth.js session-based flow.
+For browser-authenticated endpoints, follow the Better Auth session/cookie flow used by the current app.
 
 ---
 

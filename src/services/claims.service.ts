@@ -12,6 +12,18 @@ export interface ClaimSubmission {
 }
 
 export class ClaimsService {
+    async listAllClaims() {
+        return claimRepository.findAll();
+    }
+
+    async listRecentClaims(limit = 100) {
+        return claimRepository.findRecent(limit);
+    }
+
+    async searchClaims(params: { query?: string; category?: string; limit?: number }) {
+        return claimRepository.search(params);
+    }
+
     /**
      * AI-Driven Auto-Adjudication Pipeline (Simulated)
      * 

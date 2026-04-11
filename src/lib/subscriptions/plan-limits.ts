@@ -1,11 +1,11 @@
+import type { UserPlan } from '@/lib/domain/enums';
+
 /**
  * src/lib/subscriptions/plan-limits.ts
  *
  * Central definition of plan limits and a reusable guard utility.
  * This ensures all tier-gating logic comes from one place.
  */
-
-export type UserPlan = 'FREE' | 'PRO' | 'ENTERPRISE';
 
 // ─── Plan Feature Limits ──────────────────────────────────────────────────────
 

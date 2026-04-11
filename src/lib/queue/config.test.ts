@@ -72,6 +72,16 @@ describe('queue config', () => {
         expect(getPublicAppUrl()).toBe('http://localhost:3000');
     });
 
+    it('prefers canonical auth/public urls over a stale app base url', () => {
+        resetEnv({
+            APP_BASE_URL: 'https://nextjs-old-deployment-one-tracks-projects.vercel.app/',
+            NEXTAUTH_URL: 'https://insuranceclarity.vercel.app/',
+            NODE_ENV: 'production',
+        });
+
+        expect(getPublicAppUrl()).toBe('https://insuranceclarity.vercel.app');
+    });
+
     it('normalizes qstash retry tuning values', () => {
         resetEnv({
             QSTASH_MAX_DELIVERY_RETRIES: '99',

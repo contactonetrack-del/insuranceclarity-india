@@ -8,7 +8,7 @@
  * - Deliver paywall-gated responses (free vs. paid)
  */
 
-import { prisma } from '@/lib/prisma';
+import { reportRepository } from '@/repositories/report.repository';
 import { redisClient } from '@/lib/cache/redis';
 import { logger } from '@/lib/logger';
 import type { Prisma, ScanStatus as PrismaScanStatus } from '@prisma/client';
@@ -85,15 +85,7 @@ export async function findExistingScan(fileHash: string, scope: ScanAccessScope)
     if (cached) return cached;
 
     // Fall back to DB
-    const existing = await prisma.scan.findFirst({
-        where: {
-            fileHash,
-            status: 'COMPLETED',
-            ...buildAccessWhere(scope),
-        },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true },
-    });
+    const existing = await reportRepository.findExistingCompletedScanByHash(fileHash, buildAccessWhere(scope));
 
     if (existing) {
         // Cache for fast future lookups
@@ -105,13 +97,7 @@ export async function findExistingScan(fileHash: string, scope: ScanAccessScope)
 }
 
 export async function countAnonymousScansSince(ipAddress: string, since: Date): Promise<number> {
-    return prisma.scan.count({
-        where: {
-            userId: null,
-            ipAddress,
-            createdAt: { gte: since },
-        },
-    });
+    return reportRepository.countAnonymousScansSince(ipAddress, since);
 }
 
 // ─── Scan Record Management ───────────────────────────────────────────────────
@@ -127,68 +113,26 @@ export interface CreateScanInput {
 
 /** Creates a new Scan record in PENDING state */
 export async function createScan(input: CreateScanInput) {
-    return prisma.scan.create({
-        data: {
-            userId:    input.userId ?? null,
-            fileUrl:   input.fileUrl,
-            fileName:  input.fileName,
-            fileHash:  input.fileHash,
-            fileSizeKb: input.fileSizeKb,
-            ipAddress: input.ipAddress ?? null,
-            status:    'PENDING',
-        },
-    });
+    return reportRepository.createScan(input);
 }
 
 /** Updates scan status */
 export async function updateScanStatus(scanId: string, status: ScanStatus, score?: number) {
-    return prisma.scan.update({
-        where: { id: scanId },
-        data: {
-            status,
-            score: score ?? undefined,
-        },
-    });
+    return reportRepository.updateScanStatus(scanId, status, score);
 }
 
 // ─── Report Persistence ───────────────────────────────────────────────────────
 
 /** Saves GPT analysis result to DB and marks scan as COMPLETED */
 export async function saveReport(scanId: string, result: AnalysisResult) {
-    const { report, tokensUsed, processingMs } = result;
-
-    await prisma.$transaction([
-        // Save report
-        prisma.report.create({
-            data: {
-                scanId,
-                summary:      report.summary,
-                score:        report.score,
-                risks:        report.risks        as unknown as import('@prisma/client').Prisma.InputJsonValue,
-                exclusions:   report.exclusions   as unknown as import('@prisma/client').Prisma.InputJsonValue,
-                suggestions:  report.suggestions  as unknown as import('@prisma/client').Prisma.InputJsonValue,
-                hiddenClauses: report.hiddenClauses as unknown as import('@prisma/client').Prisma.InputJsonValue,
-                rawGptOutput: report.rawText ?? null,
-                tokensUsed,
-                processingMs,
-            },
-        }),
-        // Mark scan as COMPLETED with score
-        prisma.scan.update({
-            where: { id: scanId },
-            data: { status: 'COMPLETED', score: report.score },
-        }),
-    ]);
-
+    await reportRepository.saveReport(scanId, result);
+    const { report } = result;
     logger.info({ action: 'report.saved', scanId, score: report.score });
 }
 
 /** Marks a scan as FAILED */
 export async function markScanFailed(scanId: string) {
-    await prisma.scan.update({
-        where: { id: scanId },
-        data: { status: 'FAILED' },
-    });
+    await reportRepository.markScanFailed(scanId);
     logger.warn({ action: 'report.failed', scanId });
 }
 
@@ -218,10 +162,7 @@ export async function getReport(options: GetReportOptions): Promise<ReportRespon
     }
 
     // Load from DB
-    const scan = await prisma.scan.findUnique({
-        where: { id: scanId },
-        include: { report: true },
-    });
+    const scan = await reportRepository.findCompletedScanWithReportById(scanId);
 
     if (!scan || !scan.report || scan.status !== 'COMPLETED') {
         return null;
@@ -248,19 +189,13 @@ export async function getReport(options: GetReportOptions): Promise<ReportRespon
 
 /** Gets current scan status (for polling) */
 export async function getScanStatus(scanId: string) {
-    const scan = await prisma.scan.findUnique({
-        where: { id: scanId },
-        select: { id: true, status: true, score: true, isPaid: true, updatedAt: true },
-    });
+    const scan = await reportRepository.findScanStatusById(scanId);
 
     if (!scan) return null;
 
     const staleForMs = Date.now() - scan.updatedAt.getTime();
     if (isStaleStatus(scan.status) && staleForMs > STALE_SCAN_TIMEOUT_MS) {
-        await prisma.scan.update({
-            where: { id: scan.id },
-            data: { status: 'FAILED' },
-        });
+        await reportRepository.markStaleScanFailed(scan.id);
 
         logger.warn({
             action: 'scan.stale.marked_failed',

@@ -2,6 +2,7 @@ import { fetchFromSanity } from "@/sanity/client";
 import { POST_BY_SLUG_QUERY } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { PortableText } from "@portabletext/react";
+import type { PortableTextBlock } from "@portabletext/types";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import { JsonLd, generateArticleSchema } from "@/components/seo/JsonLd";
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import { ShareButtons } from "@/components/social/ShareButtons";
 import { headers } from "next/headers";
+import { getLocale, getTranslations } from 'next-intl/server';
 
 export const revalidate = 60;
 
@@ -19,12 +21,14 @@ type BlogPost = {
     author?: string | null;
     mainImage?: unknown;
     publishedAt?: string | null;
-    body?: any[];
+    body?: PortableTextBlock[];
     categories?: string[];
     seoDescription?: string | null;
 };
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+    const t = await getTranslations('blogPost');
+    const locale = await getLocale();
     const resolvedParams = await params;
     const post = await fetchFromSanity<BlogPost | null>(POST_BY_SLUG_QUERY, { slug: resolvedParams.slug }, null);
 
@@ -40,7 +44,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         title: postData.title,
         description: postData.seoDescription || postData.title,
         image: postData.mainImage ? urlForImage(postData.mainImage).url() : "https://insuranceclarity.in/default-article.jpg",
-        author: postData.author || "InsuranceClarity Expert",
+        author: postData.author || t('defaultAuthor'),
         datePublished: postData.publishedAt || new Date().toISOString(),
         url: `https://insuranceclarity.in/blog/${postData.slug.current}`
     });
@@ -56,7 +60,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
                 {/* Back Navigation */}
                 <Link href="/blog" className="inline-flex items-center gap-2 text-theme-muted hover:text-accent transition-colors">
-                    <ArrowLeft className="w-5 h-5" /> Back to Insights
+                    <ArrowLeft className="w-5 h-5" /> {t('backToInsights')}
                 </Link>
 
                 {/* Hero Section */}
@@ -82,7 +86,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                         )}
                         <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-accent" />
-                            <span>{new Date(postData.publishedAt || new Date()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                            <span>{new Date(postData.publishedAt || new Date()).toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                         </div>
                     </div>
                 </header>
@@ -128,7 +132,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                         {postData.body ? (
                             <PortableText value={postData.body} />
                         ) : (
-                            <p className="text-theme-muted italic">This article has no content yet.</p>
+                            <p className="text-theme-muted italic">{t('noContentYet')}</p>
                         )}
 
                         {/* Bottom Share Buttons */}
