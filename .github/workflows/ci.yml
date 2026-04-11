@@ -35,6 +35,7 @@ jobs:
       UPSTASH_REDIS_REST_TOKEN: "ci_token"
       REDIS_URL: "redis://localhost:6379"
       OPENAI_API_KEY: "sk-ci-placeholder"
+      GEMINI_API_KEY: "ci-gemini-key-1234567890"
       RAZORPAY_KEY_ID: "rzp_test_ci_1234567890"
       RAZORPAY_KEY_SECRET: "ci_razorpay_secret"
       RAZORPAY_WEBHOOK_SECRET: "test_secret_for_local_e2e"

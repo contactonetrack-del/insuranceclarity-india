@@ -14,8 +14,12 @@ interface LanguageToggleProps {
 
 const options: Array<{ value: LocaleOption; label: string }> = [
     { value: 'en', label: 'EN' },
-    { value: 'hi', label: 'हिं' },
+    { value: 'hi', label: '\u0939\u093f\u0902' },
 ]
+
+function persistLocaleCookie(nextLocale: LocaleOption) {
+    globalThis.document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=${YEAR_IN_SECONDS}; samesite=lax`
+}
 
 export default function LanguageToggle({ compact = false }: LanguageToggleProps) {
     const locale = useLocale() as LocaleOption
@@ -26,7 +30,7 @@ export default function LanguageToggle({ compact = false }: LanguageToggleProps)
     const setLocale = (nextLocale: LocaleOption) => {
         if (nextLocale === locale) return
 
-        document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=${YEAR_IN_SECONDS}; samesite=lax`
+        persistLocaleCookie(nextLocale)
         startTransition(() => {
             router.refresh()
         })
