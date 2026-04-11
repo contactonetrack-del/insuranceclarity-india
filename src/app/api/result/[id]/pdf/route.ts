@@ -2,26 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 
 import { logger } from '@/lib/logger';
-import { prisma } from '@/lib/prisma';
-import { redisClient } from '@/lib/cache/redis';
 import { getReport, getScanStatus } from '@/services/report.service';
+import { canAccessScan, getClientIpFromHeaders } from '@/services/payment.service';
+import { findResultAccessScan } from '@/services/ops.service';
+import { verifyScanClaimToken } from '@/lib/security/scan-claim';
 import type { FullReportResponse } from '@/types/report.types';
 
 export const dynamic = 'force-dynamic';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
-}
-
-function getClientIp(request: NextRequest): string | null {
-    const forwarded = request.headers.get('x-forwarded-for');
-    if (forwarded) {
-        const first = forwarded.split(',')[0]?.trim();
-        if (first) return first;
-    }
-
-    const realIp = request.headers.get('x-real-ip')?.trim();
-    return realIp || null;
 }
 
 function getRequestLocale(request: NextRequest): 'en' | 'hi' {
@@ -31,30 +21,6 @@ function getRequestLocale(request: NextRequest): 'en' | 'hi' {
 
     const acceptLanguage = request.headers.get('accept-language')?.toLowerCase() ?? '';
     return acceptLanguage.includes('hi') ? 'hi' : 'en';
-}
-
-function canAccessScan(params: {
-    isAdmin: boolean;
-    sessionUserId: string | null;
-    requestIp: string | null;
-    ownerUserId: string | null;
-    ownerIp: string | null;
-    claimTokenValid: boolean;
-}): boolean {
-    if (params.isAdmin) return true;
-
-    if (params.ownerUserId) {
-        return params.sessionUserId === params.ownerUserId;
-    }
-
-    if (params.claimTokenValid) return true;
-
-    // Legacy fallback is explicitly development-only for pre-token scans.
-    if (process.env.NODE_ENV !== 'production') {
-        return Boolean(params.requestIp && params.ownerIp && params.requestIp === params.ownerIp);
-    }
-
-    return false;
 }
 
 function addSection(
@@ -92,25 +58,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const userId = (session?.user as { id?: string } | undefined)?.id ?? null;
         const role = (session?.user as { role?: string } | undefined)?.role;
         const isAdmin = role === 'ADMIN';
-        const requestIp = getClientIp(request);
+        const requestIp = getClientIpFromHeaders(request.headers);
         const locale = getRequestLocale(request);
         const claimToken = request.headers.get('x-claim-token')
             ?? request.nextUrl.searchParams.get('ct');
 
-        const scanAccess = await prisma.scan.findUnique({
-            where: { id: scanId },
-            select: { userId: true, ipAddress: true, fileName: true },
-        });
+        const scanAccess = await findResultAccessScan(scanId);
 
         if (!scanAccess) {
             return NextResponse.json({ error: 'Scan not found.' }, { status: 404 });
         }
 
-        let claimTokenValid = false;
-        if (claimToken && !scanAccess.userId && redisClient.isConfigured()) {
-            const claimedScanId = await redisClient.get<string>(`scan:claim:${claimToken}`);
-            claimTokenValid = claimedScanId === scanId;
-        }
+        const claimTokenValid = !scanAccess.userId
+            ? await verifyScanClaimToken(claimToken, scanId)
+            : false;
 
         if (
             !canAccessScan({

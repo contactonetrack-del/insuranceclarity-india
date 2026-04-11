@@ -82,28 +82,40 @@ function escapeHtml(value: string): string {
         .replaceAll("'", '&#39;');
 }
 
+const emailTheme = {
+    background: '#0f172a',
+    surface: '#1e293b',
+    border: '#334155',
+    textPrimary: '#e2e8f0',
+    textMuted: '#94a3b8',
+    textSubtle: '#64748b',
+    textInverse: '#ffffff',
+    linkMuted: '#475569',
+    brandGradient: 'linear-gradient(135deg, #16a34a, #15803d)',
+} as const
+
 const baseStyle = `
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0f172a;
-    color: #e2e8f0;
+    background: ${emailTheme.background};
+    color: ${emailTheme.textPrimary};
     margin: 0; padding: 0;
 `;
 
 const cardStyle = `
-    max-width: 580px; margin: 40px auto; background: #1e293b;
-    border-radius: 16px; border: 1px solid #334155; overflow: hidden;
+    max-width: 580px; margin: 40px auto; background: ${emailTheme.surface};
+    border-radius: 16px; border: 1px solid ${emailTheme.border}; overflow: hidden;
 `;
 
 const headerStyle = `
-    background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+    background: ${emailTheme.brandGradient};
     padding: 32px 40px; text-align: center;
 `;
 
 const bodyStyle = `padding: 32px 40px;`;
 
 const footerStyle = `
-    padding: 24px 40px; border-top: 1px solid #334155;
-    text-align: center; font-size: 12px; color: #64748b;
+    padding: 24px 40px; border-top: 1px solid ${emailTheme.border};
+    text-align: center; font-size: 12px; color: ${emailTheme.textSubtle};
 `;
 
 function getScoreColor(score: number): string {
@@ -253,40 +265,40 @@ export async function sendScanCompleteEmail(
 <div style="${cardStyle}">
     <div style="${headerStyle}">
         <div style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:8px;">${copy.preheader}</div>
-        <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;">${copy.title}</h1>
+        <h1 style="margin:0;font-size:24px;font-weight:700;color:${emailTheme.textInverse};">${copy.title}</h1>
     </div>
     <div style="${bodyStyle}">
-        <p style="margin-top:0;color:#94a3b8;">${copy.greeting}</p>
-        <p style="color:#e2e8f0;">${copy.intro}</p>
+        <p style="margin-top:0;color:${emailTheme.textMuted};">${copy.greeting}</p>
+        <p style="color:${emailTheme.textPrimary};">${copy.intro}</p>
 
-        <div style="background:#0f172a;border-radius:12px;padding:24px;margin:24px 0;text-align:center;border:1px solid #334155;">
+        <div style="background:${emailTheme.background};border-radius:12px;padding:24px;margin:24px 0;text-align:center;border:1px solid ${emailTheme.border};">
             <div style="font-size:48px;font-weight:800;color:${scoreColor};">${payload.score}</div>
-            <div style="font-size:14px;color:#94a3b8;margin-top:4px;">${copy.scoreCaption}</div>
+            <div style="font-size:14px;color:${emailTheme.textMuted};margin-top:4px;">${copy.scoreCaption}</div>
             <div style="display:inline-block;background:${scoreColor}20;color:${scoreColor};padding:4px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-top:8px;">${scoreLabel}</div>
         </div>
 
-        <p style="color:#94a3b8;font-size:14px;"><strong style="color:#e2e8f0;">${copy.document}:</strong> ${safeFileName}</p>
+        <p style="color:${emailTheme.textMuted};font-size:14px;"><strong style="color:${emailTheme.textPrimary};">${copy.document}:</strong> ${safeFileName}</p>
 
-        <p style="color:#e2e8f0;">${copy.includes}</p>
-        <ul style="color:#94a3b8;line-height:1.8;">
+        <p style="color:${emailTheme.textPrimary};">${copy.includes}</p>
+        <ul style="color:${emailTheme.textMuted};line-height:1.8;">
             <li>${copy.points[0]}</li>
             <li>${copy.points[1]}</li>
             <li>${copy.points[2]}</li>
         </ul>
 
         <div style="text-align:center;margin:32px 0;">
-            <a href="${resultUrl}" style="display:inline-block;background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#ffffff;font-weight:700;font-size:16px;padding:16px 32px;border-radius:12px;text-decoration:none;">
+            <a href="${resultUrl}" style="display:inline-block;background:${emailTheme.brandGradient};color:${emailTheme.textInverse};font-weight:700;font-size:16px;padding:16px 32px;border-radius:12px;text-decoration:none;">
                 ${copy.cta}
             </a>
         </div>
 
-        <p style="color:#64748b;font-size:13px;text-align:center;">
+        <p style="color:${emailTheme.textSubtle};font-size:13px;text-align:center;">
             ${copy.footer}<br>${copy.unlock}
         </p>
     </div>
     <div style="${footerStyle}">
         <p style="margin:0;">Insurance Clarity · AI-Powered Policy Analysis</p>
-        <p style="margin:4px 0 0;"><a href="${unsubscribeUrl}" style="color:#475569;text-decoration:underline;">${copy.unsubscribe}</a></p>
+        <p style="margin:4px 0 0;"><a href="${unsubscribeUrl}" style="color:${emailTheme.linkMuted};text-decoration:underline;">${copy.unsubscribe}</a></p>
     </div>
 </div>
 </body>
@@ -348,23 +360,23 @@ export async function sendWelcomeEmail(
 <div style="${cardStyle}">
     <div style="${headerStyle}">
         <div style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:8px;">INSURANCE CLARITY</div>
-        <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;">${copy.title}</h1>
+        <h1 style="margin:0;font-size:24px;font-weight:700;color:${emailTheme.textInverse};">${copy.title}</h1>
     </div>
     <div style="${bodyStyle}">
-        <p style="margin-top:0;color:#94a3b8;">${copy.greeting}</p>
-        <p style="color:#e2e8f0;">${copy.intro}</p>
-        <ul style="color:#94a3b8;line-height:2;">
+        <p style="margin-top:0;color:${emailTheme.textMuted};">${copy.greeting}</p>
+        <p style="color:${emailTheme.textPrimary};">${copy.intro}</p>
+        <ul style="color:${emailTheme.textMuted};line-height:2;">
             <li>${copy.points[0]}</li>
             <li>${copy.points[1]}</li>
             <li>${copy.points[2]}</li>
             <li>${copy.points[3]}</li>
         </ul>
         <div style="text-align:center;margin:32px 0;">
-            <a href="${appUrl}/scan" style="display:inline-block;background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#ffffff;font-weight:700;font-size:16px;padding:16px 32px;border-radius:12px;text-decoration:none;">
+            <a href="${appUrl}/scan" style="display:inline-block;background:${emailTheme.brandGradient};color:${emailTheme.textInverse};font-weight:700;font-size:16px;padding:16px 32px;border-radius:12px;text-decoration:none;">
                 ${copy.cta}
             </a>
         </div>
-        <p style="color:#64748b;font-size:13px;text-align:center;">${copy.footer}</p>
+        <p style="color:${emailTheme.textSubtle};font-size:13px;text-align:center;">${copy.footer}</p>
     </div>
     <div style="${footerStyle}">
         <p style="margin:0;">Insurance Clarity · AI-Powered Policy Analysis · India</p>
@@ -417,13 +429,13 @@ export async function sendScanLimitNudgeEmail(
 <body style="${baseStyle}">
 <div style="${cardStyle}">
     <div style="${headerStyle}">
-        <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;">${copy.title}</h1>
+        <h1 style="margin:0;font-size:24px;font-weight:700;color:${emailTheme.textInverse};">${copy.title}</h1>
     </div>
     <div style="${bodyStyle}">
-        <p style="margin-top:0;color:#94a3b8;">${copy.intro}</p>
-        <p style="color:#e2e8f0;">${copy.body}</p>
+        <p style="margin-top:0;color:${emailTheme.textMuted};">${copy.intro}</p>
+        <p style="color:${emailTheme.textPrimary};">${copy.body}</p>
         <div style="text-align:center;margin:32px 0;">
-            <a href="${appUrl}/pricing" style="display:inline-block;background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#ffffff;font-weight:700;font-size:16px;padding:16px 32px;border-radius:12px;text-decoration:none;">
+            <a href="${appUrl}/pricing" style="display:inline-block;background:${emailTheme.brandGradient};color:${emailTheme.textInverse};font-weight:700;font-size:16px;padding:16px 32px;border-radius:12px;text-decoration:none;">
                 ${copy.cta}
             </a>
         </div>
@@ -463,12 +475,12 @@ export async function sendContactAlert(payload: ContactAlertPayload): Promise<bo
     const html = `
 <div style="${baseStyle}">
 <div style="${cardStyle}">
-<div style="${headerStyle}"><h1 style="margin:0;font-size:20px;color:#fff;">New Contact Form Submission</h1></div>
+<div style="${headerStyle}"><h1 style="margin:0;font-size:20px;color:${emailTheme.textInverse};">New Contact Form Submission</h1></div>
 <div style="${bodyStyle}">
     <p><strong>From:</strong> ${safeName} (${safeEmail})</p>
     <p><strong>Subject:</strong> ${safeSubject}</p>
     <p><strong>Message:</strong></p>
-    <div style="background:#0f172a;padding:16px;border-radius:8px;color:#94a3b8;">${safeMessage}</div>
+    <div style="background:${emailTheme.background};padding:16px;border-radius:8px;color:${emailTheme.textMuted};">${safeMessage}</div>
 </div>
 </div>
 </div>`;
@@ -502,16 +514,16 @@ export async function sendOtpEmail(to: string, payload: OtpEmailPayload): Promis
 <body style="${baseStyle}">
 <div style="${cardStyle}">
     <div style="${headerStyle}">
-        <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;">${copy.title}</h1>
+        <h1 style="margin:0;font-size:24px;font-weight:700;color:${emailTheme.textInverse};">${copy.title}</h1>
     </div>
     <div style="${bodyStyle}">
-        <p style="margin-top:0;color:#94a3b8;">${copy.intro}</p>
+        <p style="margin-top:0;color:${emailTheme.textMuted};">${copy.intro}</p>
         
-        <div style="background:#0f172a;border-radius:12px;padding:24px;margin:24px 0;text-align:center;border:1px solid #334155;">
-            <div style="font-size:36px;font-weight:800;color:#e2e8f0;letter-spacing:4px;">${payload.otp}</div>
+        <div style="background:${emailTheme.background};border-radius:12px;padding:24px;margin:24px 0;text-align:center;border:1px solid ${emailTheme.border};">
+            <div style="font-size:36px;font-weight:800;color:${emailTheme.textPrimary};letter-spacing:4px;">${payload.otp}</div>
         </div>
         
-        <p style="color:#64748b;font-size:13px;text-align:center;">${copy.warning}</p>
+        <p style="color:${emailTheme.textSubtle};font-size:13px;text-align:center;">${copy.warning}</p>
     </div>
     <div style="${footerStyle}">
         <p style="margin:0;">Insurance Clarity · AI-Powered Policy Analysis</p>

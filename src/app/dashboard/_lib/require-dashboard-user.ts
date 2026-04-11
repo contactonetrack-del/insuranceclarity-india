@@ -1,7 +1,7 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 
-import { prisma } from '@/lib/prisma';
+import { findDashboardUserByEmail } from '@/services/dashboard.service';
 
 export async function requireDashboardUser() {
     const session = await auth();
@@ -11,19 +11,7 @@ export async function requireDashboardUser() {
         redirect('/');
     }
 
-    const user = await prisma.user.findUnique({
-        where: { email },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            plan: true,
-            scansUsed: true,
-            createdAt: true,
-            planExpiresAt: true,
-        },
-    });
+    const user = await findDashboardUserByEmail(email);
 
     if (!user) {
         redirect('/');

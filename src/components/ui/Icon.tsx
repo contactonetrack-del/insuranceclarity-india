@@ -179,7 +179,7 @@ export function IconContainer({
 
     const variantClasses = {
         primary: 'bg-gradient-accent text-white shadow-sm',
-        accent: 'bg-accent-10 text-accent',
+        accent: 'bg-accent/10 text-accent',
         muted: 'bg-theme-secondary/10 text-theme-secondary',
     }
 

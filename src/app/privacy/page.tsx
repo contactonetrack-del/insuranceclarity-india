@@ -5,165 +5,162 @@
  * Revalidates every 24 hours since legal content changes infrequently.
  */
 
-import { Metadata } from 'next'
-import { Shield, Mail, MapPin, AlertTriangle } from 'lucide-react'
+import type { Metadata } from 'next'
+import { AlertTriangle, Mail, Shield } from 'lucide-react'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 
 // Phase 11 Week 2: ISR configuration for static legal content
-export const revalidate = 86400; // 24 hours
+export const revalidate = 86400 // 24 hours
 
-export const metadata: Metadata = {
-    title: 'Privacy Policy | InsuranceClarity India',
-    description: 'Privacy Policy for InsuranceClarity India - How we collect, use, and protect your information under DPDP Act 2023.',
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getTranslations('privacyPolicyPage.metadata')
+
+    return {
+        title: t('title'),
+        description: t('description'),
+    }
 }
 
-export default function PrivacyPage() {
-    const lastUpdated = 'January 9, 2026'
-    const version = '2.0 (DPDP 2023-Compliant)'
+const introductionLawKeys = ['itAct', 'dpdp', 'itRules', 'consumerAct'] as const
+const principleKeys = ['purposeLimitation', 'dataMinimization', 'storageLimitation', 'accuracy', 'integrityConfidentiality'] as const
+const personalDataKeys = ['ipAddress', 'deviceBrowser', 'pagesVisited', 'referrer', 'geoRegion', 'contactData'] as const
+const avoidSensitiveDataKeys = ['financialData', 'healthData', 'biometricData', 'casteReligionPolitical', 'governmentIds'] as const
+const lawfulBasisKeys = ['analytics', 'errorMonitoring', 'websiteFunctionality', 'grievanceRedressal'] as const
+const withdrawConsentKeys = ['managePreferences', 'browserSettings', 'functionalCookiesNote'] as const
+const retentionRowKeys = ['analyticsData', 'sentryLogs', 'contactEmails', 'analyticsCookies'] as const
+const piiBlockingKeys = ['ageFields', 'personalIdentifiers', 'demographicFields'] as const
+const sentryRedactionKeys = ['queryParams', 'requestBody', 'formBreadcrumbs', 'sensitivePatterns'] as const
+const securityMeasureKeys = ['encryption', 'piiRedaction', 'accessControl', 'securityHeaders'] as const
+
+export default async function PrivacyPage() {
+    const t = await getTranslations('privacyPolicyPage')
 
     return (
         <div className="min-h-screen pt-20 pb-16">
             <div className="max-w-4xl mx-auto px-6">
                 <header className="mb-12 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-10 text-accent 
-                                   text-sm rounded-full mb-4 font-medium">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent text-sm rounded-full mb-4 font-medium">
                         <Shield className="w-4 h-4" />
-                        LEGAL
+                        {t('badge')}
                     </div>
                     <h1 className="font-display font-bold text-3xl md:text-4xl text-theme-primary mb-4">
-                        Privacy Policy
+                        {t('title')}
                     </h1>
                     <p className="text-theme-secondary">
-                        Last updated: {lastUpdated} | Version: {version}
+                        {t('header.lastUpdatedLabel')}: {t('header.lastUpdatedDate')} | {t('header.versionLabel')}: {t('header.versionValue')}
                     </p>
                 </header>
 
                 <article className="prose prose-lg dark:prose-invert max-w-none space-y-8">
-                    {/* Introduction */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">1. Introduction</h2>
-                        <p className="text-theme-secondary">
-                            InsuranceClarity India (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) operates insuranceclarity.in
-                            in compliance with applicable Indian laws, including:
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.introduction.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.introduction.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Information Technology Act, 2000 & Rules</li>
-                            <li><strong>Digital Personal Data Protection Act, 2023 (DPDP Act)</strong></li>
-                            <li>IT (Reasonable Security Practices and Procedures) Rules, 2011</li>
-                            <li>Consumer Protection Act, 2019</li>
+                            {introductionLawKeys.map((key) => (
+                                <li key={key}>{t(`sections.introduction.laws.${key}`)}</li>
+                            ))}
                         </ul>
-                        <p className="text-theme-secondary">
-                            This Privacy Policy explains how we collect, use, disclose, and safeguard your information
-                            when you visit our website.
-                        </p>
+                        <p className="text-theme-secondary">{t('sections.introduction.closing')}</p>
                     </section>
 
-                    {/* Data Processing Principles */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">2. Data Processing Principles (DPDP Act §6)</h2>
-                        <p className="text-theme-secondary">We process personal data based on these legal principles:</p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.processingPrinciples.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.processingPrinciples.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Purpose Limitation:</strong> Data collected only for stated purposes (website operation, error monitoring, analytics)</li>
-                            <li><strong>Data Minimization:</strong> We collect only what is strictly necessary</li>
-                            <li><strong>Storage Limitation:</strong> Data retained per section 8(2) of DPDP Act</li>
-                            <li><strong>Accuracy:</strong> We keep records current where in our control</li>
-                            <li><strong>Integrity & Confidentiality:</strong> Technical safeguards via HTTPS, encryption, access controls</li>
+                            {principleKeys.map((key) => (
+                                <li key={key}>{t(`sections.processingPrinciples.items.${key}`)}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Personal Data vs SPD */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">3. Personal Data vs. Sensitive Personal Data (SPD)</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.dataCategories.title')}</h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">3.1 Personal Data We Collect</h3>
-                        <p className="text-theme-secondary">When you visit our website, we may automatically collect:</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.dataCategories.personalData.title')}</h3>
+                        <p className="text-theme-secondary">{t('sections.dataCategories.personalData.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>IP address (anonymized - last octet removed)</li>
-                            <li>Device and browser information (type, version, operating system)</li>
-                            <li>Pages visited and time spent on site</li>
-                            <li>Referring website or source</li>
-                            <li>General geographic region (country/state level only)</li>
-                            <li>Optional contact data (name, email) if you contact us voluntarily</li>
+                            {personalDataKeys.map((key) => (
+                                <li key={key}>{t(`sections.dataCategories.personalData.items.${key}`)}</li>
+                            ))}
                         </ul>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">3.2 Sensitive Personal Data (SPD) — WE ACTIVELY AVOID</h3>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.dataCategories.sensitiveData.title')}</h3>
                         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 my-4">
                             <div className="flex items-start gap-3">
                                 <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                                 <div className="text-sm text-amber-700 dark:text-amber-300">
-                                    <p className="font-medium">We have explicit policies NOT to collect:</p>
+                                    <p className="font-medium">{t('sections.dataCategories.sensitiveData.warningTitle')}</p>
                                     <ul className="list-disc pl-4 mt-2 space-y-1">
-                                        <li>Financial data (income, bank details, sum insured)</li>
-                                        <li>Health data (medical history, age for underwriting purposes)</li>
-                                        <li>Biometric data</li>
-                                        <li>Caste, religion, political affiliation</li>
-                                        <li>Aadhaar, PAN, or other government identifiers</li>
+                                        {avoidSensitiveDataKeys.map((key) => (
+                                            <li key={key}>{t(`sections.dataCategories.sensitiveData.items.${key}`)}</li>
+                                        ))}
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <p className="text-theme-secondary">
-                            <strong>Rationale:</strong> These are &ldquo;sensitive personal data&rdquo; per DPDP Act §3(36) and require
-                            explicit consent under §8(3). We don&apos;t need them for educational content, so we don&apos;t collect them.
-                            Calculator inputs (age, sum) are processed locally in your browser and are NOT transmitted to our servers.
+                            <strong>{t('sections.dataCategories.sensitiveData.rationaleLabel')}</strong> {t('sections.dataCategories.sensitiveData.rationaleBody')}
                         </p>
                     </section>
 
-                    {/* Lawful Basis */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">4. Lawful Basis for Processing (DPDP Act §4)</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.lawfulBasis.title')}</h2>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Analytics (Google Analytics / PostHog):</strong> Consent via cookie banner</li>
-                            <li><strong>Error Monitoring (Sentry):</strong> Legitimate interest (website stability) — NO PII retained</li>
-                            <li><strong>Website Functionality:</strong> Lawful processing without specific consent</li>
-                            <li><strong>Grievance Redressal:</strong> Legal obligation</li>
+                            {lawfulBasisKeys.map((key) => (
+                                <li key={key}>{t(`sections.lawfulBasis.items.${key}`)}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Your Rights - DPDP */}
                     <section className="glass rounded-xl p-6">
-                        <h2 className="text-xl font-semibold text-theme-primary mb-4">5. Your Rights Under DPDP Act §18-20</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary mb-4">{t('sections.rights.title')}</h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">5.1 Right to Know (§18)</h3>
-                        <p className="text-theme-secondary"><strong>Request:</strong> &ldquo;What personal data do you have about me?&rdquo;</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.rights.know.title')}</h3>
+                        <p className="text-theme-secondary">
+                            <strong>{t('sections.rights.know.requestLabel')}</strong> {t('sections.rights.know.requestValue')}
+                        </p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Response time:</strong> 30 days</li>
-                            <li><strong>Contact:</strong> privacy@insuranceclarity.in</li>
-                            <li><strong>What we&apos;ll provide:</strong> Copy of data we process, purpose of processing, recipients (Google, PostHog, Sentry), retention period</li>
+                            <li><strong>{t('sections.rights.know.items.responseTimeLabel')}</strong> {t('sections.rights.know.items.responseTimeValue')}</li>
+                            <li><strong>{t('sections.rights.know.items.contactLabel')}</strong> {t('sections.rights.know.items.contactValue')}</li>
+                            <li><strong>{t('sections.rights.know.items.providedLabel')}</strong> {t('sections.rights.know.items.providedValue')}</li>
                         </ul>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">5.2 Right to Correction (§19)</h3>
-                        <p className="text-theme-secondary"><strong>Request:</strong> &ldquo;My data is wrong, please fix it.&rdquo;</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.rights.correction.title')}</h3>
+                        <p className="text-theme-secondary">
+                            <strong>{t('sections.rights.correction.requestLabel')}</strong> {t('sections.rights.correction.requestValue')}
+                        </p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Correctable data:</strong> Name, email (if provided by you)</li>
-                            <li><strong>Response time:</strong> 30 days</li>
+                            <li><strong>{t('sections.rights.correction.items.correctableDataLabel')}</strong> {t('sections.rights.correction.items.correctableDataValue')}</li>
+                            <li><strong>{t('sections.rights.correction.items.responseTimeLabel')}</strong> {t('sections.rights.correction.items.responseTimeValue')}</li>
                         </ul>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">5.3 Right to Erasure (§20)</h3>
-                        <p className="text-theme-secondary"><strong>Request:</strong> &ldquo;Delete all my data.&rdquo;</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.rights.erasure.title')}</h3>
+                        <p className="text-theme-secondary">
+                            <strong>{t('sections.rights.erasure.requestLabel')}</strong> {t('sections.rights.erasure.requestValue')}
+                        </p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>What we can delete:</strong> Contact details you provided voluntarily</li>
-                            <li><strong>What we cannot delete:</strong> Analytics aggregates (already anonymized), legal compliance records</li>
-                            <li><strong>Response time:</strong> 30 days</li>
+                            <li><strong>{t('sections.rights.erasure.items.canDeleteLabel')}</strong> {t('sections.rights.erasure.items.canDeleteValue')}</li>
+                            <li><strong>{t('sections.rights.erasure.items.cannotDeleteLabel')}</strong> {t('sections.rights.erasure.items.cannotDeleteValue')}</li>
+                            <li><strong>{t('sections.rights.erasure.items.responseTimeLabel')}</strong> {t('sections.rights.erasure.items.responseTimeValue')}</li>
                         </ul>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">5.4 Right to Withdraw Consent</h3>
-                        <p className="text-theme-secondary">You can withdraw consent for cookies at any time via:</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.rights.withdrawConsent.title')}</h3>
+                        <p className="text-theme-secondary">{t('sections.rights.withdrawConsent.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Cookie banner → &ldquo;Manage Preferences&rdquo;</li>
-                            <li>Browser settings to disable cookies</li>
-                            <li><strong>Note:</strong> Some website features may not work without functional cookies</li>
+                            {withdrawConsentKeys.map((key) => (
+                                <li key={key}>{t(`sections.rights.withdrawConsent.items.${key}`)}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Grievance Redressal */}
                     <section className="glass rounded-xl p-6">
-                        <h2 className="text-xl font-semibold text-theme-primary mb-4">6. Grievance Redressal (DPDP Act §21-22)</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary mb-4">{t('sections.grievance.title')}</h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary">Tier 1: Internal Grievance Officer</h3>
+                        <h3 className="text-lg font-medium text-theme-primary">{t('sections.grievance.tier1.title')}</h3>
                         <div className="bg-theme-surface rounded-lg p-4 my-4 space-y-2">
                             <p className="flex items-center gap-2 text-theme-secondary">
-                                <strong>Name:</strong> Grievance Officer, InsuranceClarity India
+                                <strong>{t('sections.grievance.tier1.nameLabel')}</strong> {t('sections.grievance.tier1.nameValue')}
                             </p>
                             <p className="flex items-center gap-2 text-theme-secondary">
                                 <Mail className="w-4 h-4 text-accent" />
@@ -171,187 +168,159 @@ export default function PrivacyPage() {
                                     privacy@insuranceclarity.in
                                 </a>
                             </p>
-                            <p className="text-theme-secondary"><strong>Response time:</strong> 30 days maximum</p>
+                            <p className="text-theme-secondary">
+                                <strong>{t('sections.grievance.tier1.responseTimeLabel')}</strong> {t('sections.grievance.tier1.responseTimeValue')}
+                            </p>
                         </div>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">Tier 2: Appeal to Data Protection Board</h3>
-                        <p className="text-theme-secondary">If we don&apos;t respond within 30 days, OR if you&apos;re dissatisfied with our response:</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.grievance.tier2.title')}</h3>
+                        <p className="text-theme-secondary">{t('sections.grievance.tier2.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Contact:</strong> Data Protection Board of India</li>
-                            <li><strong>Website:</strong> <a href="https://www.dpdp.gov.in" target="_blank" className="text-accent hover:underline">https://www.dpdp.gov.in</a></li>
-                            <li><strong>Filing fee:</strong> ₹100-500 (per Board rules)</li>
-                            <li><strong>Time limit:</strong> Within 3 months of our response</li>
+                            <li><strong>{t('sections.grievance.tier2.items.contactLabel')}</strong> {t('sections.grievance.tier2.items.contactValue')}</li>
+                            <li>
+                                <strong>{t('sections.grievance.tier2.items.websiteLabel')}</strong>{' '}
+                                <a href="https://www.dpdp.gov.in" target="_blank" className="text-accent hover:underline" rel="noreferrer">
+                                    {t('sections.grievance.tier2.items.websiteValue')}
+                                </a>
+                            </li>
+                            <li><strong>{t('sections.grievance.tier2.items.filingFeeLabel')}</strong> {t('sections.grievance.tier2.items.filingFeeValue')}</li>
+                            <li><strong>{t('sections.grievance.tier2.items.timeLimitLabel')}</strong> {t('sections.grievance.tier2.items.timeLimitValue')}</li>
                         </ul>
                     </section>
 
-                    {/* Data Retention */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">7. Data Retention Schedule (DPDP Act §8(2))</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.retention.title')}</h2>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm border border-default rounded-lg">
                                 <thead className="bg-theme-surface">
                                     <tr>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Data Type</th>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Retention Period</th>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Reason</th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">{t('sections.retention.columns.dataType')}</th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">{t('sections.retention.columns.retentionPeriod')}</th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">{t('sections.retention.columns.reason')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-theme-secondary">
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2">Google Analytics data</td>
-                                        <td className="px-4 py-2">14 months</td>
-                                        <td className="px-4 py-2">GA4 default; anonymized</td>
-                                    </tr>
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2">Sentry error logs</td>
-                                        <td className="px-4 py-2">90 days</td>
-                                        <td className="px-4 py-2">Error identification & fixing</td>
-                                    </tr>
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2">Contact emails (if provided)</td>
-                                        <td className="px-4 py-2">Until deletion requested</td>
-                                        <td className="px-4 py-2">Grievance handling</td>
-                                    </tr>
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2">Analytics cookies</td>
-                                        <td className="px-4 py-2">2 years (or until deleted)</td>
-                                        <td className="px-4 py-2">Analytics tracking</td>
-                                    </tr>
+                                    {retentionRowKeys.map((key) => (
+                                        <tr className="border-t border-default" key={key}>
+                                            <td className="px-4 py-2">{t(`sections.retention.rows.${key}.dataType`)}</td>
+                                            <td className="px-4 py-2">{t(`sections.retention.rows.${key}.retentionPeriod`)}</td>
+                                            <td className="px-4 py-2">{t(`sections.retention.rows.${key}.reason`)}</td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
                     </section>
 
-                    {/* Technical Safeguards */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">8. Technical Safeguards — Verified Configuration</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.technicalSafeguards.title')}</h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">8.1 Analytics Events — PII Blocking</h3>
-                        <p className="text-theme-secondary">Custom analytics events sent to GA4 and PostHog pass through the same PII blocking layer:</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.technicalSafeguards.analyticsBlocking.title')}</h3>
+                        <p className="text-theme-secondary">{t('sections.technicalSafeguards.analyticsBlocking.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>age, user_age, sum_insured, sum_assured</li>
-                            <li>phone, email, mobile, aadhaar, pan</li>
-                            <li>dob, date_of_birth, name, full_name, address, income</li>
+                            {piiBlockingKeys.map((key) => (
+                                <li key={key}>{t(`sections.technicalSafeguards.analyticsBlocking.items.${key}`)}</li>
+                            ))}
                         </ul>
                         <p className="text-theme-secondary mt-2">
-                            <strong>Bucketing Applied:</strong> Age sent as ranges (18-24, 25-34, etc.),
-                            Sum Insured as ranges (under_10L, 10L-25L, etc.) — NOT exact values.
+                            <strong>{t('sections.technicalSafeguards.analyticsBlocking.bucketingLabel')}</strong> {t('sections.technicalSafeguards.analyticsBlocking.bucketingValue')}
                         </p>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">8.2 Sentry — PII Redaction</h3>
-                        <p className="text-theme-secondary">We have configured Sentry to:</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.technicalSafeguards.sentryRedaction.title')}</h3>
+                        <p className="text-theme-secondary">{t('sections.technicalSafeguards.sentryRedaction.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Scrub all URL query parameters</li>
-                            <li>Redact all request body data</li>
-                            <li>Exclude breadcrumb data from forms</li>
-                            <li>Block error messages containing SSN, phone, email patterns</li>
+                            {sentryRedactionKeys.map((key) => (
+                                <li key={key}>{t(`sections.technicalSafeguards.sentryRedaction.items.${key}`)}</li>
+                            ))}
                         </ul>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">8.3 IP Anonymization</h3>
-                        <p className="text-theme-secondary">
-                            We configure Google Analytics to anonymize the last octet of your IP address
-                            (e.g., 192.168.1.123 → 192.168.1.0). This prevents identification of your exact location.
-                        </p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.technicalSafeguards.ipAnonymization.title')}</h3>
+                        <p className="text-theme-secondary">{t('sections.technicalSafeguards.ipAnonymization.description')}</p>
                     </section>
 
-                    {/* Third-Party Services */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">9. Third-Party Services & Data Transfers</h2>
-                        <p className="text-theme-secondary">We use the following third-party services:</p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.thirdParty.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.thirdParty.description')}</p>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">Google Analytics 4</h3>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.thirdParty.ga4.title')}</h3>
                         <p className="text-theme-secondary">
-                            Data transferred to Google&apos;s servers per Google&apos;s standard Data Processing Agreement.
-                            Google acts as processor; we are controller. DPDP Act-compliant per Google&apos;s terms.
+                            {t('sections.thirdParty.ga4.description')}
                             <br />
                             <Link href="https://policies.google.com/privacy" className="text-accent hover:underline" target="_blank">
-                                Google Privacy Policy →
+                                {t('sections.thirdParty.ga4.linkLabel')}
                             </Link>
                         </p>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">PostHog</h3>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.thirdParty.posthog.title')}</h3>
                         <p className="text-theme-secondary">
-                            Product analytics is sent to PostHog only when it is configured and you have opted into analytics cookies.
-                            We disable session recording and rely on the same client-side PII blocking rules used for other analytics events.
+                            {t('sections.thirdParty.posthog.description')}
                             <br />
                             <Link href="https://posthog.com/privacy" className="text-accent hover:underline" target="_blank">
-                                PostHog Privacy Policy â†’
+                                {t('sections.thirdParty.posthog.linkLabel')}
                             </Link>
                         </p>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">Sentry (Error Monitoring)</h3>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.thirdParty.sentry.title')}</h3>
                         <p className="text-theme-secondary">
-                            Data transferred to Sentry&apos;s servers. No SPD transferred; only sanitized error logs.
-                            Sentry acts as processor; we are controller.
+                            {t('sections.thirdParty.sentry.description')}
                             <br />
                             <Link href="https://sentry.io/privacy/" className="text-accent hover:underline" target="_blank">
-                                Sentry Privacy Policy →
+                                {t('sections.thirdParty.sentry.linkLabel')}
                             </Link>
                         </p>
                     </section>
 
-                    {/* Cookies */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">10. Cookies</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.cookies.title')}</h2>
                         <p className="text-theme-secondary">
-                            Our website uses cookies for analytics and functionality. For detailed information,
-                            please see our <Link href="/cookies" className="text-accent hover:underline">Cookie Policy</Link>.
+                            {t('sections.cookies.descriptionPrefix')}{' '}
+                            <Link href="/cookies" className="text-accent hover:underline">
+                                {t('relatedLinks.cookies')}
+                            </Link>
+                            {t('sections.cookies.descriptionSuffix')}
                         </p>
                     </section>
 
-                    {/* Security */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">11. Security & Privacy Measures (IT Rules 2011)</h2>
-                        <p className="text-theme-secondary">Technical safeguards we implement:</p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.securityMeasures.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.securityMeasures.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Encryption:</strong> HTTPS (TLS 1.3+) for all data in transit</li>
-                            <li><strong>PII Redaction:</strong> Sensitive fields blocked from GA4 and Sentry</li>
-                            <li><strong>Access Control:</strong> Limited staff access to analytics dashboards</li>
-                            <li><strong>Security Headers:</strong> X-Frame-Options: DENY, X-Content-Type-Options: nosniff, CSP configured</li>
+                            {securityMeasureKeys.map((key) => (
+                                <li key={key}>{t(`sections.securityMeasures.items.${key}`)}</li>
+                            ))}
                         </ul>
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">11.2 Do Not Track (DNT) Support</h3>
-                        <p className="text-theme-secondary">
-                            We respect your browser&apos;s &ldquo;Do Not Track&rdquo; (DNT) signal. If you have DNT enabled,
-                            we will skip all analytics tracking for your session, regardless of your cookie banner choice.
-                        </p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.securityMeasures.dnt.title')}</h3>
+                        <p className="text-theme-secondary">{t('sections.securityMeasures.dnt.description')}</p>
                     </section>
 
-                    {/* Changes */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">12. Changes to This Policy</h2>
-                        <p className="text-theme-secondary">
-                            We will notify you of material changes via updated &ldquo;Last modified&rdquo; date on this page
-                            and banner notice on homepage for 30 days.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.changes.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.changes.description')}</p>
                     </section>
 
-                    {/* Contact */}
                     <section className="glass rounded-xl p-6 mt-8">
-                        <h2 className="text-xl font-semibold text-theme-primary mb-4">13. Contact & Data Protection Officer</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary mb-4">{t('sections.contact.title')}</h2>
                         <div className="space-y-2 text-theme-secondary">
-                            <p><strong>Data Protection Officer / Grievance Officer:</strong></p>
+                            <p><strong>{t('sections.contact.officerLabel')}</strong></p>
                             <p className="flex items-center gap-2">
                                 <Mail className="w-4 h-4 text-accent" />
                                 <a href="mailto:privacy@insuranceclarity.in" className="text-accent hover:underline">
                                     privacy@insuranceclarity.in
                                 </a>
                             </p>
-                            <p className="text-theme-muted text-sm">
-                                India — InsuranceClarity is an online-only educational platform.
-                            </p>
+                            <p className="text-theme-muted text-sm">{t('sections.contact.location')}</p>
                         </div>
                         <p className="text-theme-muted text-sm mt-4">
-                            <strong>Response guarantee:</strong> 30 days maximum for any grievance.
+                            <strong>{t('sections.contact.responseGuaranteeLabel')}</strong> {t('sections.contact.responseGuaranteeValue')}
                         </p>
                     </section>
 
-                    {/* Related Links */}
                     <section className="flex gap-4 text-sm pt-4">
                         <Link href="/terms" className="text-accent hover:underline">
-                            Terms of Service →
+                            {t('relatedLinks.terms')}
                         </Link>
                         <Link href="/cookies" className="text-accent hover:underline">
-                            Cookie Policy →
+                            {t('relatedLinks.cookies')}
                         </Link>
                     </section>
                 </article>

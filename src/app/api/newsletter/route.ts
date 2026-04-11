@@ -7,12 +7,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma }              from '@/lib/prisma';
 import { validateCsrfRequest } from '@/lib/security/csrf';
 import { logger }              from '@/lib/logger';
 import { sendWelcomeEmail }    from '@/services/email.service';
+import { createNewsletterLead, findNewsletterLeadByEmail } from '@/services/engagement.service';
 import { ErrorFactory }        from '@/lib/api/error-response';
 import { z }                   from 'zod';
+import { deriveLeadSource }    from '@/lib/domain/enums';
 
 const newsletterSchema = z.object({
     email:  z.string().email('Invalid email address'),
@@ -38,11 +39,10 @@ export async function POST(req: NextRequest) {
         const body   = await req.json() as unknown;
         const parsed = newsletterSchema.parse(body);
         const locale = getRequestLocale(req);
+        const source = deriveLeadSource({ source: parsed.source });
 
         // Check for existing subscriber
-        const existing = await prisma.lead.findFirst({
-            where: { email: parsed.email, insuranceType: 'NEWSLETTER' },
-        });
+        const existing = await findNewsletterLeadByEmail(parsed.email);
 
         if (existing) {
             return NextResponse.json({
@@ -52,15 +52,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Create subscriber record (reusing Lead model as newsletter subscriber)
-        await prisma.lead.create({
-            data: {
-                name:          parsed.name ?? parsed.email.split('@')[0],
-                email:         parsed.email,
-                phone:         'N/A',
-                insuranceType: 'NEWSLETTER',
-                source:        parsed.source as string,
-                status:        'NEW',
-            },
+        await createNewsletterLead({
+            name: parsed.name ?? parsed.email.split('@')[0],
+            email: parsed.email,
+            source,
+            notes: parsed.source ? `Newsletter source context: ${parsed.source}` : undefined,
         });
 
         // Send welcome email (fire & forget — non-critical)
@@ -71,7 +67,7 @@ export async function POST(req: NextRequest) {
             logger.warn({ action: 'newsletter.welcome.failed', email: parsed.email });
         });
 
-        logger.info({ action: 'newsletter.subscribed', email: parsed.email, source: parsed.source });
+        logger.info({ action: 'newsletter.subscribed', email: parsed.email, source });
 
         return NextResponse.json({
             success: true,

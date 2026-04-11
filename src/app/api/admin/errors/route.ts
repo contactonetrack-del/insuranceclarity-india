@@ -10,9 +10,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { ErrorFactory } from '@/lib/api/error-response';
+import {
+  countErrorLogs,
+  groupAffectedUsers,
+  groupErrorLogsByCode,
+  groupErrorLogsByRoute,
+  groupErrorLogsBySeverity,
+  groupErrorLogsByStatus,
+  listRateLimitAnomaliesSince,
+  listRecentErrors,
+} from '@/services/ops.service';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,71 +65,28 @@ export async function GET(request: NextRequest) {
     }
 
     // 1. Error frequency by code
-    const byErrorCode = await prisma.errorLog.groupBy({
-      by: ['errorCode', 'severity'],
-      where,
-      _count: { id: true },
-      orderBy: { _count: { id: 'desc' } },
-    });
+    const byErrorCode = await groupErrorLogsByCode(where);
 
     // 2. Error frequency by route
-    const byRoute = await prisma.errorLog.groupBy({
-      by: ['route', 'method'],
-      where,
-      _count: { id: true },
-      orderBy: { _count: { id: 'desc' } },
-    });
+    const byRoute = await groupErrorLogsByRoute(where);
 
     // 3. Error frequency by HTTP status
-    const byStatus = await prisma.errorLog.groupBy({
-      by: ['httpStatus'],
-      where,
-      _count: { id: true },
-      orderBy: { httpStatus: 'asc' },
-    });
+    const byStatus = await groupErrorLogsByStatus(where);
 
     // 4. Severity distribution
-    const bySeverity = await prisma.errorLog.groupBy({
-      by: ['severity'],
-      where,
-      _count: { id: true },
-    });
+    const bySeverity = await groupErrorLogsBySeverity(where);
 
     // 5. Top errors by impact (count × severity weight)
-    const topErrors = await prisma.errorLog.findMany({
-      where,
-      select: {
-        errorCode: true,
-        message: true,
-        severity: true,
-      },
-      orderBy: { timestamp: 'desc' },
-      take: 50,
-    });
+    const topErrors = await listRecentErrors(where, 50);
 
     // 6. Recent rate limit anomalies
-    const anomalies = await prisma.rateLimitAnomaly.findMany({
-      where: {
-        detectedAt: { gte: sinceDate },
-      },
-      orderBy: { detectedAt: 'desc' },
-      take: 20,
-    });
+    const anomalies = await listRateLimitAnomaliesSince(sinceDate, 20);
 
     // 7. Users affected
-    const affectedUsers = await prisma.errorLog.groupBy({
-      by: ['userId'],
-      where: {
-        ...where,
-        userId: { not: null },
-      },
-      _count: { id: true },
-      orderBy: { _count: { id: 'desc' } },
-      take: 10,
-    });
+    const affectedUsers = await groupAffectedUsers(where, 10);
 
     // 8. Total error count
-    const totalErrors = await prisma.errorLog.count({ where });
+    const totalErrors = await countErrorLogs(where);
 
     logger.info({
       action: 'admin.errors.dashboard',

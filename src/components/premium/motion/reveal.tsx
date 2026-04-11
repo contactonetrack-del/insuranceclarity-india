@@ -17,6 +17,11 @@ interface RevealOnScrollProps {
     threshold?: number
     /** Distance to travel during animation (px) */
     distance?: number
+    role?: string
+    tabIndex?: number
+    ariaLabel?: string
+    ariaLabelledby?: string
+    ariaDescribedby?: string
 }
 
 const directionVariants = {
@@ -60,7 +65,12 @@ export function RevealOnScroll({
     duration = 0.5,
     once = true,
     threshold = 0.2,
-    distance
+    distance,
+    role,
+    tabIndex,
+    ariaLabel,
+    ariaLabelledby,
+    ariaDescribedby,
 }: RevealOnScrollProps) {
     const ref = useRef<HTMLDivElement>(null)
     const isInView = useInView(ref, { once, amount: threshold })
@@ -68,7 +78,19 @@ export function RevealOnScroll({
 
     // Skip animation if user prefers reduced motion
     if (prefersReducedMotion) {
-        return <div ref={ref} className={cn(className)}>{children}</div>
+        return (
+            <div
+                ref={ref}
+                className={cn(className)}
+                role={role}
+                tabIndex={tabIndex}
+                aria-label={ariaLabel}
+                aria-labelledby={ariaLabelledby}
+                aria-describedby={ariaDescribedby}
+            >
+                {children}
+            </div>
+        )
     }
 
     // Build variants with custom distance if provided
@@ -102,6 +124,11 @@ export function RevealOnScroll({
             variants={getVariants()}
             transition={transition}
             className={cn(className)}
+            role={role}
+            tabIndex={tabIndex}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledby}
+            aria-describedby={ariaDescribedby}
         >
             {children}
         </motion.div>

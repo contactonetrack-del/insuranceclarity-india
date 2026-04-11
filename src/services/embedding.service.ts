@@ -1,28 +1,25 @@
 /**
- * Embedding Service â€” High-Resiliency Semantic Vector Generation
+ * Embedding Service - high-resiliency semantic vector generation.
  *
- * Implements a hybrid provider architecture:
- * 1. Google Gemini (Primary) - High-quota free tier (768 dimensions)
- * 2. Transformers.js (Fallback) - Local execution, infinite quota (768 dimensions)
-  */
+ * Provider strategy:
+ * 1. Google Gemini (primary)
+ * 2. Transformers.js local model (fallback)
+ */
 
+import 'server-only';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { pipeline } from '@xenova/transformers';
 import { logger } from '@/lib/logger';
 
-// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 const GEMINI_MODEL = 'models/gemini-embedding-001';
-const LOCAL_MODEL  = 'Xenova/bge-base-en-v1.5'; // 768 dimensions (matches Gemini)
+const LOCAL_MODEL = 'BAAI/bge-base-en-v1.5';
+const EXPECTED_EMBEDDING_DIMENSIONS = 768;
 
-// Cache for local model instance
-let _localPipeline: unknown = null; // Transformers pipeline: using unknown here as xenova types are complex to import in nextjs
-
-// â”€â”€â”€ Provider Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+let _localPipeline: unknown = null;
+let _localPipelineLoading: Promise<unknown> | null = null;
+let geminiDisabledReason: string | null = null;
 
 /**
- * Generates embeddings using Google Gemini (Primary).
- * Quota: 15 RPM (Free Tier).
+ * Generates embeddings using Google Gemini.
  */
 async function generateGeminiEmbedding(text: string): Promise<number[]> {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -31,43 +28,65 @@ async function generateGeminiEmbedding(text: string): Promise<number[]> {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
-    const result = await model.embedContent(text.slice(0, 30000)); // Gemini has high limit
-    return Array.from(result.embedding.values);
+    const result = await model.embedContent(text.slice(0, 30000));
+    const vector = Array.from(result.embedding.values);
+
+    if (vector.length !== EXPECTED_EMBEDDING_DIMENSIONS) {
+        throw new Error(
+            `Gemini returned ${vector.length} dimensions, expected ${EXPECTED_EMBEDDING_DIMENSIONS}. Falling back to local embeddings.`,
+        );
+    }
+
+    return vector;
 }
 
 /**
- * Generates embeddings using Local Transformers.js (Fallback).
- * Pros: Infinite quota, Zero latency after model load.
+ * Generates embeddings using local Transformers.js model.
  */
 async function generateLocalEmbedding(text: string): Promise<number[]> {
     try {
         if (!_localPipeline) {
             logger.info({ action: 'embedding.local_load_start', model: LOCAL_MODEL });
-            _localPipeline = await pipeline('feature-extraction', LOCAL_MODEL);
+            if (!_localPipelineLoading) {
+                _localPipelineLoading = (async () => {
+                    const { pipeline } = await import('@huggingface/transformers');
+                    return pipeline('feature-extraction', LOCAL_MODEL);
+                })();
+            }
+            try {
+                _localPipeline = await _localPipelineLoading;
+            } catch (error) {
+                _localPipelineLoading = null;
+                throw error;
+            }
             logger.info({ action: 'embedding.local_load_complete' });
         }
 
-        // Transformers.js pipeline is a function that returns the embedding data
         const pipelineCall = _localPipeline as (t: string, o: object) => Promise<{ data: Float32Array }>;
         const output = await pipelineCall(text, { pooling: 'mean', normalize: true });
-        return Array.from(output.data);
+        const vector = Array.from(output.data);
+
+        if (vector.length !== EXPECTED_EMBEDDING_DIMENSIONS) {
+            throw new Error(
+                `Local model returned ${vector.length} dimensions, expected ${EXPECTED_EMBEDDING_DIMENSIONS}.`,
+            );
+        }
+
+        return vector;
     } catch (error) {
         logger.error({ action: 'embedding.local_failed', error });
         throw error;
     }
 }
 
-// â”€â”€â”€ Main Functions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 /**
- * Hybrid Embedding Generation: Gemini -> Local -> Error.
- * Automatically switches to local if Gemini fails (e.g. quota limit).
+ * Hybrid embedding generation:
+ * Gemini -> local fallback -> error.
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
     const startTime = Date.now();
 
-    // 1. Try Google Gemini (Primary)
-    if (process.env.GEMINI_API_KEY) {
+    if (process.env.GEMINI_API_KEY && !geminiDisabledReason) {
         try {
             const vector = await generateGeminiEmbedding(text);
             logger.debug({ action: 'embedding.gemini_success', ms: Date.now() - startTime });
@@ -75,35 +94,31 @@ export async function generateEmbedding(text: string): Promise<number[]> {
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             const isQuota = errorMessage.includes('429') || errorMessage.includes('quota');
-            logger.warn({ 
-                signal: isQuota ? 'embedding.gemini_quota_reached' : 'embedding.gemini_failed', 
-                error: errorMessage 
+            geminiDisabledReason = errorMessage;
+            logger.warn({
+                signal: isQuota ? 'embedding.gemini_quota_reached' : 'embedding.gemini_failed',
+                error: errorMessage,
             });
-            
-            // Continue to fallback
         }
     }
 
-    // 2. Try Local Fallback (Transformers.js)
     try {
         const vector = await generateLocalEmbedding(text);
         logger.info({ action: 'embedding.local_fallback_success', ms: Date.now() - startTime });
         return vector;
     } catch (error) {
-        // 3. Last resort
         logger.error({ action: 'embedding.all_failed', error: String(error) });
         throw new Error('All embedding providers failed or are unconfigured.');
     }
 }
 
 /**
- * Batch embedding with adaptive provider logic.
+ * Batch embedding helper with sequential processing.
  */
 export async function embedChunks(texts: string[]): Promise<number[][]> {
     logger.info({ action: 'embedding.batch_start', count: texts.length });
-    
+
     const results: number[][] = [];
-    // We process sequentially or in small parallel batches to respect Gemini's 15 RPM
     for (const text of texts) {
         results.push(await generateEmbedding(text));
     }
@@ -112,7 +127,7 @@ export async function embedChunks(texts: string[]): Promise<number[][]> {
 }
 
 /**
- * Compute cosine similarity between two vectors.
+ * Cosine similarity between two vectors.
  */
 export function cosineSimilarity(a: number[], b: number[]): number {
     if (a.length !== b.length) {
@@ -125,11 +140,10 @@ export function cosineSimilarity(a: number[], b: number[]): number {
     let normB = 0;
 
     for (let i = 0; i < a.length; i++) {
-        dot   += a[i] * b[i];
+        dot += a[i] * b[i];
         normA += a[i] * a[i];
         normB += b[i] * b[i];
     }
 
     return dot / (Math.sqrt(normA) * Math.sqrt(normB));
 }
-

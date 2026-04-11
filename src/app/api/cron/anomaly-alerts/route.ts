@@ -1,8 +1,22 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { redisClient } from '@/lib/cache/redis';
 import { sendUrgentWebhook } from '@/lib/observability/alerts';
+import { requireCronAuthorization } from '@/lib/security/cron-auth';
+import { countCapturedPaymentsSince, countScansSince } from '@/services/ops.service';
+
+async function sendUrgentWebhookSafely(title: string, message: string, severity: 'WARNING' | 'CRITICAL') {
+    try {
+        await sendUrgentWebhook(title, message, severity);
+    } catch (error) {
+        logger.error({
+            action: 'cron.anomaly.alert.failed',
+            title,
+            severity,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+}
 
 /**
  * GET /api/cron/anomaly-alerts
@@ -12,29 +26,20 @@ import { sendUrgentWebhook } from '@/lib/observability/alerts';
  */
 export async function GET(request: Request) {
     try {
-        const authHeader = request.headers.get('Authorization');
-        if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        const authFailure = requireCronAuthorization(request, { action: 'cron.anomaly-alerts' });
+        if (authFailure) return authFailure;
 
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         
         // ── 1. Check for Zero Conversions in 24h ──
-        const capturedCount = await prisma.payment.count({
-            where: {
-                status: 'CAPTURED',
-                updatedAt: { gte: twentyFourHoursAgo }
-            }
-        });
+        const capturedCount = await countCapturedPaymentsSince(twentyFourHoursAgo);
 
         if (capturedCount === 0) {
             // Only alert if we actually had scan attempts (to avoid false positives on zero traffic)
-            const scanCount = await prisma.scan.count({
-                where: { createdAt: { gte: twentyFourHoursAgo } }
-            });
+            const scanCount = await countScansSince(twentyFourHoursAgo);
 
             if (scanCount > 5) {
-                await sendUrgentWebhook(
+                await sendUrgentWebhookSafely(
                     '⚠️ ZERO Conversions in 24h',
                     `Found 0 captured payments despite ${scanCount} scan attempts in the last 24h. Check Razorpay integration and checkout UI.`,
                     'CRITICAL'
@@ -49,7 +54,7 @@ export async function GET(request: Request) {
             dlqCount = dlqKeys.length;
 
             if (dlqCount > 10) {
-                await sendUrgentWebhook(
+                await sendUrgentWebhookSafely(
                     '🔥 Background Job Failure Spike',
                     `Detected ${dlqCount} jobs in the dead-letter queue. Background processing (scans/emails) is failing.`,
                     'WARNING'

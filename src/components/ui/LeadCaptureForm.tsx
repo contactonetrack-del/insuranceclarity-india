@@ -2,31 +2,42 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { Shield, ArrowRight, CheckCircle, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 
-const leadSchema = z.object({
-    name: z.string().min(2, "Name is too short"),
-    email: z.string().email("Please enter a valid email"),
-    phone: z.string().regex(/^[0-9]{10,12}$/, "Enter a valid 10-digit mobile number"),
-    insuranceType: z.string().min(2, "Please select an insurance type")
-})
-
-type LeadFormData = z.infer<typeof leadSchema>
+type LeadFormData = {
+    name: string
+    email: string
+    phone: string
+    insuranceType: string
+}
 
 interface Props {
-    title?: string;
-    subtitle?: string;
-    defaultInsuranceType?: string;
+    title?: string
+    subtitle?: string
+    defaultInsuranceType?: string
 }
 
 export default function LeadCaptureForm({
-    title = "Get Expert Advice. Free.",
-    subtitle = "Our trusted advisors will help you compare and find the perfect policy.",
-    defaultInsuranceType = "Life Insurance"
+    title,
+    subtitle,
+    defaultInsuranceType,
 }: Props) {
+    const t = useTranslations('leadCaptureForm')
+    const resolvedTitle = title ?? t('titleDefault')
+    const resolvedSubtitle = subtitle ?? t('subtitleDefault')
+    const resolvedDefaultInsuranceType = defaultInsuranceType ?? t('defaultInsuranceType')
+
+    const leadSchema = z.object({
+        name: z.string().min(2, t('validation.nameTooShort')),
+        email: z.string().email(t('validation.invalidEmail')),
+        phone: z.string().regex(/^[0-9]{10,12}$/, t('validation.invalidPhone')),
+        insuranceType: z.string().min(2, t('validation.insuranceTypeRequired')),
+    })
+
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
     const [serverError, setServerError] = useState('')
@@ -34,8 +45,8 @@ export default function LeadCaptureForm({
     const { register, handleSubmit, formState: { errors } } = useForm<LeadFormData>({
         resolver: zodResolver(leadSchema),
         defaultValues: {
-            insuranceType: defaultInsuranceType
-        }
+            insuranceType: resolvedDefaultInsuranceType,
+        },
     })
 
     const onSubmit = async (data: LeadFormData) => {
@@ -55,15 +66,15 @@ export default function LeadCaptureForm({
             const result = await res.json()
 
             if (!res.ok) {
-                throw new Error(result.message || 'Something went wrong')
+                throw new Error(result.message || t('errors.requestFailed'))
             }
 
             setIsSuccess(true)
         } catch (error: unknown) {
             if (error instanceof Error) {
-                setServerError(error.message || 'Failed to submit. Please try again.')
+                setServerError(error.message || t('errors.submitFailed'))
             } else {
-                setServerError('An unexpected error occurred.')
+                setServerError(t('errors.unexpected'))
             }
         } finally {
             setIsSubmitting(false)
@@ -82,13 +93,13 @@ export default function LeadCaptureForm({
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                    className="w-20 h-20 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6"
+                    className="w-20 h-20 bg-success-50 text-success-500 rounded-full flex items-center justify-center mx-auto mb-6"
                 >
                     <CheckCircle className="w-10 h-10" />
                 </motion.div>
-                <h3 className="text-2xl font-bold text-theme-primary mb-3">Request Received!</h3>
+                <h3 className="text-2xl font-bold text-theme-primary mb-3">{t('success.title')}</h3>
                 <p className="text-theme-secondary">
-                    Thank you. One of our IRDAI-certified advisors will contact you shortly to discuss your custom {defaultInsuranceType} options.
+                    {t('success.description', { insuranceType: resolvedDefaultInsuranceType })}
                 </p>
             </motion.div>
         )
@@ -102,18 +113,22 @@ export default function LeadCaptureForm({
                 <div className="lg:w-1/2 mb-8 lg:mb-0">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-bold tracking-wider mb-6">
                         <Shield className="w-3.5 h-3.5" />
-                        NO SPAM GUARANTEE
+                        {t('badge')}
                     </div>
 
                     <h2 className="text-3xl md:text-4xl font-display font-bold text-theme-primary mb-4 leading-tight">
-                        {title}
+                        {resolvedTitle}
                     </h2>
                     <p className="text-theme-secondary text-lg mb-6 leading-relaxed">
-                        {subtitle}
+                        {resolvedSubtitle}
                     </p>
 
                     <ul className="space-y-3">
-                        {['Compare 50+ Top Insurers', 'Unbiased Expert Advice', 'Free Claim Assistance'].map((benefit, i) => (
+                        {[
+                            t('benefits.compareTopInsurers'),
+                            t('benefits.unbiasedAdvice'),
+                            t('benefits.freeClaimAssistance'),
+                        ].map((benefit, i) => (
                             <li key={i} className="flex items-center gap-3 text-sm font-medium text-theme-primary">
                                 <span className="w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center flex-shrink-0">
                                     <CheckCircle className="w-3 h-3" />
@@ -128,11 +143,11 @@ export default function LeadCaptureForm({
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 bg-theme-base/50 p-6 rounded-2xl border border-default shadow-sm backdrop-blur-sm">
 
                         <div>
-                            <label className="block text-xs font-bold text-theme-primary mb-1.5 uppercase tracking-wider">Full Name</label>
+                            <label className="block text-xs font-bold text-theme-primary mb-1.5 uppercase tracking-wider">{t('fields.name.label')}</label>
                             <input
                                 {...register('name')}
                                 type="text"
-                                placeholder="John Doe"
+                                placeholder={t('fields.name.placeholder')}
                                 className="w-full px-4 py-3 bg-theme-surface border border-default rounded-xl focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all text-theme-primary"
                                 disabled={isSubmitting}
                             />
@@ -141,13 +156,13 @@ export default function LeadCaptureForm({
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-bold text-theme-primary mb-1.5 uppercase tracking-wider">Mobile Number</label>
+                                <label className="block text-xs font-bold text-theme-primary mb-1.5 uppercase tracking-wider">{t('fields.phone.label')}</label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-muted font-medium">+91</span>
                                     <input
                                         {...register('phone')}
                                         type="tel"
-                                        placeholder="98765 43210"
+                                        placeholder={t('fields.phone.placeholder')}
                                         className="w-full pl-12 pr-4 py-3 bg-theme-surface border border-default rounded-xl focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all text-theme-primary"
                                         disabled={isSubmitting}
                                     />
@@ -156,11 +171,11 @@ export default function LeadCaptureForm({
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-theme-primary mb-1.5 uppercase tracking-wider">Email (Optional)</label>
+                                <label className="block text-xs font-bold text-theme-primary mb-1.5 uppercase tracking-wider">{t('fields.email.label')}</label>
                                 <input
                                     {...register('email')}
                                     type="email"
-                                    placeholder="john@example.com"
+                                    placeholder={t('fields.email.placeholder')}
                                     className="w-full px-4 py-3 bg-theme-surface border border-default rounded-xl focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-all text-theme-primary"
                                     disabled={isSubmitting}
                                 />
@@ -184,15 +199,15 @@ export default function LeadCaptureForm({
                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                             <span className="relative z-10 flex items-center gap-2">
                                 {isSubmitting ? (
-                                    <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
+                                    <><Loader2 className="w-5 h-5 animate-spin" /> {t('actions.processing')}</>
                                 ) : (
-                                    <>Get Free Expert Advice <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
+                                    <>{t('actions.submit')} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
                                 )}
                             </span>
                         </button>
 
                         <p className="text-[10px] text-theme-muted text-center max-w-xs mx-auto mt-4">
-                            By clicking you agree to our Terms & Privacy Policy and authorize us to contact you via Whatsapp/SMS/Call.
+                            {t('consent')}
                         </p>
                     </form>
                 </div>

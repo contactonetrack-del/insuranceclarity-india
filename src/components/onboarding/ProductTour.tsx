@@ -4,38 +4,39 @@ import { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import './tour.css';
 
 const STORAGE_KEY = 'ic_onboarded_v1';
 const AUTO_OPEN_DELAY_MS = 600;
 const INTERACTION_EVENTS: Array<keyof WindowEventMap> = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
 
-const STEPS = [
-    {
-        badge: 'PDF',
-        title: 'Upload Your Policy PDF',
-        body: 'Upload any Indian insurance policy - Health, Term Life, Motor, Home, or Travel. Our AI reads 100+ pages in under 60 seconds.',
-        highlight: 'Works with all IRDAI-registered insurers',
-    },
-    {
-        badge: 'AI',
-        title: 'AI Finds Hidden Risks',
-        body: 'Our GPT-powered engine analyses your policy against 500+ known claim traps, exclusions, and red flags that your insurer counts on you missing.',
-        highlight: '87% of policies contain at least 3 hidden risks',
-    },
-    {
-        badge: 'REP',
-        title: 'Unlock Your Full Report',
-        body: 'See the first 3 risks free. Unlock the complete risk report for just Rs 199 - a one-time payment with a 7-day refund guarantee.',
-        highlight: 'One-time Rs 199 - No subscription required',
-    },
-] as const;
-
 export default function ProductTour() {
+    const t = useTranslations('auditI18n.productTour');
     const pathname = usePathname();
     const [visible, setVisible] = useState(false);
     const [step, setStep] = useState(0);
     const [mounted, setMounted] = useState(false);
+    const steps = [
+        {
+            badge: 'PDF',
+            title: t('steps.upload.title'),
+            body: t('steps.upload.body'),
+            highlight: t('steps.upload.highlight'),
+        },
+        {
+            badge: 'AI',
+            title: t('steps.risks.title'),
+            body: t('steps.risks.body'),
+            highlight: t('steps.risks.highlight'),
+        },
+        {
+            badge: 'REP',
+            title: t('steps.unlock.title'),
+            body: t('steps.unlock.body'),
+            highlight: t('steps.unlock.highlight'),
+        },
+    ] as const;
 
     useEffect(() => {
         setMounted(true);
@@ -90,18 +91,18 @@ export default function ProductTour() {
 
         const onKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') dismiss();
-            if (e.key === 'ArrowRight' && step < STEPS.length - 1) setStep((currentStep) => currentStep + 1);
+            if (e.key === 'ArrowRight' && step < steps.length - 1) setStep((currentStep) => currentStep + 1);
             if (e.key === 'ArrowLeft' && step > 0) setStep((currentStep) => currentStep - 1);
         };
 
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [visible, step, dismiss]);
+    }, [visible, step, dismiss, steps.length]);
 
     if (!mounted || !visible || pathname !== '/') return null;
 
-    const current = STEPS[step];
-    const isLast = step === STEPS.length - 1;
+    const current = steps[step];
+    const isLast = step === steps.length - 1;
 
     return (
         <>
@@ -114,26 +115,26 @@ export default function ProductTour() {
             <div
                 role="dialog"
                 aria-modal="true"
-                aria-label="Welcome to InsuranceClarity quick product tour"
+                aria-label={t('dialogAria')}
                 className="tour-modal"
             >
                 <button
                     type="button"
                     onClick={dismiss}
                     className="tour-close"
-                    aria-label="Skip tour"
+                    aria-label={t('skipTour')}
                 >
                     <X className="w-4 h-4" />
                 </button>
 
-                <div className="tour-dots" aria-label={`Step ${step + 1} of ${STEPS.length}`} role="navigation">
-                    {STEPS.map((_, index) => (
+                <div className="tour-dots" aria-label={t('stepProgress', { current: step + 1, total: steps.length })} role="navigation">
+                    {steps.map((_, index) => (
                         <button
                             key={index}
                             type="button"
                             className={`tour-dot ${index === step ? 'tour-dot--active' : ''}`}
                             onClick={() => setStep(index)}
-                            aria-label={`Go to step ${index + 1}`}
+                            aria-label={t('goToStep', { step: index + 1 })}
                             aria-current={index === step ? 'step' : undefined}
                         />
                     ))}
@@ -154,10 +155,10 @@ export default function ProductTour() {
                             type="button"
                             onClick={() => setStep((currentStep) => currentStep - 1)}
                             className="btn-secondary tour-nav__back"
-                            aria-label="Previous step"
+                            aria-label={t('previousStep')}
                         >
                             <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-                            Back
+                            {t('back')}
                         </button>
                     )}
 
@@ -167,7 +168,7 @@ export default function ProductTour() {
                             onClick={dismiss}
                             className="btn-primary tour-nav__cta"
                         >
-                            Start Scanning Free
+                            {t('startScanningFree')}
                             <ChevronRight className="w-4 h-4" aria-hidden="true" />
                         </Link>
                     ) : (
@@ -175,9 +176,9 @@ export default function ProductTour() {
                             type="button"
                             onClick={() => setStep((currentStep) => currentStep + 1)}
                             className="btn-primary tour-nav__next"
-                            aria-label="Next step"
+                            aria-label={t('nextStep')}
                         >
-                            Next
+                            {t('next')}
                             <ChevronRight className="w-4 h-4" aria-hidden="true" />
                         </button>
                     )}
@@ -185,7 +186,7 @@ export default function ProductTour() {
 
                 {!isLast && (
                     <button type="button" onClick={dismiss} className="tour-skip">
-                        Skip tour
+                        {t('skipTour')}
                     </button>
                 )}
             </div>

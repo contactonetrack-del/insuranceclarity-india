@@ -1,4 +1,5 @@
 import { Send, Shield, Zap } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export function AdvisorInputArea({
     inputValue,
@@ -11,6 +12,8 @@ export function AdvisorInputArea({
     handleSend: () => void
     isTyping: boolean
 }) {
+    const t = useTranslations('auditI18n.advisorWidget')
+
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
@@ -26,7 +29,7 @@ export function AdvisorInputArea({
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyPress}
-                    placeholder="Ask anything about insurance..."
+                    placeholder={t('placeholder')}
                     className="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-sm
                              focus:ring-2 focus:ring-accent transition-all text-theme-primary outline-none shadow-inner"
                 />
@@ -34,17 +37,17 @@ export function AdvisorInputArea({
                     onClick={() => handleSend()}
                     disabled={!inputValue.trim() || isTyping}
                     className="p-2.5 bg-accent text-white rounded-xl hover:bg-accent-hover transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Send message"
+                    aria-label={t('sendAria')}
                 >
                     <Send className="w-4 h-4" />
                 </button>
             </div>
             <div className="flex justify-center gap-4 mt-2">
                 <span className="text-[10px] text-theme-muted flex items-center gap-1 font-medium">
-                    <Shield className="w-3 h-3 text-accent" /> Insurance Expert
+                    <Shield className="w-3 h-3 text-accent" /> {t('insuranceExpert')}
                 </span>
                 <span className="text-[10px] text-theme-muted flex items-center gap-1 font-medium">
-                    <Zap className="w-3 h-3 text-accent" /> Instant Answers
+                    <Zap className="w-3 h-3 text-accent" /> {t('instantAnswers')}
                 </span>
             </div>
         </div>

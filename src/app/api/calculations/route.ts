@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { getAuthSession } from '@/lib/auth/session';
 import { logger } from '@/lib/logger';
 import { validateCsrfRequest } from '@/lib/security/csrf';
 import { createSuccessResponse, ErrorFactory } from '@/lib/api/error-response';
+import {
+    createUserCalculation,
+    findUserIdByEmail,
+    listUserCalculationsByUserId,
+} from '@/services/calculation.service';
 
 export async function POST(req: NextRequest) {
     try {
@@ -17,7 +21,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: true, message: 'Not logged in, calculation not saved' });
         }
         
-        const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+        const user = await findUserIdByEmail(session.user.email);
         if (!user) {
             return NextResponse.json({ success: true, message: 'No db user matched, calculation not saved' });
         }
@@ -29,13 +33,11 @@ export async function POST(req: NextRequest) {
             return ErrorFactory.validationError('Missing required calculation fields');
         }
 
-        const calculation = await prisma.userCalculation.create({
-            data: {
-                userId: user.id,
-                type,
-                inputData,
-                result,
-            }
+        const calculation = await createUserCalculation({
+            userId: user.id,
+            type,
+            inputData,
+            result,
         });
 
         return createSuccessResponse(calculation, 201);
@@ -52,16 +54,12 @@ export async function GET() {
             return ErrorFactory.unauthorized('Sign in to view your calculations');
         }
 
-        const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+        const user = await findUserIdByEmail(session.user.email);
         if (!user) {
             return ErrorFactory.unauthorized('User account not found');
         }
 
-        const calculations = await prisma.userCalculation.findMany({
-            where: { userId: user.id },
-            orderBy: { createdAt: 'desc' },
-            take: 20,
-        });
+        const calculations = await listUserCalculationsByUserId(user.id, 20);
 
         return createSuccessResponse(calculations);
     } catch (error) {

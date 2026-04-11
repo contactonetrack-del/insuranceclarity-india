@@ -81,7 +81,7 @@ export function SkeletonTable({ rows = 5, cols = 4 }: { rows?: number; cols?: nu
     return (
         <div className="glass rounded-xl overflow-hidden">
             {/* Header */}
-            <div className="flex gap-4 p-4 bg-accent-5 border-b border-default">
+            <div className="flex gap-4 p-4 bg-accent/5 border-b border-default">
                 {Array.from({ length: cols }).map((_, i) => (
                     <Skeleton key={i} variant="text" className="flex-1" />
                 ))}

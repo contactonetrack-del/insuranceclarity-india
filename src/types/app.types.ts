@@ -1,8 +1,9 @@
-// =============================================================================
-// Shared TypeScript Types — Admin, Insurance, Leads, Dashboard
-// =============================================================================
-
-// ─── Admin Dashboard ──────────────────────────────────────────────────────────
+import type {
+    LeadSource as DomainLeadSource,
+    LeadStatus as DomainLeadStatus,
+    QuoteStatus as DomainQuoteStatus,
+    UserPlan as DomainUserPlan,
+} from '@/lib/domain/enums';
 
 export interface QuoteRecord {
     id: string;
@@ -11,7 +12,7 @@ export interface QuoteRecord {
     premiumAmount: number;
     applicantAge: number;
     tobaccoUser: boolean | null;
-    status: string;
+    status: DomainQuoteStatus;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -32,10 +33,72 @@ export interface AdminDashboardError {
 
 export type AdminDashboardResult = AdminDashboardStats | AdminDashboardError;
 
-// ─── Lead Management ─────────────────────────────────────────────────────────
+export type JobHealthAlertLevel = 'ok' | 'warning' | 'critical';
 
-export type LeadStatus = 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'CLOSED' | 'LOST';
-export type LeadSource = 'ORGANIC' | 'REFERRAL' | 'PAID' | 'SOCIAL' | 'EMAIL';
+export interface AdminJobHealth {
+    pendingPaymentReconciliation: number;
+    staleCreatedPayments: number;
+    staleScans: number;
+    deadLetterJobs: number;
+    recentCronErrors1h: number;
+    recentCronErrors24h: number;
+    recentCronErrors7d: number;
+    recentCronErrors30d: number;
+    recentQueueErrors1h: number;
+    recentQueueErrors24h: number;
+    recentQueueErrors7d: number;
+    recentQueueErrors30d: number;
+    cronHourlyBaseline24h: number;
+    queueHourlyBaseline24h: number;
+    cronDailyBaseline7d: number;
+    queueDailyBaseline7d: number;
+    cronSpike: boolean;
+    queueSpike: boolean;
+    cronAlertLevel: JobHealthAlertLevel;
+    queueAlertLevel: JobHealthAlertLevel;
+    queueProvider: 'qstash' | 'http';
+    redisConfigured: boolean;
+    alertDestinationsConfigured: number;
+    alertDestinationLabels: string[];
+    generatedAt: string;
+}
+
+export interface AdminJobHealthError {
+    error: string;
+}
+
+export type AdminJobHealthResult = AdminJobHealth | AdminJobHealthError;
+
+export interface AdminBusinessReadiness {
+    days: number;
+    totals: {
+        signup: number;
+        scan: number;
+        pay: number;
+        retain: number;
+    };
+    conversion: {
+        signupToScan: number;
+        scanToPay: number;
+        payToRetain: number;
+    };
+    supporting: {
+        totalLeads: number;
+        scansInWindow: number;
+        capturedPaymentsInWindow: number;
+        activeSubscriptions: number;
+    };
+    generatedAt: string;
+}
+
+export interface AdminBusinessReadinessError {
+    error: string;
+}
+
+export type AdminBusinessReadinessResult = AdminBusinessReadiness | AdminBusinessReadinessError;
+
+export type LeadStatus = DomainLeadStatus;
+export type LeadSource = DomainLeadSource;
 
 export interface Lead {
     id: string;
@@ -63,8 +126,6 @@ export interface UpdateLeadRequest {
     status?: LeadStatus;
     notes?: string;
 }
-
-// ─── Insurance Categories ─────────────────────────────────────────────────────
 
 export type InsuranceCategorySlug =
     | 'life'
@@ -94,8 +155,6 @@ export interface InsuranceTypeItem {
     name: string;
     subcategoryId: string;
 }
-
-// ─── Insurance Policy ─────────────────────────────────────────────────────────
 
 export interface CoverageData {
     minCoverage?: number;
@@ -130,9 +189,7 @@ export interface InsurancePolicy {
     createdAt: Date;
 }
 
-// ─── User Dashboard ───────────────────────────────────────────────────────────
-
-export type UserPlan = 'FREE' | 'PRO' | 'ENTERPRISE';
+export type UserPlan = DomainUserPlan;
 
 export interface DashboardUser {
     id: string;
@@ -154,10 +211,7 @@ export interface SavedQuote {
     createdAt: Date;
 }
 
-
-// ─── Hidden Facts & Claims ────────────────────────────────────────────────────
-
-export type FactSeverity = 'HIGH' | 'MEDIUM' | 'LOW';
+export type FactSeverity = 'critical' | 'high' | 'medium' | 'low';
 
 export interface HiddenFact {
     id: string;
@@ -183,7 +237,7 @@ export interface ClaimCase {
     lesson: string;
 }
 
-// ─── Quote Request ────────────────────────────────────────────────────────────
+export type QuoteStatus = DomainQuoteStatus;
 
 export interface QuoteRequest {
     insuranceType: InsuranceCategorySlug;

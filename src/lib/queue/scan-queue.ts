@@ -16,8 +16,9 @@ import {
     updateScanStatus,
 } from '@/services/report.service';
 import { sendScanCompleteEmail } from '@/services/email.service';
-import { prisma } from '@/lib/prisma';
 import { getCachedAnalysis, cacheAnalysis } from '@/lib/cache/report-cache';
+import { readStoredDocument } from '@/lib/storage/document-store';
+import { reportRepository } from '@/repositories/report.repository';
 
 const ANALYSIS_TIMEOUT_MS = 55_000;
 
@@ -118,10 +119,7 @@ export async function processScanInline(payload: ScanJobPayload): Promise<void> 
 
         // 5. Send scan-complete notification email (fire & forget — non-blocking)
         if (userId) {
-            const user = await prisma.user.findUnique({
-                where:  { id: userId },
-                select: { email: true, name: true },
-            });
+            const user = await reportRepository.findUserById(userId);
             if (user?.email) {
                 sendScanCompleteEmail(user.email, {
                     userName: user.name ?? 'there',
@@ -136,24 +134,20 @@ export async function processScanInline(payload: ScanJobPayload): Promise<void> 
         }
 
         // 7. Send notification emails requested from the processing screen (anonymous or logged-in)
-        const notifyLeads = await prisma.lead.findMany({
-            where: {
-                insuranceType: 'SCAN_NOTIFY',
-                notes: `scan:${scanId}`,
-                status: 'NEW',
-            },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                source: true,
-            },
-        });
+        const notifyLeads = await reportRepository.listPendingScanNotifyLeads(scanId);
 
         if (notifyLeads.length > 0) {
             await Promise.all(
                 notifyLeads.map(async (lead) => {
-                    const leadLocale = lead.source.endsWith('_hi') ? 'hi' : locale;
+                    const noteLocale = lead.notes?.match(/\blocale:(hi|en)\b/i)?.[1]?.toLowerCase();
+                    const legacyLocale = lead.source.toLowerCase().endsWith('_hi')
+                        ? 'hi'
+                        : lead.source.toLowerCase().endsWith('_en')
+                            ? 'en'
+                            : undefined;
+                    const leadLocale = (noteLocale === 'hi' || noteLocale === 'en'
+                        ? noteLocale
+                        : legacyLocale) ?? locale;
                     const sent = await sendScanCompleteEmail(lead.email, {
                         userName: lead.name || 'there',
                         scanId,
@@ -163,10 +157,7 @@ export async function processScanInline(payload: ScanJobPayload): Promise<void> 
                     });
 
                     if (sent) {
-                        await prisma.lead.update({
-                            where: { id: lead.id },
-                            data: { status: 'CONTACTED' },
-                        });
+                        await reportRepository.markScanNotifyLeadContacted(lead.id);
                     }
                 }),
             );
@@ -198,29 +189,13 @@ export async function processScanFromStoredFile(payload: {
     userId?: string;
     locale?: 'en' | 'hi';
 }): Promise<void> {
-    const scan = await prisma.scan.findUnique({
-        where: { id: payload.scanId },
-        select: {
-            id: true,
-            fileUrl: true,
-            fileName: true,
-            fileHash: true,
-            userId: true,
-            status: true,
-        },
-    });
+    const scan = await reportRepository.findScanForProcessing(payload.scanId);
 
     if (!scan) {
         throw new Error(`Scan not found for worker payload: ${payload.scanId}`);
     }
 
-    const response = await fetch(scan.fileUrl);
-    if (!response.ok) {
-        throw new Error(`Unable to fetch PDF source for scan ${scan.id}.`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = await readStoredDocument(scan.fileUrl);
     const extracted = await extractTextFromPdf(buffer);
 
     await processScanInline({

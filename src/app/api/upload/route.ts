@@ -15,7 +15,6 @@
 
 import { NextRequest, NextResponse, after } from 'next/server';
 import { auth } from '@/auth';
-import { v2 as cloudinary } from 'cloudinary';
 
 import { logger } from '@/lib/logger';
 import { validatePdfBuffer } from '@/services/pdf.service';
@@ -28,9 +27,11 @@ import { getLimitsForPlan } from '@/lib/subscriptions/plan-limits';
 import { enforceAiRateLimit } from '@/lib/security/ai-rate-limit';
 import { redisClient } from '@/lib/cache/redis';
 import { validateCsrfRequest } from '@/lib/security/csrf';
+import { generateScanClaimToken } from '@/lib/security/scan-claim';
 import { sendScanLimitNudgeEmail } from '@/services/email.service';
 import { trackFunnelStep } from '@/lib/analytics/funnel';
 import { ErrorFactory } from '@/lib/api/error-response';
+import { uploadDocument } from '@/lib/storage/document-store';
 import type { UploadResponse } from '@/types/report.types';
 
 const ANONYMOUS_SCAN_LIMIT_PER_DAY = 3;
@@ -96,67 +97,6 @@ async function maybeSendScanLimitNudge(params: {
 
     if (redisClient.isConfigured()) {
         await redisClient.set(throttleKey, '1', { ex: 60 * 60 * 24 });
-    }
-}
-
-// ─── Cloudinary Upload (Production SDK Integration) ───────────────────────────
-
-/**
- * Configure Cloudinary SDK once.
- */
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true,
-});
-
-async function uploadToCloudinary(buffer: Buffer, fileName: string): Promise<string> {
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.CLOUDINARY_API_KEY;
-    const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-    if (!cloudName || !apiKey || !apiSecret) {
-        throw new Error(
-            'Cloudinary is not configured correctly for production storage.'
-        );
-    }
-
-    try {
-        // We use a Promise wrapping the upload_stream for efficient buffer handling in Node.js
-        return await new Promise<string>((resolve, reject) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-                {
-                    folder: 'policy-scans',
-                    resource_type: 'raw', // PDF is treated as raw
-                    type: 'authenticated', // Restrict delivery
-                    sign_url: true,       // Enforce signed URLs
-                    public_id: fileName.replace(/\.[^/.]+$/, "") + "_" + Date.now(),
-                    tags: ['insurance-policy', 'scan'],
-                },
-                (error, result) => {
-                    if (error) {
-                        logger.error({ action: 'cloudinary.upload.stream_error', error });
-                        reject(new Error('Cloudinary storage stream failed.'));
-                        return;
-                    }
-                    if (!result?.secure_url) {
-                        reject(new Error('Cloudinary secure URL missing in response.'));
-                        return;
-                    }
-                    resolve(result.secure_url);
-                }
-            );
-
-            uploadStream.end(buffer);
-        });
-    } catch (error) {
-        logger.error({
-            action: 'cloudinary.upload.failed',
-            fileName,
-            error: error instanceof Error ? error.message : String(error),
-        });
-        throw new Error('Document storage failed. Please try again later.');
     }
 }
 
@@ -303,15 +243,7 @@ export async function POST(request: NextRequest) {
         if (existingScanId) {
             logger.info({ action: 'upload.dedup', fileHash, existingScanId });
 
-            let claimToken: string | undefined;
-            if (!userId && redisClient.isConfigured()) {
-                claimToken = crypto.randomUUID().replace(/-/g, '');
-                await redisClient.set(
-                    `scan:claim:${claimToken}`,
-                    existingScanId,
-                    { ex: 60 * 60 * 24 },
-                );
-            }
+            const claimToken = !userId ? generateScanClaimToken(existingScanId) : undefined;
 
             const response: UploadResponse = {
                 scanId: existingScanId,
@@ -323,8 +255,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(response, { status: 200 });
         }
 
-        // 9. Upload to Cloudinary (secure signed upload)
-        const fileUrl = await uploadToCloudinary(buffer, file.name);
+        // 9. Upload to the configured document storage provider
+        const fileUrl = await uploadDocument(buffer, file.name);
 
         // 10. Create Scan record in DB (status = PENDING)
         const scan = await createScan({
@@ -339,15 +271,7 @@ export async function POST(request: NextRequest) {
         // ── Generate anonymous claim token (replaces fragile IP-ownership check) ──
         // For unauthenticated users, issue a short-lived signed token so the result
         // page can prove ownership without relying on IP matching (breaks with proxies/CGNAT).
-        let claimToken: string | undefined;
-        if (!userId && redisClient.isConfigured()) {
-            claimToken = crypto.randomUUID().replace(/-/g, '');
-            await redisClient.set(
-                `scan:claim:${claimToken}`,
-                scan.id,
-                { ex: 60 * 60 * 24 }, // 24-hour TTL
-            );
-        }
+        const claimToken = !userId ? generateScanClaimToken(scan.id) : undefined;
 
         void trackFunnelStep('scan', {
             userId: userId ?? null,

@@ -57,6 +57,7 @@ const categoryI18nMap: Record<string, string> = {
 
 export default function HiddenFactsPage() {
     const t = useTranslations('tools.hiddenFacts')
+    const auditT = useTranslations('auditI18n.remaining')
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [selectedSeverity, setSelectedSeverity] = useState<string | null>(null)
@@ -248,7 +249,7 @@ export default function HiddenFactsPage() {
                         <div className="flex justify-center py-12">
                             <div className="animate-pulse flex items-center gap-2 text-accent">
                                 <Search className="w-5 h-5 animate-spin" />
-                                <span>Loading facts...</span>
+                                <span>{auditT('loadingFacts')}</span>
                             </div>
                         </div>
                     ) : (
@@ -316,7 +317,7 @@ export default function HiddenFactsPage() {
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 aria-label={`Share "${fact.title}" on WhatsApp`}
-                                                className="ml-auto flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 text-xs font-semibold hover:bg-green-500/20 transition-colors"
+                                                className="ml-auto flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-success-500/10 border border-success-500/20 text-success-500 text-xs font-semibold hover:bg-success-500/20 transition-colors"
                                             >
                                                 <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
                                                 {t('share')}

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { Cookie, X, Settings, Check } from 'lucide-react'
-import { trackEvent } from '@/services/analytics.service';
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { trackEvent } from '@/services/analytics.service'
 import {
     CONSENT_COOKIE_NAME,
     CONSENT_UPDATED_EVENT,
@@ -21,6 +22,8 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
  * Compliant with DPDP Act 2023 and IT Rules 2011
  */
 export default function CookieBanner() {
+    const t = useTranslations('cookieBanner')
+
     const getCookie = (name: string): string | null => {
         return getCookieValue(name)
     }
@@ -60,13 +63,10 @@ export default function CookieBanner() {
     })
 
     useEffect(() => {
-        // Check if consent already given
         const consent = getCookie(CONSENT_COOKIE_NAME)
         if (!consent) {
-            // Small delay to avoid layout shift
             setTimeout(() => setShowBanner(true), 1000)
         } else {
-            // Apply saved preferences
             const saved = readCookiePreferences(document.cookie)
             if (saved) {
                 setPreferences(saved)
@@ -83,7 +83,7 @@ export default function CookieBanner() {
         applyConsent(prefs)
         setShowBanner(false)
         trackEvent('cookie_consent_updated', {
-            method: method,
+            method,
             analytics_enabled: prefs.analytics,
         })
     }
@@ -117,105 +117,103 @@ export default function CookieBanner() {
                     }}
                 >
                     {!showPreferences ? (
-                        /* Main Banner */
                         <div className="p-4 md:p-6">
                             <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-accent-10 flex items-center justify-center flex-shrink-0">
+                                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
                                     <Cookie className="w-5 h-5 text-accent" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-semibold text-theme-primary mb-1">
-                                        We use cookies
+                                        {t('title')}
                                     </h3>
                                     <p className="text-sm text-theme-secondary mb-4">
-                                        We use essential cookies for site functionality and analytics cookies to understand
-                                        how you use our site. You can accept all cookies, reject non-essential ones,
-                                        or customize your preferences.{' '}
+                                        {t('description')}{' '}
                                         <Link href="/cookies" className="text-accent hover:underline">
-                                            Learn more
+                                            {t('learnMore')}
                                         </Link>
                                     </p>
                                     <div className="flex flex-wrap gap-2">
                                         <button
                                             onClick={handleAcceptAll}
                                             className="px-4 py-2 bg-accent text-white rounded-lg font-medium 
-                                                     hover:bg-accent/90 transition-colors text-sm flex items-center gap-2"
+                                            hover:bg-accent/90 transition-colors text-sm flex items-center gap-2"
                                         >
                                             <Check className="w-4 h-4" />
-                                            Accept All
+                                            {t('actions.acceptAll')}
                                         </button>
                                         <button
                                             onClick={handleRejectNonEssential}
                                             className="px-4 py-2 bg-theme-surface border border-default rounded-lg 
-                                                     font-medium hover:bg-theme-surface/80 transition-colors text-sm
-                                                     text-theme-primary"
+                                            font-medium hover:bg-theme-surface/80 transition-colors text-sm
+                                            text-theme-primary"
                                         >
-                                            Reject Non-Essential
+                                            {t('actions.rejectNonEssential')}
                                         </button>
                                         <button
                                             onClick={() => setShowPreferences(true)}
                                             className="px-4 py-2 text-theme-secondary hover:text-theme-primary 
-                                                     transition-colors text-sm flex items-center gap-2"
+                                            transition-colors text-sm flex items-center gap-2"
                                         >
                                             <Settings className="w-4 h-4" />
-                                            Manage Preferences
+                                            {t('actions.managePreferences')}
                                         </button>
                                     </div>
                                 </div>
                                 <button
                                     onClick={handleRejectNonEssential}
                                     className="text-theme-muted hover:text-theme-primary transition-colors"
-                                    aria-label="Close"
+                                    aria-label={t('actions.close')}
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        /* Preferences Panel */
                         <div className="p-4 md:p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="font-semibold text-theme-primary flex items-center gap-2">
                                     <Settings className="w-5 h-5 text-accent" />
-                                    Cookie Preferences
+                                    {t('preferences.title')}
                                 </h3>
                                 <button
                                     onClick={() => setShowPreferences(false)}
                                     className="text-theme-muted hover:text-theme-primary"
+                                    aria-label={t('actions.close')}
                                 >
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
 
                             <div className="space-y-4 mb-6">
-                                {/* Essential Cookies */}
                                 <div className="flex items-start justify-between gap-4 p-3 rounded-lg bg-theme-surface">
                                     <div>
-                                        <p className="font-medium text-theme-primary text-sm">Essential Cookies</p>
+                                        <p className="font-medium text-theme-primary text-sm">{t('preferences.essential.title')}</p>
                                         <p className="text-xs text-theme-secondary mt-0.5">
-                                            Required for website functionality. Cannot be disabled.
+                                            {t('preferences.essential.description')}
                                         </p>
                                     </div>
-                                    <div className="w-12 h-6 bg-green-500 rounded-full flex items-center justify-end px-1">
+                                    <div className="w-12 h-6 bg-success-500 rounded-full flex items-center justify-end px-1">
                                         <div className="w-4 h-4 bg-white rounded-full" />
                                     </div>
                                 </div>
 
-                                {/* Analytics Cookies */}
                                 <div className="flex items-start justify-between gap-4 p-3 rounded-lg bg-theme-surface">
                                     <div>
-                                        <p className="font-medium text-theme-primary text-sm">Analytics Cookies</p>
+                                        <p className="font-medium text-theme-primary text-sm">{t('preferences.analytics.title')}</p>
                                         <p className="text-xs text-theme-secondary mt-0.5">
-                                            Help us understand how visitors use our website with privacy-safe analytics.
+                                            {t('preferences.analytics.description')}
                                         </p>
                                     </div>
                                     <button
                                         role="switch"
                                         aria-checked={preferences.analytics}
-                                        aria-label="Toggle Analytics Cookies"
-                                        onClick={() => setPreferences(p => ({ ...p, analytics: !p.analytics }))}
-                                        className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${preferences.analytics ? 'bg-green-500 justify-end' : 'bg-gray-300 justify-start'
-                                            }`}
+                                        aria-label={t('preferences.analytics.toggleAria')}
+                                        onClick={() => setPreferences((current) => ({ ...current, analytics: !current.analytics }))}
+                                        className={`w-12 h-6 rounded-full flex items-center px-1 transition-colors ${
+                                            preferences.analytics
+                                                ? 'bg-success-500 justify-end'
+                                                : 'bg-gray-300 dark:bg-slate-600 justify-start'
+                                        }`}
                                     >
                                         <div className="w-4 h-4 bg-white rounded-full shadow" />
                                     </button>
@@ -227,14 +225,14 @@ export default function CookieBanner() {
                                     onClick={() => setShowPreferences(false)}
                                     className="px-4 py-2 text-theme-secondary hover:text-theme-primary text-sm"
                                 >
-                                    Cancel
+                                    {t('actions.cancel')}
                                 </button>
                                 <button
                                     onClick={handleSavePreferences}
                                     className="px-4 py-2 bg-accent text-white rounded-lg font-medium 
-                                             hover:bg-accent/90 transition-colors text-sm"
+                                    hover:bg-accent/90 transition-colors text-sm"
                                 >
-                                    Save Preferences
+                                    {t('actions.savePreferences')}
                                 </button>
                             </div>
                         </div>
@@ -245,7 +243,6 @@ export default function CookieBanner() {
     )
 }
 
-// Extend Window interface for GA disable flag
 declare global {
     interface Window {
         [key: `ga-disable-${string}`]: boolean

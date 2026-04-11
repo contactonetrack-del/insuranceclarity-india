@@ -1,5 +1,7 @@
 # Error Handling Implementation Summary
 
+> Historical archive: this file summarizes an earlier phased rollout and should not be treated as current platform status. See [MASTER-PLAN-STATUS.md](../MASTER-PLAN-STATUS.md) instead.
+
 **Status:** ✅ PHASE 6 COMPLETE - Production Ready
 
 ## Project Overview

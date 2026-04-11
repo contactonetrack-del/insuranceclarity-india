@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 type BulkResult = {
     fileName: string;
@@ -31,6 +32,7 @@ async function getCsrfToken(): Promise<string | null> {
 }
 
 export function BulkDropZone() {
+    const t = useTranslations('auditI18n.bulkDropZone');
     const [files, setFiles] = useState<File[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -85,9 +87,9 @@ export function BulkDropZone() {
     return (
         <form className="glass-strong rounded-2xl border border-default p-6 space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
-                <h2 className="text-xl font-bold text-theme-primary">Enterprise Bulk Scan</h2>
+                <h2 className="text-xl font-bold text-theme-primary">{t('title')}</h2>
                 <p className="text-sm text-theme-secondary">
-                    Upload 2 to 10 policy PDFs in one run. Each file is queued and analyzed independently.
+                    {t('subtitle')}
                 </p>
             </div>
 
@@ -108,7 +110,7 @@ export function BulkDropZone() {
                 disabled={isSubmitting || files.length < 2}
                 className="inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
-                {isSubmitting ? 'Starting Bulk Scan...' : 'Start Bulk Scan'}
+                {isSubmitting ? t('starting') : t('start')}
             </button>
 
             {error && (
@@ -116,7 +118,7 @@ export function BulkDropZone() {
                     <p>{error}</p>
                     {upgradeUrl && (
                         <Link className="mt-2 inline-block font-semibold underline" href={upgradeUrl}>
-                            Upgrade Plan
+                            {t('upgradePlan')}
                         </Link>
                     )}
                 </div>
@@ -124,22 +126,22 @@ export function BulkDropZone() {
 
             {results.length > 0 && (
                 <div className="space-y-2">
-                    <p className="text-sm font-semibold text-theme-primary">Bulk Scan Result</p>
+                    <p className="text-sm font-semibold text-theme-primary">{t('resultsTitle')}</p>
                     <ul className="space-y-2">
                         {results.map((result) => (
                             <li
                                 key={`${result.fileName}-${result.scanId ?? result.error}`}
                                 className={`rounded-lg border p-3 text-sm ${
-                                    result.ok ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'
+                                    result.ok ? 'border-success-500/25 bg-success-500/10' : 'border-danger-500/25 bg-danger-500/10'
                                 }`}
                             >
                                 <p className="font-medium">{result.fileName}</p>
                                 {result.ok && result.scanId ? (
-                                    <Link className="text-emerald-700 underline" href={`/scan/result/${result.scanId}`}>
-                                        View Report
+                                    <Link className="text-success-500 underline" href={`/scan/result/${result.scanId}`}>
+                                        {t('viewReport')}
                                     </Link>
                                 ) : (
-                                    <p className="text-rose-700">{result.error ?? 'Failed'}</p>
+                                    <p className="text-danger-500">{result.error ?? 'Failed'}</p>
                                 )}
                             </li>
                         ))}

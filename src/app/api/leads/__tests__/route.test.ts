@@ -2,17 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { type NextRequest } from 'next/server';
 import { POST } from '../route';
 
-// vi.hoisted ensures mockCreate is defined before vi.mock is hoisted
-const { mockCreate } = vi.hoisted(() => ({
-    mockCreate: vi.fn()
+const { mockLeadCreate, mockEnforceRateLimit } = vi.hoisted(() => ({
+    mockLeadCreate: vi.fn(),
+    mockEnforceRateLimit: vi.fn().mockResolvedValue({ allowed: true }),
 }));
 
-vi.mock('@/lib/prisma', () => ({
-    prisma: {
-        lead: {
-            create: mockCreate,
-        }
-    }
+vi.mock('@/repositories/lead.repository', () => ({
+    leadRepository: {
+        create: mockLeadCreate,
+    },
 }));
 
 vi.mock('@/lib/logger', () => ({
@@ -27,9 +25,14 @@ vi.mock('@/lib/security/csrf', () => ({
     validateCsrfRequest: vi.fn().mockReturnValue(null), // null = pass
 }));
 
+vi.mock('@/lib/security/rate-limit', () => ({
+    enforceRateLimit: mockEnforceRateLimit,
+}));
+
 describe('POST /api/leads', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockEnforceRateLimit.mockResolvedValue({ allowed: true });
     });
 
     const createMockRequest = (body: unknown) => {
@@ -49,7 +52,7 @@ describe('POST /api/leads', () => {
             sourceUrl: 'http://localhost:3000/insurance/health-insurance'
         };
 
-        mockCreate.mockResolvedValue({ id: 'lead_123' });
+        mockLeadCreate.mockResolvedValue({ id: 'lead_123' });
 
         const response = await POST(createMockRequest(payload));
         const json = await response.json();
@@ -57,16 +60,42 @@ describe('POST /api/leads', () => {
         expect(response.status).toBe(201);
         expect(json.success).toBe(true);
         expect(json.data.leadId).toBe('lead_123');
-        expect(mockCreate).toHaveBeenCalledWith({
-            data: {
-                name: 'John Doe',
-                email: 'john@example.com',
-                phone: '9876543210',
-                insuranceType: 'Health Insurance',
-                source: 'http://localhost:3000/insurance/health-insurance',
-                status: 'NEW'
-            }
+        expect(mockLeadCreate).toHaveBeenCalledWith({
+            name: 'John Doe',
+            email: 'john@example.com',
+            phone: '9876543210',
+            insuranceType: 'Health Insurance',
+            source: 'ORGANIC',
+            status: 'NEW',
+            notes: 'Source context: http://localhost:3000/insurance/health-insurance'
         });
+        expect(mockEnforceRateLimit).toHaveBeenCalledWith(expect.objectContaining({
+            scope: 'leads',
+            limit: 5,
+            windowSeconds: 3600,
+        }));
+    });
+
+    it('returns 429 when rate limit is exceeded', async () => {
+        const payload = {
+            name: 'Rate Limited',
+            email: 'limited@example.com',
+            phone: '9876543210',
+            insuranceType: 'Health Insurance',
+        };
+
+        mockEnforceRateLimit.mockResolvedValue({
+            allowed: false,
+            retryAfterSeconds: 120,
+        });
+
+        const response = await POST(createMockRequest(payload));
+        const json = await response.json();
+
+        expect(response.status).toBe(429);
+        expect(json.success).toBe(false);
+        expect(json.error.code).toBe('RATE_LIMIT_EXCEEDED');
+        expect(mockLeadCreate).not.toHaveBeenCalled();
     });
 
     it('should return 400 for invalid email address', async () => {
@@ -84,7 +113,7 @@ describe('POST /api/leads', () => {
         expect(json.success).toBe(false);
         expect(json.error).toBeDefined();
         expect(json.error.code).toBe('VALIDATION_ERROR');
-        expect(mockCreate).not.toHaveBeenCalled();
+        expect(mockLeadCreate).not.toHaveBeenCalled();
     });
 
     it('should default source to ORGANIC when sourceUrl is absent', async () => {
@@ -95,12 +124,26 @@ describe('POST /api/leads', () => {
             insuranceType: 'Term Life'
         };
 
-        mockCreate.mockResolvedValue({ id: 'lead_456' });
+        mockLeadCreate.mockResolvedValue({ id: 'lead_456' });
 
         await POST(createMockRequest(payload));
 
-        expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({
-            data: expect.objectContaining({ source: 'ORGANIC' })
-        }));
+        expect(mockLeadCreate).toHaveBeenCalledWith(expect.objectContaining({ source: 'ORGANIC' }));
+    });
+
+    it('should map tracked campaign traffic to PAID source', async () => {
+        const payload = {
+            name: 'Paid Lead',
+            email: 'paid@example.com',
+            phone: '9876543210',
+            insuranceType: 'Health Insurance',
+            sourceUrl: 'https://insuranceclarity.com/health?utm_medium=cpc&gclid=test123'
+        };
+
+        mockLeadCreate.mockResolvedValue({ id: 'lead_789' });
+
+        await POST(createMockRequest(payload));
+
+        expect(mockLeadCreate).toHaveBeenCalledWith(expect.objectContaining({ source: 'PAID' }));
     });
 });

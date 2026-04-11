@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import * as Sentry from '@sentry/nextjs'
 import Link from 'next/link'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface ErrorPageProps {
     error: Error & { digest?: string }
@@ -19,6 +20,9 @@ interface ErrorPageProps {
  * potentially exposing internal file paths and module structure to attackers.
  */
 export default function GlobalError({ error, reset }: ErrorPageProps) {
+    const tCommon = useTranslations('common')
+    const tErrorPage = useTranslations('errorPage')
+
     useEffect(() => {
         // Capture in Sentry for full context (stack, breadcrumbs, user info)
         Sentry.captureException(error)
@@ -43,17 +47,16 @@ export default function GlobalError({ error, reset }: ErrorPageProps) {
 
                 {/* Heading */}
                 <h1 className="font-display font-bold text-3xl text-theme-primary mb-3">
-                    Something went wrong
+                    {tCommon('error')}
                 </h1>
                 <p className="text-theme-secondary mb-6 leading-relaxed">
-                    An unexpected error occurred. Our team has been notified automatically.
-                    Please try again or return to the homepage.
+                    {tErrorPage('description')}
                 </p>
 
                 {/* Error digest for support reference */}
                 {error.digest && (
                     <p className="text-xs text-theme-muted mb-6 font-mono glass rounded-lg px-4 py-2 inline-block">
-                        Reference: {error.digest}
+                        {tErrorPage('reference')}: {error.digest}
                     </p>
                 )}
 
@@ -66,7 +69,7 @@ export default function GlobalError({ error, reset }: ErrorPageProps) {
                                    hover:scale-[1.02] active:scale-[0.98]"
                     >
                         <RefreshCw className="w-4 h-4" />
-                        Try Again
+                        {tCommon('retry')}
                     </button>
                     <Link
                         href="/"
@@ -76,7 +79,7 @@ export default function GlobalError({ error, reset }: ErrorPageProps) {
                                    hover:scale-[1.02] active:scale-[0.98]"
                     >
                         <Home className="w-4 h-4" />
-                        Go Home
+                        {tErrorPage('goHome')}
                     </Link>
                 </div>
             </div>

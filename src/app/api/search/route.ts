@@ -3,7 +3,7 @@
  *
  * Search across insurance products, hidden facts, and claim cases.
  *
- * Phase 11 Week 2: Implements response caching for improved performance.
+ * Uses PostgreSQL-backed search for the public runtime path.
  *
  * Query parameters:
  * - q: Search query string
@@ -13,8 +13,6 @@
  */
 
 import { NextResponse } from 'next/server';
-import { indexes } from '@/lib/search/meilisearch';
-import { ensureMeilisearchProductionReady, getSearchBackend } from '@/lib/search/config';
 import { logger } from '@/lib/logger';
 import { getDbFallbackErrorMessage, isExpectedDbFallbackError } from '@/lib/prisma-fallback';
 import { searchSiteIndexInDatabase, type SearchIndexName } from '@/lib/search/database-search';
@@ -29,7 +27,7 @@ type SearchPayload = {
     estimatedTotalHits?: number;
     processingTimeMs?: number;
     query?: string;
-    source: 'meilisearch' | 'postgres' | 'fallback';
+    source: 'postgres' | 'fallback';
 } & Record<string, unknown>;
 
 export async function GET(request: Request) {
@@ -67,71 +65,40 @@ export async function GET(request: Request) {
         }
 
         // Cache miss - perform search
-        const backend = getSearchBackend();
-        let payload: SearchPayload | null = null;
-        let searchSource: 'meilisearch' | 'postgres' | 'fallback' = 'fallback';
+        let payload: SearchPayload;
+        let searchSource: 'postgres' | 'fallback' = 'fallback';
 
-        if (backend !== 'postgres') {
-            try {
-                ensureMeilisearchProductionReady();
-
-                const meiliResults = await indexes[indexName].search(q, {
-                    limit: 12,
-                    attributesToHighlight: indexName === 'products'
-                        ? ['name', 'description', 'category']
-                        : ['title', 'content', 'fact'],
-                    highlightPreTag: '<mark>',
-                    highlightPostTag: '</mark>',
-                });
+        try {
+            const hits = await searchSiteIndexInDatabase(indexName, q, 12);
+            payload = {
+                hits,
+                estimatedTotalHits: hits.length,
+                processingTimeMs: 0,
+                query: q,
+                source: 'postgres',
+            };
+            searchSource = 'postgres';
+        } catch (error) {
+            if (isExpectedDbFallbackError(error)) {
+                const message = getDbFallbackErrorMessage(error);
+                if (process.env.NODE_ENV !== 'production') {
+                    logger.warn({
+                        action: 'search.database_fallback_skipped',
+                        indexName,
+                        error: message,
+                    });
+                }
 
                 payload = {
-                    ...meiliResults,
-                    source: 'meilisearch',
-                };
-                searchSource = 'meilisearch';
-            } catch (error) {
-                logger.warn({
-                    action: 'search.meilisearch_unavailable',
-                    backend,
-                    indexName,
-                    error: error instanceof Error ? error.message : String(error),
-                });
-            }
-        }
-
-        if (!payload) {
-            try {
-                const hits = await searchSiteIndexInDatabase(indexName, q, 12);
-                payload = {
-                    hits,
-                    estimatedTotalHits: hits.length,
+                    hits: [],
+                    estimatedTotalHits: 0,
                     processingTimeMs: 0,
                     query: q,
-                    source: 'postgres',
+                    source: 'fallback',
                 };
-                searchSource = 'postgres';
-            } catch (error) {
-                if (isExpectedDbFallbackError(error)) {
-                    const message = getDbFallbackErrorMessage(error);
-                    if (process.env.NODE_ENV !== 'production') {
-                        logger.warn({
-                            action: 'search.database_fallback_skipped',
-                            indexName,
-                            error: message,
-                        });
-                    }
-
-                    payload = {
-                        hits: [],
-                        estimatedTotalHits: 0,
-                        processingTimeMs: 0,
-                        query: q,
-                        source: 'fallback',
-                    };
-                    searchSource = 'fallback';
-                } else {
-                    throw error;
-                }
+                searchSource = 'fallback';
+            } else {
+                throw error;
             }
         }
 

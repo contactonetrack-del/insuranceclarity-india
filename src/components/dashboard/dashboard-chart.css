@@ -70,5 +70,5 @@
 }
 
 .dashboard-chart__legend-item--risk::before {
-    background: #f43f5e;
+    background: rgb(var(--token-semantic-danger));
 }

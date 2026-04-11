@@ -106,8 +106,12 @@ export function createErrorResponse(options: ApiErrorOptions, context?: { route?
           details: details as Record<string, unknown> | undefined,
         });
       }
-    } catch (err) {
-      // Silently fail if monitoring not available
+    } catch (_err) {
+      logger.warn({
+        action: 'api.error.monitoring_failed',
+        code,
+        statusCode,
+      });
     }
   }
 

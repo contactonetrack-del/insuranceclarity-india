@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Layers } from "lucide-react";
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 export const revalidate = 60; // Revalidate every minute
 
@@ -29,6 +30,8 @@ type PostSnippet = {
 };
 
 export default async function HubPage({ params }: { params: Promise<{ slug: string }> }) {
+    const t = await getTranslations('hubDetail');
+    const locale = await getLocale();
     const resolvedParams = await params;
     
     // Fetch cluster matching the slug
@@ -65,7 +68,7 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
                         <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
                             <Layers className="w-5 h-5 text-accent" />
                         </div>
-                        <span className="text-sm font-bold tracking-widest text-accent uppercase">Resource Hub</span>
+                        <span className="text-sm font-bold tracking-widest text-accent uppercase">{t('resourceHubBadge')}</span>
                     </div>
 
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-theme-primary mb-6 max-w-4xl">
@@ -84,8 +87,8 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
             <main className="max-w-7xl mx-auto px-6 py-16">
                 <div className="flex items-center justify-between mb-10">
                     <div>
-                        <h2 className="text-2xl font-display font-bold text-theme-primary">Pillar Articles & Guides</h2>
-                        <p className="text-theme-secondary mt-1">Deep dive into {posts.length} specialist articles curated for this hub.</p>
+                        <h2 className="text-2xl font-display font-bold text-theme-primary">{t('pillarTitle')}</h2>
+                        <p className="text-theme-secondary mt-1">{t('pillarSubtitle', { count: posts.length })}</p>
                     </div>
                 </div>
 
@@ -123,15 +126,15 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
                                         {post.title}
                                     </h3>
                                     <p className="text-theme-secondary text-sm line-clamp-3 mb-6 flex-grow">
-                                        {post.seoDescription || "Read our comprehensive guide to learn more about this topic and protect yourself."}
+                                        {post.seoDescription || t('postFallbackDescription')}
                                     </p>
                                     
                                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-default text-sm">
                                         <span className="text-theme-muted font-medium">
-                                            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently'}
+                                            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : t('recently')}
                                         </span>
                                         <span className="text-accent font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                                            Read Guide <ArrowRight className="w-4 h-4" />
+                                            {t('readGuide')} <ArrowRight className="w-4 h-4" />
                                         </span>
                                     </div>
                                 </div>
@@ -141,9 +144,9 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
                 ) : (
                     <div className="text-center py-20 bg-theme-base border border-dashed border-default rounded-3xl">
                         <BookOpen className="w-12 h-12 text-theme-muted mx-auto mb-4" />
-                        <h3 className="text-xl font-bold font-display text-theme-primary mb-2">Check back soon</h3>
+                        <h3 className="text-xl font-bold font-display text-theme-primary mb-2">{t('emptyTitle')}</h3>
                         <p className="text-theme-secondary max-w-sm mx-auto">
-                            We are currently compiling expert guides and resources for the '{cluster.title}' hub.
+                            {t('emptyDescription', { hubTitle: cluster.title })}
                         </p>
                     </div>
                 )}

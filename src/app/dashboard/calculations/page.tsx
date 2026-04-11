@@ -1,22 +1,25 @@
 import Link from 'next/link';
 import { ArrowLeft, Calculator } from 'lucide-react';
-import { prisma } from '@/lib/prisma';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { listUserCalculations } from '@/services/dashboard.service';
 import { requireDashboardUser } from '../_lib/require-dashboard-user';
 
 export const dynamic = 'force-dynamic';
 
-function formatCalculationPreview(result: unknown): string {
+type Translator = (key: string) => string;
+
+function formatCalculationPreview(result: unknown, locale: string, t: Translator): string {
     if (!result || typeof result !== 'object') {
-        return 'Calculation saved successfully.';
+        return t('preview.fallback');
     }
 
     const record = result as Record<string, unknown>;
-    const preferredKeys = ['recommendedCoverage', 'recommendedSumInsured', 'taxSavings', 'annualPremium'];
+    const preferredKeys = ['recommendedCoverage', 'recommendedSumInsured', 'taxSavings', 'annualPremium'] as const;
 
     for (const key of preferredKeys) {
         const value = record[key];
         if (typeof value === 'number') {
-            return `${key}: ${value.toLocaleString('en-IN')}`;
+            return `${t(`preview.keys.${key}`)}: ${value.toLocaleString(locale)}`;
         }
     }
 
@@ -25,34 +28,35 @@ function formatCalculationPreview(result: unknown): string {
 }
 
 export default async function DashboardCalculationsPage() {
+    const [locale, t] = await Promise.all([
+        getLocale(),
+        getTranslations('dashboardSubPages.calculations'),
+    ]);
+
     const { user } = await requireDashboardUser();
 
-    const calculations = await prisma.userCalculation.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: 'desc' },
-        take: 100,
-    });
+    const calculations = await listUserCalculations(user.id);
 
     return (
         <main className="min-h-screen pt-28 pb-16 px-6">
             <div className="max-w-5xl mx-auto space-y-6">
                 <div className="flex items-center justify-between gap-4">
                     <div>
-                        <p className="text-xs uppercase tracking-[0.2em] text-theme-muted">Dashboard</p>
-                        <h1 className="text-3xl font-display font-bold text-theme-primary mt-1">Saved Calculations</h1>
+                        <p className="text-xs uppercase tracking-[0.2em] text-theme-muted">{t('breadcrumb')}</p>
+                        <h1 className="text-3xl font-display font-bold text-theme-primary mt-1">{t('title')}</h1>
                     </div>
                     <Link href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-default hover:bg-accent/5 transition-colors">
                         <ArrowLeft className="w-4 h-4" />
-                        Back
+                        {t('actions.back')}
                     </Link>
                 </div>
 
                 {calculations.length === 0 ? (
                     <div className="glass-strong rounded-3xl border border-dashed border-default p-10 text-center">
-                        <p className="text-theme-primary font-semibold">No saved calculations yet</p>
-                        <p className="text-sm text-theme-muted mt-1">Use the calculators and we will auto-save your latest results here.</p>
+                        <p className="text-theme-primary font-semibold">{t('empty.title')}</p>
+                        <p className="text-sm text-theme-muted mt-1">{t('empty.description')}</p>
                         <Link href="/tools/calculator" className="inline-flex mt-5 px-5 py-2.5 rounded-xl bg-accent text-white font-semibold">
-                            Open Calculators
+                            {t('empty.cta')}
                         </Link>
                     </div>
                 ) : (
@@ -65,13 +69,13 @@ export default async function DashboardCalculationsPage() {
                                             {calculation.type.replaceAll('_', ' ')}
                                         </p>
                                         <p className="text-sm text-theme-secondary mt-1">
-                                            {formatCalculationPreview(calculation.result)}
+                                            {formatCalculationPreview(calculation.result, locale, t)}
                                         </p>
                                     </div>
                                     <Calculator className="w-5 h-5 text-accent shrink-0" />
                                 </div>
                                 <p className="text-xs text-theme-muted mt-3">
-                                    Saved on {new Date(calculation.createdAt).toLocaleString('en-IN')}
+                                    {t('labels.savedOn')} {new Date(calculation.createdAt).toLocaleString(locale)}
                                 </p>
                             </article>
                         ))}

@@ -16,7 +16,7 @@ export function Magnetic({
     children,
     className,
     strength = 0.5,
-    activeRange = 100
+    activeRange: _activeRange = 100 // reserved for future distance-gating implementation
 }: MagneticProps) {
     const ref = useRef<HTMLDivElement>(null)
     const prefersReducedMotion = useReducedMotion()

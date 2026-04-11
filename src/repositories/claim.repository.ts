@@ -41,6 +41,70 @@ export class ClaimRepository {
             throw error;
         }
     }
+
+    async findAll() {
+        const start = Date.now();
+        try {
+            const result = await prisma.claimCase.findMany({
+                orderBy: { createdAt: 'desc' },
+            });
+            logDbQuery('ClaimCase', 'findAll', Date.now() - start);
+            return result;
+        } catch (error) {
+            logger.error({ error, action: 'findAll', model: 'ClaimCase' }, 'Repository Error: ClaimCase.findAll');
+            throw error;
+        }
+    }
+
+    async findRecent(limit = 50) {
+        const start = Date.now();
+        try {
+            const result = await prisma.claimCase.findMany({
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+            });
+            logDbQuery('ClaimCase', 'findRecent', Date.now() - start, { limit });
+            return result;
+        } catch (error) {
+            logger.error({ error, action: 'findRecent', model: 'ClaimCase', limit }, 'Repository Error: ClaimCase.findRecent');
+            throw error;
+        }
+    }
+
+    async search(params: { query?: string; category?: string; limit?: number }) {
+        const start = Date.now();
+        const query = params.query?.trim() ?? '';
+        const category = params.category?.trim() ?? 'All';
+        const limit = params.limit ?? 20;
+
+        const where: Prisma.ClaimCaseWhereInput = {};
+
+        if (category !== 'All') {
+            where.category = category;
+        }
+
+        if (query) {
+            where.OR = [
+                { title: { contains: query, mode: 'insensitive' } },
+                { issue: { contains: query, mode: 'insensitive' } },
+                { details: { contains: query, mode: 'insensitive' } },
+                { lesson: { contains: query, mode: 'insensitive' } },
+            ];
+        }
+
+        try {
+            const result = await prisma.claimCase.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+            });
+            logDbQuery('ClaimCase', 'search', Date.now() - start, { category, query, limit });
+            return result;
+        } catch (error) {
+            logger.error({ error, action: 'search', model: 'ClaimCase', category, query, limit }, 'Repository Error: ClaimCase.search');
+            throw error;
+        }
+    }
 }
 
 export const claimRepository = new ClaimRepository();

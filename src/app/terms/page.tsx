@@ -5,95 +5,116 @@
  * Revalidates every 24 hours since legal content changes infrequently.
  */
 
-import { Metadata } from 'next'
-import { FileText, AlertTriangle, Mail, Scale } from 'lucide-react'
+import type { Metadata } from 'next'
+import { AlertTriangle, FileText, Mail, Scale } from 'lucide-react'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 
 // Phase 11 Week 2: ISR configuration for static legal content
-export const revalidate = 86400; // 24 hours
+export const revalidate = 86400 // 24 hours
 
-export const metadata: Metadata = {
-    title: 'Terms of Service | InsuranceClarity India',
-    description: 'Terms of Service for InsuranceClarity India - Please read these terms carefully before using our website.',
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getTranslations('termsOfServicePage.metadata')
+
+    return {
+        title: t('title'),
+        description: t('description'),
+    }
 }
 
-export default function TermsPage() {
-    const lastUpdated = 'March 7, 2026'
-    const version = '2.0 (Consumer Protection Act Compliant)'
+const noticeWhatIsKeys = ['educationalContent', 'comparisonTool', 'informationAggregator'] as const
+const noticeWhatIsNotKeys = ['licensedIntermediary', 'insuranceAdvisor', 'distributionPlatform', 'commissionEntity'] as const
+const noticeWeDoNotKeys = ['advisePolicyPurchase', 'rankPolicies', 'solicitApplications', 'collectUnderwritingData', 'forwardDataToInsurers', 'earnFinancialBenefit'] as const
+const noticeYouMustKeys = ['readPolicy', 'verifyExclusions', 'consultAdvisor', 'confirmEligibility', 'askPremiums'] as const
+const serviceProvidesKeys = ['educationalContent', 'informationalTools', 'claimsAndExclusions'] as const
+const serviceDoesNotProvideKeys = ['professionalAdvice', 'salesServices', 'personalizedRecommendations', 'claimsServicing'] as const
+const professionalAdviceKeys = ['consultAdvisor', 'readPolicyDocs', 'verifyTerms', 'considerCircumstances'] as const
+const accuracyKeys = ['productsChange', 'latestOfferings', 'estimatesIndicative', 'comparisonIncomplete'] as const
+const liabilityNotLiableKeys = ['indirectDamages', 'directDamages', 'thirdPartyConduct'] as const
+const liabilityClaimKeys = ['falseStatement', 'reasonableReliance', 'directLoss', 'causation'] as const
+const liabilityCapKeys = ['baselineCap', 'unlimitedIf'] as const
+const prohibitedUseKeys = ['unlawfulPurpose', 'scrapeCopy', 'unauthorizedAccess', 'malware', 'misrepresentAffiliation'] as const
+const consumerRightsKeys = ['accurateInfo', 'fileComplaint', 'seekCompensation', 'timelyResponse'] as const
+const tier1ResponseKeys = ['acknowledgment', 'resolution'] as const
+const tier2AuthorityKeys = ['districtForum', 'filingFee', 'timeLimit', 'website'] as const
+
+export default async function TermsPage() {
+    const t = await getTranslations('termsOfServicePage')
 
     return (
         <div className="min-h-screen pt-20 pb-16">
             <div className="max-w-4xl mx-auto px-6">
                 <header className="mb-12 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-10 text-accent 
-                                   text-sm rounded-full mb-4 font-medium">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent text-sm rounded-full mb-4 font-medium">
                         <FileText className="w-4 h-4" />
-                        LEGAL
+                        {t('badge')}
                     </div>
                     <h1 className="font-display font-bold text-3xl md:text-4xl text-theme-primary mb-4">
-                        Terms of Service
+                        {t('title')}
                     </h1>
                     <p className="text-theme-secondary">
-                        Last updated: {lastUpdated} | Version: {version}
+                        {t('header.lastUpdatedLabel')}: {t('header.lastUpdatedDate')} | {t('header.versionLabel')}: {t('header.versionValue')}
                     </p>
                 </header>
 
-                {/* IRDAI Regulatory Notice - Prominent */}
                 <section className="rounded-xl border-2 border-amber-500/50 bg-amber-500/5 p-6 mb-8">
                     <div className="flex items-start gap-3">
                         <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                         <div className="text-amber-700 dark:text-amber-300">
-                            <h2 className="font-bold text-lg mb-3">REGULATORY NOTICE — IRDAI COMPLIANCE</h2>
+                            <h2 className="font-bold text-lg mb-3">{t('notice.title')}</h2>
 
                             <div className="grid md:grid-cols-2 gap-4 text-sm">
                                 <div>
-                                    <p className="font-semibold mb-2">What InsuranceClarity IS:</p>
+                                    <p className="font-semibold mb-2">{t('notice.whatIs.title')}</p>
                                     <ul className="list-disc pl-4 space-y-1">
-                                        <li>Educational content platform</li>
-                                        <li>Generic comparison tool (unranked, non-advisory)</li>
-                                        <li>Information aggregator from IRDAI & insurer websites</li>
+                                        {noticeWhatIsKeys.map((key) => (
+                                            <li key={key}>{t(`notice.whatIs.items.${key}`)}</li>
+                                        ))}
                                     </ul>
                                 </div>
                                 <div>
-                                    <p className="font-semibold mb-2">What InsuranceClarity IS NOT:</p>
+                                    <p className="font-semibold mb-2">{t('notice.whatIsNot.title')}</p>
                                     <ul className="list-disc pl-4 space-y-1">
-                                        <li>IRDAI-licensed agent, broker, or intermediary</li>
-                                        <li>Insurance advisor or recommender</li>
-                                        <li>Policy distribution or sales platform</li>
-                                        <li>Entity earning commissions from insurers</li>
+                                        {noticeWhatIsNotKeys.map((key) => (
+                                            <li key={key}>{t(`notice.whatIsNot.items.${key}`)}</li>
+                                        ))}
                                     </ul>
                                 </div>
                             </div>
 
                             <div className="mt-4 pt-4 border-t border-amber-500/30">
-                                <p className="font-semibold mb-2">We do NOT:</p>
+                                <p className="font-semibold mb-2">{t('notice.weDoNot.title')}</p>
                                 <ul className="list-disc pl-4 space-y-1 text-sm">
-                                    <li>Advise you on which policy to buy</li>
-                                    <li>Rank policies as &ldquo;best&rdquo; or &ldquo;worst&rdquo;</li>
-                                    <li>Solicit insurance applications</li>
-                                    <li>Collect your data for underwriting</li>
-                                    <li>Forward your data to insurers</li>
-                                    <li>Earn any financial benefit from your insurance purchases</li>
+                                    {noticeWeDoNotKeys.map((key) => (
+                                        <li key={key}>{t(`notice.weDoNot.items.${key}`)}</li>
+                                    ))}
                                 </ul>
                             </div>
 
                             <div className="mt-4 pt-4 border-t border-amber-500/30 text-sm">
-                                <p className="font-semibold">You MUST:</p>
+                                <p className="font-semibold">{t('notice.youMust.title')}</p>
                                 <ol className="list-decimal pl-4 space-y-1 mt-2">
-                                    <li>Read the <strong>full policy document</strong> from the insurer</li>
-                                    <li>Verify <strong>exclusions and terms</strong> directly with the insurer</li>
-                                    <li>Consult an <strong>IRDAI-licensed advisor</strong> before buying</li>
-                                    <li>Confirm <strong>eligibility</strong> with insurer</li>
-                                    <li>Ask the insurer about <strong>current premiums</strong> (ours are indicative only)</li>
+                                    {noticeYouMustKeys.map((key) => (
+                                        <li key={key}>{t(`notice.youMust.items.${key}`)}</li>
+                                    ))}
                                 </ol>
                             </div>
 
                             <div className="mt-4 pt-4 border-t border-amber-500/30 text-sm">
-                                <p><strong>IRDAI Complaints:</strong> If you believe we have violated IRDAI regulations:</p>
+                                <p><strong>{t('notice.complaints.title')}</strong> {t('notice.complaints.description')}</p>
                                 <ul className="list-disc pl-4 mt-1">
-                                    <li>Website: <a href="https://bimabharosa.irdai.gov.in" target="_blank" className="underline">Bima Bharosa Portal</a> | <a href="https://www.irdai.gov.in" target="_blank" className="underline">www.irdai.gov.in</a></li>
-                                    <li>Email: complaints@irdai.gov.in</li>
-                                    <li>Phone: 155255 / 1800-4254-732 (toll-free)</li>
+                                    <li>
+                                        {t('notice.complaints.websiteLabel')}{' '}
+                                        <a href="https://bimabharosa.irdai.gov.in" target="_blank" className="underline" rel="noreferrer">
+                                            {t('notice.complaints.portalLabel')}
+                                        </a>{' '}
+                                        |{' '}
+                                        <a href="https://www.irdai.gov.in" target="_blank" className="underline" rel="noreferrer">
+                                            {t('notice.complaints.irdaiLabel')}
+                                        </a>
+                                    </li>
+                                    <li>{t('notice.complaints.emailLine')}</li>
+                                    <li>{t('notice.complaints.phoneLine')}</li>
                                 </ul>
                             </div>
                         </div>
@@ -101,264 +122,192 @@ export default function TermsPage() {
                 </section>
 
                 <article className="prose prose-lg dark:prose-invert max-w-none space-y-8">
-                    {/* Acceptance */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">1. Acceptance of Terms</h2>
-                        <p className="text-theme-secondary">
-                            By accessing or using InsuranceClarity India (&ldquo;the Website&rdquo;), you agree to be bound
-                            by these Terms of Service. If you do not agree to these terms, please do not use the Website.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.acceptance.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.acceptance.description')}</p>
                     </section>
 
-                    {/* Nature of Service */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">2. Nature of Service</h2>
-                        <p className="text-theme-secondary">InsuranceClarity provides:</p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.natureOfService.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.natureOfService.providesLabel')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Educational content about insurance products in India</li>
-                            <li>Informational tools such as premium calculators and policy comparisons</li>
-                            <li>General information about insurance claims and exclusions</li>
+                            {serviceProvidesKeys.map((key) => (
+                                <li key={key}>{t(`sections.natureOfService.provides.${key}`)}</li>
+                            ))}
                         </ul>
-                        <p className="text-theme-secondary mt-4 font-medium">WE DO NOT PROVIDE:</p>
+                        <p className="text-theme-secondary mt-4 font-medium">{t('sections.natureOfService.notProvideLabel')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Financial, insurance, legal, or tax advice</li>
-                            <li>Insurance sales, solicitation, or intermediation services</li>
-                            <li>Personalized policy recommendations</li>
-                            <li>Claims processing or policy servicing</li>
+                            {serviceDoesNotProvideKeys.map((key) => (
+                                <li key={key}>{t(`sections.natureOfService.notProvide.${key}`)}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* No Professional Advice */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">3. No Professional Advice</h2>
-                        <p className="text-theme-secondary">
-                            All content on this Website is for general informational and educational purposes only.
-                            It does not constitute professional financial, insurance, legal, or tax advice.
-                        </p>
-                        <p className="text-theme-secondary">Before making any insurance decisions, you should:</p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.noProfessionalAdvice.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.noProfessionalAdvice.description')}</p>
+                        <p className="text-theme-secondary">{t('sections.noProfessionalAdvice.beforeDecisionLabel')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Consult with a qualified, IRDAI-licensed insurance advisor</li>
-                            <li>Read the complete policy documents from the insurer</li>
-                            <li>Verify all terms, conditions, and exclusions directly with the insurer</li>
-                            <li>Consider your specific circumstances and needs</li>
+                            {professionalAdviceKeys.map((key) => (
+                                <li key={key}>{t(`sections.noProfessionalAdvice.items.${key}`)}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Accuracy of Information */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">4. Accuracy of Information</h2>
-                        <p className="text-theme-secondary">We strive to provide accurate and up-to-date information. However:</p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.accuracy.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.accuracy.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Insurance products, terms, and premiums change frequently</li>
-                            <li>Information may not reflect the latest insurer offerings</li>
-                            <li>Calculator estimates are indicative only and may not match actual premiums</li>
-                            <li>Comparison data is based on publicly available information and may be incomplete</li>
+                            {accuracyKeys.map((key) => (
+                                <li key={key}>{t(`sections.accuracy.items.${key}`)}</li>
+                            ))}
                         </ul>
-                        <p className="text-theme-secondary mt-2">
-                            We do not guarantee the accuracy, completeness, or timeliness of any information on this Website.
-                        </p>
+                        <p className="text-theme-secondary mt-2">{t('sections.accuracy.disclaimer')}</p>
                     </section>
 
-                    {/* Limitation of Liability - REVISED */}
                     <section className="glass rounded-xl p-6">
-                        <h2 className="text-xl font-semibold text-theme-primary mb-4">5. Limitation of Liability (Revised)</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary mb-4">{t('sections.liability.title')}</h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary">5.1 What We Are NOT Liable For</h3>
-                        <p className="text-theme-secondary">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, we shall not be liable for:</p>
+                        <h3 className="text-lg font-medium text-theme-primary">{t('sections.liability.notLiableTitle')}</h3>
+                        <p className="text-theme-secondary">{t('sections.liability.notLiableDescription')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Indirect, Incidental, or Consequential Damages:</strong> Lost profits, lost opportunity, emotional distress</li>
-                            <li><strong>Direct Damages From Your Use:</strong> Insurance purchasing decisions, policy claims denied, premium changes, coverage gaps</li>
-                            <li><strong>Third-Party Conduct:</strong> Actions of insurers, payment gateways, or other service providers</li>
+                            {liabilityNotLiableKeys.map((key) => (
+                                <li key={key}>{t(`sections.liability.notLiableItems.${key}`)}</li>
+                            ))}
                         </ul>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">5.2 What We ARE Potentially Liable For</h3>
-                        <p className="text-theme-secondary">You may have a claim against us <strong>only if you prove:</strong></p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.liability.claimTitle')}</h3>
+                        <p className="text-theme-secondary">{t('sections.liability.claimDescription')}</p>
                         <ol className="list-decimal pl-6 text-theme-secondary space-y-1">
-                            <li>We made a <strong>materially false statement</strong> on our website</li>
-                            <li>You <strong>reasonably relied</strong> on that statement</li>
-                            <li>You suffered <strong>direct financial loss</strong></li>
-                            <li>Our false statement <strong>directly caused</strong> the loss</li>
+                            {liabilityClaimKeys.map((key) => (
+                                <li key={key}>{t(`sections.liability.claimItems.${key}`)}</li>
+                            ))}
                         </ol>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">5.3 Cap on Liability</h3>
-                        <p className="text-theme-secondary">Maximum liability per claim:</p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.liability.capTitle')}</h3>
+                        <p className="text-theme-secondary">{t('sections.liability.capDescription')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>The GREATER of: <strong>₹50,000</strong> (baseline cap) OR <strong>actual damages proven</strong></li>
-                            <li><strong>Liability is UNLIMITED if:</strong> We commit gross negligence, willful misconduct, or breach data protection law (DPDP Act)</li>
+                            {liabilityCapKeys.map((key) => (
+                                <li key={key}>{t(`sections.liability.capItems.${key}`)}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Intellectual Property */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">6. Intellectual Property</h2>
-                        <p className="text-theme-secondary">
-                            All content on this Website is the property of InsuranceClarity or its licensors and is protected
-                            by intellectual property laws. Insurer names, logos, and trademarks belong to their respective
-                            owners and are used solely for identification and educational purposes.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.intellectualProperty.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.intellectualProperty.description')}</p>
                     </section>
 
-                    {/* Prohibited Uses */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">7. Prohibited Uses</h2>
-                        <p className="text-theme-secondary">You may not:</p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.prohibitedUses.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.prohibitedUses.description')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Use the Website for any unlawful purpose</li>
-                            <li>Scrape, copy, or reproduce content without permission</li>
-                            <li>Attempt to gain unauthorized access to our systems</li>
-                            <li>Transmit malware, viruses, or harmful code</li>
-                            <li>Misrepresent your affiliation with us</li>
+                            {prohibitedUseKeys.map((key) => (
+                                <li key={key}>{t(`sections.prohibitedUses.items.${key}`)}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Third-Party Links */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">8. Third-Party Links</h2>
-                        <p className="text-theme-secondary">
-                            This Website may contain links to third-party websites. We do not control these websites
-                            and are not responsible for their content, privacy practices, or terms of service.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.thirdPartyLinks.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.thirdPartyLinks.description')}</p>
                     </section>
 
-                    {/* Monetization Disclosure */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">9. Monetization & Independence</h2>
-                        <p className="text-theme-secondary">
-                            As of the date of these terms, <strong>we do not receive commissions, referral fees, or
-                                compensation</strong> from any insurance company for leads, sales, or placements.
-                        </p>
-                        <p className="text-theme-secondary">
-                            If this changes in the future, we will update this section and clearly disclose any
-                            commercial relationships that may affect our content.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.monetization.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.monetization.currentState')}</p>
+                        <p className="text-theme-secondary">{t('sections.monetization.futureDisclosure')}</p>
                     </section>
 
-                    {/* Indemnification - MUTUAL */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">10. Indemnification (Mutual)</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.indemnification.title')}</h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">10.1 Your Indemnification of Us</h3>
-                        <p className="text-theme-secondary">
-                            You agree to indemnify and hold harmless InsuranceClarity from any claims, damages, or expenses
-                            arising from your violation of these Terms, misuse of information, or third-party claims
-                            related to your conduct.
-                        </p>
-                        <p className="text-theme-secondary">
-                            <strong>Exception:</strong> You are NOT required to indemnify us if the claim arises from
-                            our gross negligence, willful misconduct, or breach of privacy laws.
-                        </p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.indemnification.userTitle')}</h3>
+                        <p className="text-theme-secondary">{t('sections.indemnification.userDescription')}</p>
+                        <p className="text-theme-secondary">{t('sections.indemnification.userException')}</p>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">10.2 Our Indemnification of You</h3>
-                        <p className="text-theme-secondary">
-                            We agree to indemnify and hold harmless you from any third-party claims arising from
-                            our violation of intellectual property law or misrepresentation of facts that expose your data.
-                        </p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-4">{t('sections.indemnification.companyTitle')}</h3>
+                        <p className="text-theme-secondary">{t('sections.indemnification.companyDescription')}</p>
                     </section>
 
-                    {/* Governing Law */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">11. Governing Law & Jurisdiction</h2>
-                        <p className="text-theme-secondary">
-                            These Terms shall be governed by and construed in accordance with the laws of India.
-                            Any disputes shall be subject to the exclusive jurisdiction of the courts in India.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.governingLaw.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.governingLaw.description')}</p>
                     </section>
 
-                    {/* Changes */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">12. Changes to Terms</h2>
-                        <p className="text-theme-secondary">
-                            We reserve the right to modify these Terms at any time. Changes will be effective upon
-                            posting with an updated &ldquo;Last modified&rdquo; date. Your continued use constitutes acceptance.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.changes.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.changes.description')}</p>
                     </section>
 
-                    {/* Consumer Protection & Grievance Redressal - NEW SECTION */}
                     <section className="glass rounded-xl p-6">
                         <h2 className="text-xl font-semibold text-theme-primary mb-4 flex items-center gap-2">
                             <Scale className="w-5 h-5 text-accent" />
-                            13. Consumer Protection & Grievance Redressal
+                            {t('sections.consumerProtection.title')}
                         </h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary">13.1 Consumer Rights Under Consumer Protection Act, 2019</h3>
-                        <p className="text-theme-secondary">You have the right to:</p>
+                        <h3 className="text-lg font-medium text-theme-primary">{t('sections.consumerProtection.rightsTitle')}</h3>
+                        <p className="text-theme-secondary">{t('sections.consumerProtection.rightsDescription')}</p>
                         <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Receive accurate, clear information about our service</li>
-                            <li>File a complaint if you believe this website caused financial loss</li>
-                            <li>Seek compensation for misleading information (if proven)</li>
-                            <li>Get a response within the time frames specified below</li>
+                            {consumerRightsKeys.map((key) => (
+                                <li key={key}>{t(`sections.consumerProtection.rightsItems.${key}`)}</li>
+                            ))}
                         </ul>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-6">13.2 Grievance Redressal Officer</h3>
+                        <h3 className="text-lg font-medium text-theme-primary mt-6">{t('sections.consumerProtection.grievanceOfficerTitle')}</h3>
                         <div className="bg-theme-surface rounded-lg p-4 my-4">
-                            <p className="font-semibold text-theme-primary mb-3">Tier 1: Grievance Officer (Direct Contact)</p>
+                            <p className="font-semibold text-theme-primary mb-3">{t('sections.consumerProtection.tier1.title')}</p>
                             <div className="space-y-2 text-theme-secondary text-sm">
-                                <p><strong>Name:</strong> Grievance Officer, InsuranceClarity India</p>
+                                <p><strong>{t('sections.consumerProtection.tier1.nameLabel')}</strong> {t('sections.consumerProtection.tier1.nameValue')}</p>
                                 <p className="flex items-center gap-2">
                                     <Mail className="w-4 h-4 text-accent" />
                                     <a href="mailto:grievance@insuranceclarity.in" className="text-accent hover:underline">
                                         grievance@insuranceclarity.in
                                     </a>
                                 </p>
-                                <p className="text-theme-muted text-sm">India — Online-only educational platform</p>
+                                <p className="text-theme-muted text-sm">{t('sections.consumerProtection.tier1.location')}</p>
                                 <div className="mt-3 pt-3 border-t border-default">
-                                    <p><strong>Response Time:</strong></p>
+                                    <p><strong>{t('sections.consumerProtection.tier1.responseTimeLabel')}</strong></p>
                                     <ul className="list-disc pl-4 mt-1">
-                                        <li>Acknowledgment: 5 working days</li>
-                                        <li>Resolution: 30 days maximum</li>
+                                        {tier1ResponseKeys.map((key) => (
+                                            <li key={key}>{t(`sections.consumerProtection.tier1.responseTimes.${key}`)}</li>
+                                        ))}
                                     </ul>
                                 </div>
                             </div>
                         </div>
 
                         <div className="bg-theme-surface rounded-lg p-4 my-4">
-                            <p className="font-semibold text-theme-primary mb-3">Tier 2: District Consumer Protection Authority</p>
-                            <p className="text-theme-secondary text-sm">
-                                If you&apos;re not satisfied with our response within 30 days, you may escalate to:
-                            </p>
+                            <p className="font-semibold text-theme-primary mb-3">{t('sections.consumerProtection.tier2.title')}</p>
+                            <p className="text-theme-secondary text-sm">{t('sections.consumerProtection.tier2.description')}</p>
                             <ul className="list-disc pl-6 text-theme-secondary space-y-1 text-sm mt-2">
-                                <li><strong>District Consumer Disputes Redressal Forum</strong> of your jurisdiction</li>
-                                <li>Filing fee: ₹100-5,000 (per authority rules)</li>
-                                <li>Time limit: Within 2 years from date of issue</li>
-                                <li>Website: <a href="https://consumerhelpline.gov.in" target="_blank" className="text-accent hover:underline">consumerhelpline.gov.in</a></li>
+                                {tier2AuthorityKeys.map((key) => (
+                                    <li key={key}>{t(`sections.consumerProtection.tier2.items.${key}`)}</li>
+                                ))}
                             </ul>
                         </div>
 
                         <div className="bg-theme-surface rounded-lg p-4 my-4">
-                            <p className="font-semibold text-theme-primary mb-3">Tier 3: State & National Consumer Commission</p>
-                            <p className="text-theme-secondary text-sm">
-                                For claims exceeding ₹1 crore, you may file before State or National Consumer Disputes Redressal Commission.
-                            </p>
+                            <p className="font-semibold text-theme-primary mb-3">{t('sections.consumerProtection.tier3.title')}</p>
+                            <p className="text-theme-secondary text-sm">{t('sections.consumerProtection.tier3.description')}</p>
                         </div>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-6">13.3 How to File a Complaint</h3>
+                        <h3 className="text-lg font-medium text-theme-primary mt-6">{t('sections.consumerProtection.complaintProcess.title')}</h3>
                         <div className="text-theme-secondary text-sm space-y-3">
-                            <p><strong>Step 1: Written Notice</strong><br />
-                                Send a detailed complaint to grievance@insuranceclarity.in including: your name, email, phone;
-                                date of issue; description of grievance; specific loss suffered (if any); proof (screenshots); requested remedy.</p>
-
-                            <p><strong>Step 2: We Acknowledge</strong><br />
-                                Within 5 working days, we&apos;ll send an acknowledgment with a reference number.</p>
-
-                            <p><strong>Step 3: We Investigate & Respond</strong><br />
-                                Within 30 days, we&apos;ll send our response with remediation proposal or dispute explanation.</p>
-
-                            <p><strong>Step 4: Escalation</strong><br />
-                                If dissatisfied, file with your District Consumer Protection Authority.</p>
+                            <p><strong>{t('sections.consumerProtection.complaintProcess.step1Title')}</strong><br />{t('sections.consumerProtection.complaintProcess.step1Body')}</p>
+                            <p><strong>{t('sections.consumerProtection.complaintProcess.step2Title')}</strong><br />{t('sections.consumerProtection.complaintProcess.step2Body')}</p>
+                            <p><strong>{t('sections.consumerProtection.complaintProcess.step3Title')}</strong><br />{t('sections.consumerProtection.complaintProcess.step3Body')}</p>
+                            <p><strong>{t('sections.consumerProtection.complaintProcess.step4Title')}</strong><br />{t('sections.consumerProtection.complaintProcess.step4Body')}</p>
                         </div>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-6">13.4 Refund / Service Withdrawal Policy</h3>
-                        <p className="text-theme-secondary text-sm">
-                            Since we provide <strong>free educational tools</strong>, there is no refund policy.
-                            If we discontinue a tool, we&apos;ll provide 30 days&apos; notice. No payment has been collected; no refund applies.
-                        </p>
+                        <h3 className="text-lg font-medium text-theme-primary mt-6">{t('sections.consumerProtection.refundPolicy.title')}</h3>
+                        <p className="text-theme-secondary text-sm">{t('sections.consumerProtection.refundPolicy.description')}</p>
                     </section>
 
-                    {/* Contact */}
                     <section className="glass rounded-xl p-6 mt-8">
-                        <h2 className="text-xl font-semibold text-theme-primary mb-4">14. Contact</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary mb-4">{t('sections.contact.title')}</h2>
                         <div className="space-y-2 text-theme-secondary">
-                            <p>For questions about these Terms:</p>
+                            <p>{t('sections.contact.description')}</p>
                             <p className="flex items-center gap-2">
                                 <Mail className="w-4 h-4 text-accent" />
                                 <a href="mailto:legal@insuranceclarity.in" className="text-accent hover:underline">
@@ -368,13 +317,12 @@ export default function TermsPage() {
                         </div>
                     </section>
 
-                    {/* Related Links */}
                     <section className="flex gap-4 text-sm pt-4">
                         <Link href="/privacy" className="text-accent hover:underline">
-                            Privacy Policy →
+                            {t('relatedLinks.privacy')}
                         </Link>
                         <Link href="/cookies" className="text-accent hover:underline">
-                            Cookie Policy →
+                            {t('relatedLinks.cookies')}
                         </Link>
                     </section>
                 </article>

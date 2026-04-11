@@ -1,5 +1,6 @@
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { deriveLeadSource } from '@/lib/domain/enums';
+import { reportRepository } from '@/repositories/report.repository';
 
 function normalizeEmail(email: string): string {
     return email.trim().toLowerCase();
@@ -10,13 +11,7 @@ export async function isEmailSuppressed(email: string): Promise<boolean> {
     if (!normalized) return false;
 
     try {
-        const record = await prisma.lead.findFirst({
-            where: {
-                email: normalized,
-                insuranceType: 'UNSUBSCRIBE',
-            },
-            select: { id: true },
-        });
+        const record = await reportRepository.findSuppressionLeadByEmail(normalized);
 
         return Boolean(record);
     } catch (error) {
@@ -37,40 +32,32 @@ export async function suppressEmail(params: {
     const normalized = normalizeEmail(params.email);
     if (!normalized) return;
 
-    const source = params.source?.trim() || 'EMAIL';
+    const rawSource = params.source?.trim();
+    const source = deriveLeadSource({ source: rawSource ?? 'EMAIL' });
     const reason = params.reason?.trim();
-    const notes = reason ? `unsubscribe:${reason}` : 'unsubscribe:requested';
+    const notesParts = [reason ? `unsubscribe:${reason}` : 'unsubscribe:requested'];
 
-    const existing = await prisma.lead.findFirst({
-        where: {
-            email: normalized,
-            insuranceType: 'UNSUBSCRIBE',
-        },
-        select: { id: true },
-    });
+    if (rawSource) {
+        notesParts.push(`source-context:${rawSource}`);
+    }
+
+    const notes = notesParts.join(' | ');
+
+    const existing = await reportRepository.findSuppressionLeadByEmail(normalized);
 
     if (existing?.id) {
-        await prisma.lead.update({
-            where: { id: existing.id },
-            data: {
-                status: 'CLOSED',
-                source,
-                notes,
-            },
+        await reportRepository.updateSuppressionLead({
+            leadId: existing.id,
+            source,
+            notes,
         });
         return;
     }
 
-    await prisma.lead.create({
-        data: {
-            name: normalized.split('@')[0] || 'subscriber',
-            email: normalized,
-            phone: 'N/A',
-            insuranceType: 'UNSUBSCRIBE',
-            status: 'CLOSED',
-            source,
-            notes,
-        },
+    await reportRepository.createSuppressionLead({
+        email: normalized,
+        source,
+        notes,
     });
 }
 
@@ -78,25 +65,12 @@ export async function removeNewsletterSubscription(email: string): Promise<void>
     const normalized = normalizeEmail(email);
     if (!normalized) return;
 
-    await Promise.all([
-        prisma.newsletter.deleteMany({ where: { email: normalized } }),
-        prisma.lead.deleteMany({
-            where: {
-                email: normalized,
-                insuranceType: 'NEWSLETTER',
-            },
-        }),
-    ]);
+    await Promise.all([reportRepository.deleteNewsletterByEmail(normalized), reportRepository.deleteNewsletterLeadByEmail(normalized)]);
 }
 
 export async function removeScanNotifyRequests(email: string): Promise<void> {
     const normalized = normalizeEmail(email);
     if (!normalized) return;
 
-    await prisma.lead.deleteMany({
-        where: {
-            email: normalized,
-            insuranceType: 'SCAN_NOTIFY',
-        },
-    });
+    await reportRepository.deleteScanNotifyLeadByEmail(normalized);
 }

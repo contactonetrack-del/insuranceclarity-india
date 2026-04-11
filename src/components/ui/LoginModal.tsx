@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { signIn } from '@/lib/auth-client';
 import { LogIn, Mail, X, Loader2, ShieldCheck, MailQuestion } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 async function getCsrfToken(): Promise<string | null> {
     const match = document.cookie.match(/(?:^|;\s*)__csrf=([^;]+)/);
@@ -25,6 +26,7 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+    const t = useTranslations('auditI18n.authPanel');
     const [mounted, setMounted] = useState(false);
 
     // ensure document exists before trying to portal (avoids SSR mismatch)
@@ -137,10 +139,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                 </button>
                             </div>
                             <h2 className="text-3xl font-display font-bold">
-                                Welcome <span className="text-gradient">Back</span>
+                                {t('welcome')} <span className="text-gradient">{t('back')}</span>
                             </h2>
                             <p className="mt-2 text-sm">
-                                Unlock premium tools, save quotes, and track your insurance advisor history.
+                                {t('subtitle')}
                             </p>
                         </div>
 
@@ -151,19 +153,19 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                     animate={{ opacity: 1, x: 0 }}
                                     className="text-center py-8"
                                 >
-                                    <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <MailQuestion className="w-8 h-8 text-emerald-500" />
+                                    <div className="w-16 h-16 bg-success-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <MailQuestion className="w-8 h-8 text-success-500" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-theme-primary">Check your email</h3>
+                                    <h3 className="text-xl font-bold text-theme-primary">{t('checkEmail')}</h3>
                                     <p className="text-theme-secondary text-sm mt-2 leading-relaxed">
-                                        We've sent a secure magic link to <strong>{email}</strong>.
-                                        Click the link to sign in instantly.
+                                        {t('magicLinkPrefix')} <strong>{email}</strong>.
+                                        {' '}{t('magicLinkSuffix')}
                                     </p>
                                     <button
                                         onClick={() => setStatus("idle")}
                                         className="mt-6 text-accent font-medium hover:underline text-sm"
                                     >
-                                        Use a different email
+                                        {t('changeEmail')}
                                     </button>
                                 </motion.div>
                             ) : (
@@ -193,7 +195,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                             />
                                         </svg>
-                                        Continue with Google
+                                        {t('continueWithGoogle')}
                                     </button>
 
                                     <div className="relative py-2">
@@ -201,7 +203,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             <div className="w-full border-t border-white/10"></div>
                                         </div>
                                         <div className="relative flex justify-center text-xs uppercase">
-                                            <span className="bg-[#0f172a] px-2 text-theme-muted">Or email OTP</span>
+                                            <span className="bg-theme-bg px-2 text-theme-muted">{t('orEmailOtp')}</span>
                                         </div>
                                     </div>
 
@@ -209,7 +211,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                     <form onSubmit={otpPending ? handleVerifyOtp : handleSendOtp} className="space-y-4">
                                         <div className="space-y-2">
                                             <label htmlFor="login-email" className="text-sm font-medium text-theme-secondary ml-1">
-                                                Email Address
+                                                {t('emailAddress')}
                                             </label>
                                             <div className="relative">
                                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" />
@@ -235,14 +237,14 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             >
                                                 <div className="flex justify-between items-center ml-1">
                                                     <label htmlFor="login-otp" className="text-sm font-medium text-theme-secondary">
-                                                        6-Digit Code
+                                                        {t('otpCode')}
                                                     </label>
                                                     <button
                                                         type="button"
                                                         onClick={() => { setOtpPending(false); setOtp(""); setErrorMessage(""); }}
                                                         className="text-xs text-accent hover:underline"
                                                     >
-                                                        Change email
+                                                        {t('changeEmail')}
                                                     </button>
                                                 </div>
                                                 <div className="relative">
@@ -278,7 +280,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                 <Loader2 className="w-5 h-5 animate-spin" />
                                             ) : (
                                                 <>
-                                                    {otpPending ? "Verify & Sign In" : "Send Login Code"}
+                                                    {otpPending ? t('verifyAndSignInShort') : t('sendLoginCode')}
                                                     <LogIn className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                                 </>
                                             )}
@@ -288,8 +290,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             )}
 
                             <p className="text-[10px] text-theme-muted text-center leading-relaxed">
-                                By signing in, you agree to our Terms of Service and Privacy Policy.
-                                We never share your data with insurance agents without your consent.
+                                {t('consent')}
                             </p>
                         </div>
                     </motion.div>

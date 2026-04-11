@@ -14,7 +14,7 @@ export interface ErrorLogEntry {
   severity: ErrorSeverity;
   userId?: string;
   ipAddress?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   timestamp: Date;
 }
 
@@ -89,7 +89,7 @@ export class ErrorLogger {
    * Persist error to database (non-blocking)
    * This is a placeholder - implementation depends on your database setup
    */
-  private async persistAsync(entry: ErrorLogEntry): Promise<void> {
+  private async persistAsync(_entry: ErrorLogEntry): Promise<void> {
     // This will be called in the background
     // The actual database write happens in the API route handler
     // For now, this is a no-op
@@ -118,19 +118,43 @@ export class ErrorLogger {
  */
 export const errorLogger = new ErrorLogger();
 
+type ErrorRequestContext = {
+  headers?: Headers | Record<string, string>;
+  nextUrl?: { pathname?: string };
+  url?: string;
+  method?: string;
+  socket?: { remoteAddress?: string };
+  user?: { id?: string };
+};
+
+function getHeaderValue(
+  headers: Headers | Record<string, string> | undefined,
+  key: string
+): string | undefined {
+  if (!headers) return undefined;
+
+  if (headers instanceof Headers) {
+    return headers.get(key) ?? undefined;
+  }
+
+  return headers[key];
+}
+
 /**
  * Context for error logging
  */
-export function getErrorContext(req?: any): Partial<ErrorLogEntry> {
+export function getErrorContext(req?: ErrorRequestContext): Partial<ErrorLogEntry> {
   if (!req) return {};
 
-  const ip = req.headers?.['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress;
+  const ip =
+    getHeaderValue(req.headers, 'x-forwarded-for')?.split(',')[0] ||
+    req.socket?.remoteAddress;
 
   return {
-    route: req.url,
+    route: req.nextUrl?.pathname ?? req.url,
     method: req.method,
     ipAddress: ip ? maskIpAddress(ip) : undefined,
-    userId: (req as any).user?.id,
+    userId: req.user?.id,
   };
 }
 

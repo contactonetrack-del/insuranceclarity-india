@@ -16,6 +16,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
+import { useTranslations } from 'next-intl';
 import './dashboard-chart.css';
 
 interface ScanDataPoint {
@@ -29,13 +30,15 @@ interface ScanActivityChartProps {
 }
 
 export default function ScanActivityChart({ data }: ScanActivityChartProps) {
+    const t = useTranslations('auditI18n.scanActivityChart');
     if (!data.length) return null;
+    const riskColor = 'rgb(var(--token-semantic-danger))';
 
     return (
-        <div className="dashboard-chart" role="img" aria-label="Scan activity chart over the last 30 days">
+        <div className="dashboard-chart" role="img" aria-label={t('ariaLabel')}>
             <div className="dashboard-chart__header">
-                <h3 className="dashboard-chart__title">Scan Activity</h3>
-                <span className="dashboard-chart__badge">Last 30 days</span>
+                <h3 className="dashboard-chart__title">{t('title')}</h3>
+                <span className="dashboard-chart__badge">{t('last30Days')}</span>
             </div>
             <div className="dashboard-chart__body">
                 <ResponsiveContainer width="100%" height={180}>
@@ -46,8 +49,8 @@ export default function ScanActivityChart({ data }: ScanActivityChartProps) {
                                 <stop offset="95%" stopColor="rgb(var(--color-accent))" stopOpacity={0} />
                             </linearGradient>
                             <linearGradient id="gradRisks" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.25} />
-                                <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                                <stop offset="5%" stopColor={riskColor} stopOpacity={0.25} />
+                                <stop offset="95%" stopColor={riskColor} stopOpacity={0} />
                             </linearGradient>
                         </defs>
                         <CartesianGrid
@@ -80,7 +83,7 @@ export default function ScanActivityChart({ data }: ScanActivityChartProps) {
                         <Area
                             type="monotone"
                             dataKey="scans"
-                            name="Scans"
+                            name={t('scans')}
                             stroke="rgb(var(--color-accent))"
                             strokeWidth={2}
                             fill="url(#gradScans)"
@@ -90,8 +93,8 @@ export default function ScanActivityChart({ data }: ScanActivityChartProps) {
                         <Area
                             type="monotone"
                             dataKey="risks"
-                            name="Risks Found"
-                            stroke="#f43f5e"
+                            name={t('risksFound')}
+                            stroke={riskColor}
                             strokeWidth={2}
                             fill="url(#gradRisks)"
                             dot={false}
@@ -101,8 +104,8 @@ export default function ScanActivityChart({ data }: ScanActivityChartProps) {
                 </ResponsiveContainer>
             </div>
             <div className="dashboard-chart__legend">
-                <span className="dashboard-chart__legend-item dashboard-chart__legend-item--accent">Scans</span>
-                <span className="dashboard-chart__legend-item dashboard-chart__legend-item--risk">Risks Found</span>
+                <span className="dashboard-chart__legend-item dashboard-chart__legend-item--accent">{t('scans')}</span>
+                <span className="dashboard-chart__legend-item dashboard-chart__legend-item--risk">{t('risksFound')}</span>
             </div>
         </div>
     );

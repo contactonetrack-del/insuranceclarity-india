@@ -12,6 +12,12 @@ export interface ApiClientConfig {
   backoffMultiplier?: number;
 }
 
+type JsonRecord = Record<string, unknown>;
+
+function isJsonRecord(value: unknown): value is JsonRecord {
+  return typeof value === 'object' && value !== null;
+}
+
 interface FetchOptions extends RequestInit {
   timeout?: number;
 }
@@ -40,14 +46,14 @@ export class ApiClient {
   /**
    * Make GET request
    */
-  async get<T = any>(url: string, options?: FetchOptions): Promise<{ data: T }> {
+  async get<T = unknown>(url: string, options?: FetchOptions): Promise<{ data: T }> {
     return this.request<T>(url, { ...options, method: 'GET' });
   }
 
   /**
    * Make POST request
    */
-  async post<T = any>(url: string, body?: any, options?: FetchOptions): Promise<{ data: T }> {
+  async post<T = unknown>(url: string, body?: unknown, options?: FetchOptions): Promise<{ data: T }> {
     return this.request<T>(url, {
       ...options,
       method: 'POST',
@@ -58,7 +64,7 @@ export class ApiClient {
   /**
    * Make PUT request
    */
-  async put<T = any>(url: string, body?: any, options?: FetchOptions): Promise<{ data: T }> {
+  async put<T = unknown>(url: string, body?: unknown, options?: FetchOptions): Promise<{ data: T }> {
     return this.request<T>(url, {
       ...options,
       method: 'PUT',
@@ -69,7 +75,7 @@ export class ApiClient {
   /**
    * Make PATCH request
    */
-  async patch<T = any>(url: string, body?: any, options?: FetchOptions): Promise<{ data: T }> {
+  async patch<T = unknown>(url: string, body?: unknown, options?: FetchOptions): Promise<{ data: T }> {
     return this.request<T>(url, {
       ...options,
       method: 'PATCH',
@@ -80,14 +86,14 @@ export class ApiClient {
   /**
    * Make DELETE request
    */
-  async delete<T = any>(url: string, options?: FetchOptions): Promise<{ data: T }> {
+  async delete<T = unknown>(url: string, options?: FetchOptions): Promise<{ data: T }> {
     return this.request<T>(url, { ...options, method: 'DELETE' });
   }
 
   /**
    * Core request method with retry and error handling
    */
-  private async request<T = any>(
+  private async request<T = unknown>(
     url: string,
     options: FetchOptions = {}
   ): Promise<{ data: T }> {
@@ -97,7 +103,7 @@ export class ApiClient {
   /**
    * Request with automatic retry logic
    */
-  private async requestWithRetry<T = any>(
+  private async requestWithRetry<T = unknown>(
     url: string,
     options: FetchOptions = {},
     attempt = 0
@@ -146,14 +152,16 @@ export class ApiClient {
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const headers = new Headers(fetchOptions.headers);
+
+    headers.set('Content-Type', 'application/json');
+    if (this.apiKey) {
+      headers.set('Authorization', `Bearer ${this.apiKey}`);
+    }
 
     return fetch(url, {
       ...fetchOptions,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.apiKey && { Authorization: `Bearer ${this.apiKey}` }),
-        ...fetchOptions.headers,
-      },
+      headers,
       signal: controller.signal,
     }).finally(() => clearTimeout(timeoutId));
   }
@@ -165,7 +173,7 @@ export class ApiClient {
     const contentType = response.headers.get('content-type');
     const isJson = contentType?.includes('application/json');
 
-    let body: any = {};
+    let body: unknown = {};
     if (isJson) {
       body = await response.json();
     }
@@ -173,15 +181,18 @@ export class ApiClient {
     // Success response
     if (response.ok) {
       return {
-        data: body.data ?? body,
+        data: (isJsonRecord(body) && 'data' in body ? body.data : body) as T,
       };
     }
 
     // Error response
-    const error = body.error || {};
+    const error =
+      isJsonRecord(body) && isJsonRecord(body.error)
+        ? body.error
+        : {};
     const apiError = new ApiError({
-      code: error.code || 'INTERNAL_SERVER_ERROR',
-      message: error.message || `HTTP ${response.status}`,
+      code: typeof error.code === 'string' ? error.code : 'INTERNAL_SERVER_ERROR',
+      message: typeof error.message === 'string' ? error.message : `HTTP ${response.status}`,
       status: response.status,
       details: error.details,
     });

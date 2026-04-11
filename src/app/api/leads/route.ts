@@ -1,16 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
 import { validateCsrfRequest } from '@/lib/security/csrf';
 import { enforceRateLimit } from '@/lib/security/rate-limit';
 import { handleValidationError, ErrorFactory, createSuccessResponse } from '@/lib/api/error-response';
+import { deriveLeadSource } from '@/lib/domain/enums';
+import { createLead } from '@/services/engagement.service';
 
 const leadSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
     phone: z.string().min(10, 'Phone number must be valid'),
     insuranceType: z.string().min(2, 'Insurance type is required'),
+    source: z.string().optional(),
     sourceUrl: z.string().optional(),
 });
 
@@ -50,16 +52,22 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json();
         const validatedData = leadSchema.parse(body);
+        const source = deriveLeadSource({
+            source: validatedData.source,
+            sourceUrl: validatedData.sourceUrl,
+        });
+        const sourceContext = [validatedData.source, validatedData.sourceUrl]
+            .filter((value): value is string => Boolean(value?.trim()))
+            .join(' | ');
 
-        const lead = await prisma.lead.create({
-            data: {
-                name: validatedData.name,
-                email: validatedData.email,
-                phone: validatedData.phone,
-                insuranceType: validatedData.insuranceType,
-                source: validatedData.sourceUrl || 'ORGANIC',
-                status: 'NEW',
-            },
+        const lead = await createLead({
+            name: validatedData.name,
+            email: validatedData.email,
+            phone: validatedData.phone,
+            insuranceType: validatedData.insuranceType,
+            source,
+            status: 'NEW',
+            ...(sourceContext ? { notes: `Source context: ${sourceContext}` } : {}),
         });
 
         logger.info({ action: 'createLead', status: 'success', leadId: lead.id, type: lead.insuranceType });

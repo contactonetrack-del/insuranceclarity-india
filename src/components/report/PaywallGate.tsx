@@ -6,7 +6,9 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { CreateOrderResponse } from '@/types/report.types';
+import { BRAND_PRIMARY_HEX } from '@/lib/theme/brand';
 
 interface PaywallGateProps {
     scanId: string;
@@ -29,7 +31,6 @@ interface RazorpayInstance {
     on?: (event: string, handler: (payload: unknown) => void) => void;
 }
 
-// Extend Window with Razorpay
 declare global {
     interface Window {
         Razorpay: new (opts: unknown) => RazorpayInstance;
@@ -77,6 +78,7 @@ export function PaywallGate({
     message,
     onUnlocked,
 }: PaywallGateProps) {
+    const t = useTranslations('scan.paywallGate');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [paymentStatus, setPaymentStatus] = useState<PaymentRecoveryStatus>('loading');
@@ -133,13 +135,15 @@ export function PaywallGate({
         void refreshPaymentStatus();
     }, [refreshPaymentStatus]);
 
+    const cancelledError = t('errors.cancelled');
+
     const ctaLabel = useMemo(() => {
         if (isLoading) return null;
         if (paymentStatus === 'FAILED' || paymentStatus === 'CREATED' || error) {
-            return 'Retry Payment - ₹199';
+            return t('ctaRetry');
         }
-        return 'Unlock Full Report - ₹199';
-    }, [error, isLoading, paymentStatus]);
+        return t('ctaUnlock');
+    }, [error, isLoading, paymentStatus, t]);
 
     const handleUnlock = useCallback(async () => {
         setIsLoading(true);
@@ -148,12 +152,12 @@ export function PaywallGate({
         try {
             const loaded = await loadRazorpayScript();
             if (!loaded) {
-                throw new Error('Payment service unavailable. Please try again.');
+                throw new Error(t('errors.serviceUnavailable'));
             }
 
             const csrfToken = await getCsrfToken();
             if (!csrfToken) {
-                throw new Error('Security token missing. Please refresh and try again.');
+                throw new Error(t('errors.securityTokenMissing'));
             }
 
             const claimToken = getClaimToken(scanId);
@@ -170,13 +174,13 @@ export function PaywallGate({
 
             if (!orderRes.ok) {
                 const { error: err } = await orderRes.json() as { error?: string };
-                const message = err ?? 'Unable to create payment order.';
-                if (message.toLowerCase().includes('already unlocked')) {
+                const messageFromApi = err ?? t('errors.orderCreateFailed');
+                if (messageFromApi.toLowerCase().includes('already unlocked')) {
                     onUnlocked();
                     await refreshPaymentStatus();
                     return;
                 }
-                throw new Error(message);
+                throw new Error(messageFromApi);
             }
 
             const order = await orderRes.json() as CreateOrderResponse;
@@ -188,13 +192,13 @@ export function PaywallGate({
                     currency: order.currency,
                     order_id: order.orderId,
                     name: 'Insurance Clarity',
-                    description: 'Full Policy Scan Report Unlock',
+                    description: t('paymentDescription'),
                     image: '/icons/icon-192.png',
                     prefill: {
                         name: '',
                         email: '',
                     },
-                    theme: { color: '#6366f1' },
+                    theme: { color: BRAND_PRIMARY_HEX },
                     handler: async (response: {
                         razorpay_order_id: string;
                         razorpay_payment_id: string;
@@ -219,7 +223,7 @@ export function PaywallGate({
                             if (!verifyRes.ok) {
                                 const payload = await verifyRes.json().catch(() => ({} as { error?: string }));
                                 await markAttemptFailed(order.orderId, 'verification_failed');
-                                throw new Error(payload.error ?? 'Payment verification failed. Please retry.');
+                                throw new Error(payload.error ?? t('errors.verificationFailed'));
                             }
 
                             resolve();
@@ -230,7 +234,7 @@ export function PaywallGate({
                     modal: {
                         ondismiss: () => {
                             void markAttemptFailed(order.orderId, 'checkout_dismissed');
-                            reject(new Error('Payment cancelled.'));
+                            reject(new Error(cancelledError));
                         },
                     },
                 });
@@ -247,42 +251,48 @@ export function PaywallGate({
             onUnlocked();
             await refreshPaymentStatus();
         } catch (err) {
-            const msg = err instanceof Error ? err.message : 'Payment failed. Please try again.';
-            if (!msg.toLowerCase().includes('cancelled')) {
-                setError(msg);
+            const messageFromError = err instanceof Error ? err.message : t('errors.paymentFailed');
+            if (messageFromError !== cancelledError) {
+                setError(messageFromError);
             }
             setPaymentStatus('FAILED');
         } finally {
             setIsLoading(false);
         }
-    }, [scanId, onUnlocked, refreshPaymentStatus, markAttemptFailed]);
+    }, [cancelledError, markAttemptFailed, onUnlocked, refreshPaymentStatus, scanId, t]);
 
     return (
-        <section className="paywall" aria-label="Premium report locked">
-            <div className="paywall__lock" aria-hidden>
-                <div className="paywall__blur" />
-                <div className="paywall__lock-icon">🔒</div>
+        <section
+            className="relative overflow-hidden rounded-xl border border-[rgb(var(--token-brand)_/_0.25)] bg-[rgba(var(--color-card-bg),0.9)] px-7 py-10 text-center shadow-[var(--shadow-lg),0_0_40px_rgb(var(--token-brand)_/_0.08)] backdrop-blur-[16px]"
+            aria-label={t('lockedRegionLabel')}
+        >
+            <div className="relative mb-1 flex items-center justify-center" aria-hidden>
+                <div className="pointer-events-none absolute left-1/2 top-[-40px] h-[200px] w-[200px] -translate-x-1/2 bg-[radial-gradient(circle,_rgb(var(--token-brand)_/_0.15)_0%,_transparent_70%)]" />
+                <div className="relative z-[1] text-[2.5rem] animate-[float_4s_var(--ease-in-out)_infinite]">🔒</div>
             </div>
 
-            <div className="paywall__content">
-                <h3 className="paywall__title">Unlock Full Report</h3>
-                <p className="paywall__message">{message}</p>
+            <div className="flex flex-col items-center gap-3.5">
+                <h3 className="m-0 text-2xl font-extrabold tracking-[-0.02em] text-[rgb(var(--color-text-primary))]">{t('title')}</h3>
+                <p className="m-0 max-w-[360px] text-[0.9375rem] leading-[1.6] text-[rgb(var(--color-text-secondary))]">{message}</p>
 
                 {(paymentStatus === 'FAILED' || paymentStatus === 'CREATED') && paymentStatusMessage && (
-                    <p className="paywall__status" role="status">
+                    <p
+                        className="m-0 rounded-md border border-[rgb(var(--token-semantic-warning)_/_0.28)] bg-[rgb(var(--token-semantic-warning)_/_0.14)] px-3 py-2 text-[0.8125rem] text-[rgb(var(--token-semantic-warning))]"
+                        role="status"
+                    >
                         {paymentStatusMessage}
                     </p>
                 )}
 
-                <ul className="paywall__features" aria-label="What you get with full access">
-                    <li>✅ All exclusion clauses</li>
-                    <li>✅ All actionable suggestions</li>
-                    <li>✅ Hidden fine-print clauses</li>
-                    <li>✅ Share and download report</li>
+                <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-left" aria-label={t('featuresLabel')}>
+                    <li className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">✅ {t('features.allExclusions')}</li>
+                    <li className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">✅ {t('features.allSuggestions')}</li>
+                    <li className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">✅ {t('features.hiddenClauses')}</li>
+                    <li className="text-sm font-medium text-[rgb(var(--color-text-secondary))]">✅ {t('features.shareAndDownload')}</li>
                 </ul>
 
                 <button
-                    className="paywall__cta"
+                    className="inline-flex min-w-[260px] items-center justify-center gap-2 rounded-xl border-none bg-[var(--token-gradient-accent)] px-9 py-3.5 text-base font-bold text-white shadow-[var(--shadow-md),0_0_20px_rgb(var(--token-brand)_/_0.3)] transition-[transform,box-shadow,opacity] duration-[var(--motion-fast)] ease-[var(--ease-spring)] hover:translate-y-[-3px] hover:shadow-[var(--shadow-lg),0_0_32px_rgb(var(--token-brand)_/_0.4)] active:translate-y-0 active:scale-[0.98] disabled:cursor-wait disabled:opacity-75"
                     onClick={() => void handleUnlock()}
                     disabled={isLoading}
                     aria-busy={isLoading ? 'true' : 'false'}
@@ -290,19 +300,21 @@ export function PaywallGate({
                 >
                     {isLoading ? (
                         <>
-                            <span className="paywall__spinner" aria-hidden /> Processing...
+                            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden />
+                            {t('processing')}
                         </>
                     ) : (
                         ctaLabel
                     )}
                 </button>
 
-                <p className="paywall__reassurance">
-                    One-time payment · Secure via Razorpay · Instant access
-                </p>
+                <p className="m-0 text-xs text-[rgb(var(--color-text-muted))]">{t('reassurance')}</p>
 
                 {error && (
-                    <p role="alert" className="paywall__error">
+                    <p
+                        role="alert"
+                        className="m-0 rounded-md border border-[rgb(var(--token-semantic-danger)_/_0.2)] bg-[rgb(var(--token-semantic-danger)_/_0.08)] px-3.5 py-2 text-[0.8125rem] text-[rgb(var(--token-semantic-danger))]"
+                    >
                         {error}
                     </p>
                 )}
@@ -310,4 +322,3 @@ export function PaywallGate({
         </section>
     );
 }
-

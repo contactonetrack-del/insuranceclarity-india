@@ -1,34 +1,25 @@
 import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
-import { hasPermission, Permission, Role } from './rbac';
+import { hasPermission, type Permission, type Role } from './rbac';
 import { ApiError } from '../errors/api-error';
 import { logSecurityEvent } from '@/lib/logger';
+import type { AppAuthSession } from '@/lib/auth/session-shape';
 
 /**
- * Higher-Order function to wrap Next.js API Route Handlers with RBAC enforcement.
- * Updated for Auth.js v5.
- *
- * Uses the verified Auth.js session — NOT a raw Bearer token string.
- * The role is extracted from the server-side session that was cryptographically
- * signed with AUTH_SECRET.
- *
- * Usage:
- *   export const GET = withAuth('quotes:read', async (req, ctx, session) => { ... })
+ * Higher-order helper for RBAC-protected route handlers.
  */
-export function withAuth(
+export function withAuth<TContext = unknown>(
     requiredPermission: Permission,
     handler: (
         req: Request,
-        context: any,
-        session: { user: { id: string; email?: string | null; role?: string; plan?: string } }
+        context: TContext,
+        session: AppAuthSession
     ) => Promise<NextResponse>
 ) {
-    return async (req: Request, context: any): Promise<NextResponse> => {
+    return async (req: Request, context: TContext): Promise<NextResponse> => {
         try {
-            // ── 1. Verify the session via Auth.js v5 ────────────────────────────────
             const session = await auth();
 
-            // ── 2. Reject unauthenticated requests ──────────────────────────────────
             if (!session?.user) {
                 logSecurityEvent('api.unauthorized', 'medium', {
                     permission: requiredPermission,
@@ -42,10 +33,8 @@ export function withAuth(
                 );
             }
 
-            // ── 3. Extract the role from the verified session ────────────────────────
             const currentRole = (session.user.role ?? 'CUSTOMER') as Role;
 
-            // ── 4. Check RBAC permission matrix ─────────────────────────────────────
             if (!hasPermission(currentRole, requiredPermission)) {
                 logSecurityEvent('api.forbidden', 'high', {
                     userId: session.user.id,
@@ -61,15 +50,12 @@ export function withAuth(
                 );
             }
 
-            // ── 5. Pass session to handler (typed for Auth.js v5) ────────────────────
-            return await handler(req, context, session as any);
-
+            return await handler(req, context, session);
         } catch (error) {
             if (error instanceof ApiError) {
                 return NextResponse.json(error.toJSON(), { status: error.statusCode });
             }
 
-            // Unknown server error — do NOT leak internals
             return NextResponse.json(
                 {
                     type: 'about:blank',
@@ -84,16 +70,16 @@ export function withAuth(
 }
 
 /**
- * Lightweight helper — require an authenticated session without permission checks.
+ * Require only an authenticated session without extra RBAC branching.
  */
-export function withSession(
+export function withSession<TContext = unknown>(
     handler: (
         req: Request,
-        context: any,
-        session: { user: { id: string; email?: string | null; role?: string; plan?: string } }
+        context: TContext,
+        session: AppAuthSession
     ) => Promise<NextResponse>
 ) {
-    return withAuth('quotes:read', async (req, context, session) => {
+    return withAuth<TContext>('session:read', async (req, context, session) => {
         return handler(req, context, session);
     });
 }

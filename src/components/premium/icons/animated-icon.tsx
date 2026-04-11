@@ -3,6 +3,7 @@
 import { motion, type Variants } from 'framer-motion'
 import { type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { resolveToneSurfaceClass, type Tone, type Surface } from '@/lib/theme/tone'
 
 type IconAnimation = 'bounce' | 'rotate' | 'scale' | 'shake' | 'pulse' | 'none'
 
@@ -112,6 +113,10 @@ interface IconContainerProps {
     /** Gradient colors (for gradient variant) */
     gradientFrom?: string
     gradientTo?: string
+    /** Theme tone contract */
+    tone?: Tone
+    /** Surface contract when tone is provided */
+    surface?: Surface
     /** Enable hover animation */
     hover?: boolean
 }
@@ -140,8 +145,10 @@ export function IconContainer({
     className,
     size = 'md',
     variant = 'gradient',
-    gradientFrom = 'from-[rgb(var(--color-accent))]',
-    gradientTo = 'to-[rgb(var(--color-accent-dark))]',
+    gradientFrom = 'from-[rgb(var(--token-accent))]',
+    gradientTo = 'to-[rgb(var(--token-accent-dark))]',
+    tone,
+    surface,
     hover = true
 }: IconContainerProps) {
     const baseClasses = cn(
@@ -150,8 +157,10 @@ export function IconContainer({
     )
 
     const variantClasses = {
-        solid: 'bg-accent-10',
-        gradient: cn('bg-gradient-to-br', gradientFrom, gradientTo, 'shadow-sm'),
+        solid: tone ? cn('border', resolveToneSurfaceClass(tone, surface ?? 'soft')) : 'bg-accent/10',
+        gradient: tone
+            ? cn('border shadow-sm', resolveToneSurfaceClass(tone, surface ?? 'gradient'))
+            : cn('bg-gradient-to-br', gradientFrom, gradientTo, 'shadow-sm'),
         glass: 'glass'
     }
 

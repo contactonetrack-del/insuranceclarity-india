@@ -1,5 +1,7 @@
 # Error Handling System Overview
 
+> Historical note: this error-handling guide still contains some phased implementation language. The current operational source of truth is [MASTER-PLAN-STATUS.md](../MASTER-PLAN-STATUS.md).
+
 Quick reference guide for the comprehensive error handling system implemented in Insurance Clarity.
 
 ## 📚 Documentation Structure
@@ -93,7 +95,7 @@ This documentation set includes:
 
 1. **Morning Health Check (5 min):**
    - Check error rate dashboard
-   - Verify external services (Razorpay, Meilisearch)
+   - Verify external services (Razorpay, Gemini, Sanity, storage provider)
    - Review any critical alerts
 
 2. **Respond to Alert:**
@@ -367,7 +369,7 @@ Monitor these real-time metrics:
 ┌─ Service Status ──────────────────┐
 │ API: 🟢 Healthy                    │
 │ Razorpay: 🟢 Healthy              │
-│ Meilisearch: 🟢 Healthy           │
+│ Search runtime: 🟢 Healthy        │
 │ Database: 🟢 Healthy              │
 └──────────────────────────────────┘
 

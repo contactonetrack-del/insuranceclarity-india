@@ -97,7 +97,7 @@ export default function RoomRentMapperPage() {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
                                         <label htmlFor="policyRoomLimit" className="text-sm font-bold text-theme-primary flex items-center gap-2">
-                                            <AlertCircle className="w-4 h-4 text-emerald-500" />
+                                            <AlertCircle className="w-4 h-4 text-accent" />
                                             {t('policyLimit')}
                                         </label>
                                         <span className="text-accent font-bold">₹{policyRoomLimit}{t('perDay')}</span>
@@ -106,7 +106,7 @@ export default function RoomRentMapperPage() {
                                         id="policyRoomLimit"
                                         type="range" min={2000} max={20000} step={500}
                                         value={policyRoomLimit} onChange={(e) => setPolicyRoomLimit(Number(e.target.value))}
-                                        className="w-full h-2 bg-theme-secondary rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                        className="w-full h-2 bg-theme-secondary rounded-lg appearance-none cursor-pointer accent-accent"
                                         title={t('policyLimit')}
                                     />
                                     <p className="text-[10px] text-theme-muted">{t('commonHint')}</p>
@@ -151,12 +151,12 @@ export default function RoomRentMapperPage() {
                             key={results.lossAmount}
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
-                            className={`glass-strong rounded-[2.5rem] p-10 border-t-8 shadow-2xl relative overflow-hidden transition-colors ${results.isCapped ? "border-rose-500" : "border-emerald-500"
+                            className={`glass-strong rounded-[2.5rem] p-10 border-t-8 shadow-2xl relative overflow-hidden transition-colors ${results.isCapped ? "border-rose-500" : "border-success-500"
                                 }`}
                         >
                             <div className="text-center space-y-6 relative z-10">
                                 <h3 className="text-theme-muted text-sm font-bold uppercase tracking-widest">{t('outOfPocket')}</h3>
-                                <div className={`text-6xl font-display font-black tabular-nums ${results.isCapped ? "text-rose-500" : "text-emerald-500"}`}>
+                                <div className={`text-6xl font-display font-black tabular-nums ${results.isCapped ? "text-rose-500" : "text-success-500"}`}>
                                     ₹{results.lossAmount.toLocaleString('en-IN')}
                                 </div>
 
@@ -165,7 +165,7 @@ export default function RoomRentMapperPage() {
                                         {t('lossDetected', { percent: results.percentLoss })}
                                     </div>
                                 ) : (
-                                    <div className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-xl text-xs font-bold">
+                                    <div className="bg-success-500/10 text-success-500 px-4 py-2 rounded-xl text-xs font-bold">
                                         {t('safe')}
                                     </div>
                                 )}
@@ -186,7 +186,7 @@ export default function RoomRentMapperPage() {
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(results.payableAmount / surgeryCost) * 100}%` }}
-                                            className="bg-emerald-500 h-full"
+                                            className="bg-success-500 h-full"
                                         />
                                         <motion.div
                                             initial={{ width: 0 }}

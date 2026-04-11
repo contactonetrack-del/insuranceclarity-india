@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Quote } from '@prisma/client';
 import { QuoteService } from '../quote.service';
 import { quoteRepository } from '@/repositories/quote.repository';
 
@@ -40,11 +41,11 @@ describe('QuoteService', () => {
             tobaccoUser: false
         };
 
-        const mockQuote = {
+        const mockQuote: Quote = {
             id: 'quote_123',
             ...payload,
             premiumAmount: 500,
-            status: 'COMPLETED',
+            status: 'READY',
             createdAt: mockDate,
             updatedAt: mockDate
         };
@@ -55,7 +56,7 @@ describe('QuoteService', () => {
 
         expect(result.quote).toEqual(mockQuote);
         expect(result.documentJobId).toMatch(/^QDOC-[A-Z0-9_-]+$/);
-        expect(result.status).toBe('COMPLETED');
+        expect(result.status).toBe('READY');
 
         expect(quoteRepository.create).toHaveBeenCalledWith({
             insuranceType: 'TERM_LIFE',
@@ -63,7 +64,7 @@ describe('QuoteService', () => {
             applicantAge: 30,
             tobaccoUser: false,
             premiumAmount: 500, // 500000 * 0.001
-            status: 'COMPLETED'
+            status: 'READY'
         });
     });
 
@@ -75,11 +76,11 @@ describe('QuoteService', () => {
             tobaccoUser: true // Mod = 1.5
         };
 
-        const mockQuote = {
+        const mockQuote: Quote = {
             id: 'quote_123',
             ...payload,
             premiumAmount: 900,
-            status: 'COMPLETED',
+            status: 'READY',
             createdAt: mockDate,
             updatedAt: mockDate
         };

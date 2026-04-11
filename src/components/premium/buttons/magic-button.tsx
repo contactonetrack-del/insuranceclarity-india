@@ -54,7 +54,7 @@ export const MagicButton = forwardRef<HTMLButtonElement, MagicButtonProps>(
             icon: Icon,
             iconPosition = 'left',
             glow = false,
-            ripple = false,
+            ripple: _ripple = false,
             loading = false,
             className,
             disabled,
@@ -77,18 +77,18 @@ export const MagicButton = forwardRef<HTMLButtonElement, MagicButtonProps>(
         const variantClasses: Record<ButtonVariant, string> = {
             primary: cn(
                 'bg-gradient-accent text-white',
-                'focus-visible:ring-[rgb(var(--color-accent))]',
+                'focus-visible:ring-focus-ring',
                 glow && 'shadow-glow hover:shadow-glow-lg'
             ),
             secondary: cn(
                 'glass text-theme-primary',
                 'hover:border-hover',
-                'focus-visible:ring-[rgb(var(--color-accent))]'
+                'focus-visible:ring-focus-ring'
             ),
             ghost: cn(
                 'bg-transparent text-theme-primary',
-                'hover:bg-accent-10',
-                'focus-visible:ring-[rgb(var(--color-accent))]'
+                'hover:bg-accent/10',
+                'focus-visible:ring-focus-ring'
             )
         }
 

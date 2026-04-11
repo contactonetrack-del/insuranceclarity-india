@@ -24,6 +24,15 @@ export default [
             'react-hooks/set-state-in-effect': 'off',
             '@typescript-eslint/no-explicit-any': 'warn',
             'import/no-anonymous-default-export': 'off',
+            '@typescript-eslint/no-unused-vars': [
+                'warn',
+                {
+                    varsIgnorePattern: '^_',
+                    argsIgnorePattern: '^_',
+                    caughtErrorsIgnorePattern: '^_',
+                    destructuredArrayIgnorePattern: '^_',
+                },
+            ],
         },
     },
     {

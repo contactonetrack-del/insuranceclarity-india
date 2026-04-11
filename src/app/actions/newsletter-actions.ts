@@ -1,7 +1,7 @@
 'use server'
 
-import { prisma }           from '@/lib/prisma'
 import { sendWelcomeEmail } from '@/services/email.service'
+import { createNewsletterSubscriber, findNewsletterByEmail } from '@/services/newsletter.service'
 import { z }                from 'zod'
 
 const subscribeSchema = z.object({
@@ -22,9 +22,7 @@ export async function subscribeToNewsletter(formData: FormData) {
     }
 
     // Check if already subscribed
-    const existing = await prisma.newsletter.findUnique({
-      where: { email: validatedData.data.email },
-    })
+    const existing = await findNewsletterByEmail(validatedData.data.email)
 
     if (existing) {
       return {
@@ -34,9 +32,7 @@ export async function subscribeToNewsletter(formData: FormData) {
     }
 
     // Save to database
-    await prisma.newsletter.create({
-      data: { email: validatedData.data.email },
-    })
+    await createNewsletterSubscriber(validatedData.data.email)
 
     // Send welcome email (fire & forget — non-critical)
     sendWelcomeEmail(validatedData.data.email, { userName: 'Subscriber' })

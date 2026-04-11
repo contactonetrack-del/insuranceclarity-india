@@ -7,6 +7,15 @@
 
 import type { RequestContext } from './api-client';
 
+interface BrowserNetworkConnection {
+  effectiveType?: string;
+  downlink?: number;
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: BrowserNetworkConnection;
+}
+
 export interface ErrorContext {
   browser: {
     userAgent: string;
@@ -56,7 +65,7 @@ export function captureNetworkContext(): ErrorContext['network'] {
     return {};
   }
 
-  const connection = (navigator as any).connection;
+  const connection = (navigator as NavigatorWithConnection).connection;
   return {
     effectiveType: connection?.effectiveType,
     connectionDownlink: connection?.downlink,

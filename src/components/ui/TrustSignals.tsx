@@ -1,33 +1,36 @@
 import { ShieldCheck, Zap, Users, HeadphonesIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export default function TrustSignals() {
+    const t = useTranslations('auditI18n.trustSignals')
+
     const features = [
         {
             icon: ShieldCheck,
-            title: "IRDAI Certified",
-            description: "100% compliant with Indian regulatory standards for your safety."
+            title: t('items.irdai.title'),
+            description: t('items.irdai.description'),
         },
         {
             icon: Zap,
-            title: "Instant Quotes",
-            description: "Compare 50+ Top Insurers instantly with no hidden fees."
+            title: t('items.instantQuotes.title'),
+            description: t('items.instantQuotes.description'),
         },
         {
             icon: Users,
-            title: "Unbiased Advice",
-            description: "Our advisors work for you, not the insurance companies."
+            title: t('items.unbiasedAdvice.title'),
+            description: t('items.unbiasedAdvice.description'),
         },
         {
             icon: HeadphonesIcon,
-            title: "Lifetime Claim Support",
-            description: "Free assistance when you need it most—at the time of claim."
-        }
+            title: t('items.claimSupport.title'),
+            description: t('items.claimSupport.description'),
+        },
     ]
 
     return (
         <div className="my-16">
             <h3 className="text-2xl font-display font-bold text-theme-primary mb-8 text-center">
-                Why Thousands Trust InsuranceClarity
+                {t('heading')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {features.map((feature, idx) => {

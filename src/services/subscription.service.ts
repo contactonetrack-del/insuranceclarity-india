@@ -1,5 +1,5 @@
 /**
- * Subscription Service â€” Razorpay Recurring Billing
+ * Subscription Service - Razorpay recurring billing.
  *
  * Manages Pro and Enterprise subscription lifecycle:
  * - Create subscription via Razorpay Subscriptions API
@@ -8,17 +8,16 @@
  * - Send confirmation emails
  */
 
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { sendWelcomeEmail } from '@/services/email.service';
-import { getRazorpayCredentials, getRazorpayPlanId } from '@/lib/security/env';
+import { getRazorpayPlanId } from '@/lib/security/env';
+import { subscriptionRepository } from '@/repositories/subscription.repository';
+import { getPaymentProvider } from '@/lib/payments/provider';
 import crypto from 'crypto';
 import { after } from 'next/server';
 
-// ——— Razorpay Plan IDs (set these in your Razorpay dashboard) ——————————————————————
-// Create plans at: https://dashboard.razorpay.com/app/subscriptions/plans
-
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Razorpay plan IDs are configured in env and dashboard:
+// https://dashboard.razorpay.com/app/subscriptions/plans
 
 export interface CreateSubscriptionInput {
     userId: string;
@@ -34,53 +33,16 @@ export interface SubscriptionDetails {
     status: string;
 }
 
-// â”€â”€â”€ Razorpay Client Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-function getRazorpayAuth(): string {
-    const { keyId, keySecret } = getRazorpayCredentials();
-    return `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString('base64')}`;
-}
-
-async function razorpayRequest<T>(
-    path: string,
-    method: string,
-    body?: Record<string, unknown>,
-): Promise<T> {
-    const response = await fetch(`https://api.razorpay.com/v1${path}`, {
-        method,
-        headers: {
-            'Authorization': getRazorpayAuth(),
-            'Content-Type': 'application/json',
-        },
-        body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-        const err = await response.json().catch(() => ({ description: response.statusText })) as { description?: string };
-        throw new Error(`Razorpay API error: ${err.description ?? response.statusText}`);
-    }
-
-    return response.json() as Promise<T>;
-}
-
-// â”€â”€â”€ Create Subscription â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 /**
  * Creates a Razorpay subscription for the given user/plan.
- * Returns the subscription details including a hosted payment link.
+ * Returns subscription details including hosted checkout URL.
  */
 export async function createRazorpaySubscription(
     input: CreateSubscriptionInput,
 ): Promise<SubscriptionDetails> {
     const { userId, plan, userEmail, userName } = input;
 
-    const existingActive = await prisma.subscription.findFirst({
-        where: {
-            userId,
-            status: { in: ['CREATED', 'AUTHENTICATED', 'ACTIVE'] },
-        },
-        orderBy: { createdAt: 'desc' },
-    });
+    const existingActive = await subscriptionRepository.findLatestActiveOrCreatedForUser(userId);
 
     if (existingActive?.status === 'ACTIVE' && existingActive.currentPeriodEnd && existingActive.currentPeriodEnd > new Date()) {
         throw new Error('You already have an active subscription.');
@@ -88,45 +50,22 @@ export async function createRazorpaySubscription(
 
     const planId = getRazorpayPlanId(plan);
 
-    interface RazorpaySubscriptionResponse {
-        id: string;
-        plan_id: string;
-        short_url: string;
-        status: string;
-    }
-
-    const subscription = await razorpayRequest<RazorpaySubscriptionResponse>('/subscriptions', 'POST', {
-        plan_id: planId,
-        total_count: 12,          // 12 billing cycles (1 year)
+    const paymentProvider = getPaymentProvider();
+    const subscription = await paymentProvider.createSubscription({
+        planId,
+        totalCount: 12,
         quantity: 1,
-        notify_info: {
-            notify_phone: '',
-            notify_email: userEmail,
-        },
-        notes: {
-            userId,
-            plan,
-            userName,
-        },
+        notifyEmail: userEmail,
+        userId,
+        plan,
+        userName,
     });
 
-    // Persist to DB (upsert by Razorpay subscription id for idempotency)
-    await prisma.subscription.upsert({
-        where: { razorpaySubscriptionId: subscription.id },
-        create: {
-            userId,
-            plan,
-            razorpaySubscriptionId: subscription.id,
-            razorpayPlanId: subscription.plan_id,
-            status: 'CREATED',
-        },
-        update: {
-            userId,
-            plan,
-            razorpayPlanId: subscription.plan_id,
-            status: 'CREATED',
-            cancelledAt: null,
-        },
+    await subscriptionRepository.upsertCreatedSubscription({
+        userId,
+        plan,
+        razorpaySubscriptionId: subscription.id,
+        razorpayPlanId: subscription.planId,
     });
 
     logger.info({
@@ -138,52 +77,35 @@ export async function createRazorpaySubscription(
 
     return {
         subscriptionId: subscription.id,
-        planId: subscription.plan_id,
-        shortUrl: subscription.short_url,
+        planId: subscription.planId,
+        shortUrl: subscription.shortUrl,
         status: subscription.status,
     };
 }
 
-// â”€â”€â”€ Activate Subscription (called from webhook) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 /**
  * Activates a subscription after successful payment verification.
- * Updates User.plan and Subscription.status in DB.
+ * Updates Subscription status and User plan.
  */
 export async function activateSubscription(
     razorpaySubscriptionId: string,
     currentPeriodStart: Date,
     currentPeriodEnd: Date,
 ): Promise<{ id: string; userId: string } | null> {
-    const subscription = await prisma.subscription.findUnique({
-        where: { razorpaySubscriptionId },
-        include: { user: { select: { email: true, name: true } } },
-    });
+    const subscription = await subscriptionRepository.findForActivation(razorpaySubscriptionId);
 
     if (!subscription) {
         logger.warn({ action: 'subscription.activate.notfound', razorpaySubscriptionId });
         return null;
     }
 
-    await prisma.$transaction([
-        // Update subscription status
-        prisma.subscription.update({
-            where: { razorpaySubscriptionId },
-            data: {
-                status: 'ACTIVE',
-                currentPeriodStart,
-                currentPeriodEnd,
-            },
-        }),
-        // Upgrade user's plan
-        prisma.user.update({
-            where: { id: subscription.userId },
-            data: {
-                plan: subscription.plan,
-                planExpiresAt: currentPeriodEnd,
-            },
-        }),
-    ]);
+    await subscriptionRepository.activateAndUpgradeUser({
+        razorpaySubscriptionId,
+        userId: subscription.userId,
+        plan: subscription.plan,
+        currentPeriodStart,
+        currentPeriodEnd,
+    });
 
     logger.info({
         action: 'subscription.activated',
@@ -194,7 +116,6 @@ export async function activateSubscription(
 
     const userEmail = subscription.user?.email;
     if (userEmail) {
-        // Enqueue email async execution so webhook doesn't block
         after(() => {
             sendWelcomeEmail(userEmail, {
                 userName: subscription.user!.name ?? 'there',
@@ -208,43 +129,27 @@ export async function activateSubscription(
     };
 }
 
-// â”€â”€â”€ Cancel Subscription â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 /**
- * Cancels a subscription â€” downgrades user plan back to FREE at period end.
+ * Cancels a subscription and updates local state.
+ * If cancelled immediately, user is downgraded now.
  */
 export async function cancelSubscription(
     razorpaySubscriptionId: string,
     atPeriodEnd = true,
 ): Promise<void> {
-    // Cancel in Razorpay
-    await razorpayRequest(`/subscriptions/${razorpaySubscriptionId}/cancel`, 'POST', {
-        cancel_at_cycle_end: atPeriodEnd ? 1 : 0,
-    }).catch((err: unknown) => {
+    const paymentProvider = getPaymentProvider();
+    await paymentProvider.cancelSubscription(razorpaySubscriptionId, atPeriodEnd).catch((err: unknown) => {
         logger.warn({ action: 'subscription.cancel.razorpay.failed', error: String(err) });
     });
 
-    // Update DB
-    const subscription = await prisma.subscription.findUnique({
-        where: { razorpaySubscriptionId },
-    });
+    const subscription = await subscriptionRepository.findByRazorpaySubscriptionIdForCancel(razorpaySubscriptionId);
 
     if (!subscription) return;
 
-    await prisma.subscription.update({
-        where: { razorpaySubscriptionId },
-        data: {
-            status: 'CANCELLED',
-            cancelledAt: new Date(),
-        },
-    });
+    await subscriptionRepository.cancelByRazorpaySubscriptionIdWithTimestamp(razorpaySubscriptionId, new Date());
 
-    // If cancelling immediately, downgrade plan now
     if (!atPeriodEnd) {
-        await prisma.user.update({
-            where: { id: subscription.userId },
-            data: { plan: 'FREE', planExpiresAt: null },
-        });
+        await subscriptionRepository.downgradeUserPlan(subscription.userId);
     }
 
     logger.info({
@@ -254,11 +159,8 @@ export async function cancelSubscription(
     });
 }
 
-// â”€â”€â”€ Webhook Signature Verification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 /**
  * Verifies Razorpay webhook signature (HMAC-SHA256).
- * Must be called before processing any webhook payload.
  */
 export function verifyWebhookSignature(
     rawBody: string,
@@ -269,6 +171,7 @@ export function verifyWebhookSignature(
         logger.warn({ action: 'webhook.secret.missing' });
         return false;
     }
+
     const expected = crypto
         .createHmac('sha256', secret)
         .update(rawBody)

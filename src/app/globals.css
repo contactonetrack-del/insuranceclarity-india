@@ -34,22 +34,48 @@
     --token-text-secondary: 71 85 105;
     --token-text-muted: 100 116 139;
 
-    --token-card-bg: 255 255 255;
+    --token-surface-primary: 255 255 255;
+    --token-surface-elevated: 248 250 252;
+    --token-card-bg: var(--token-surface-primary);
     --token-card-opacity: 0.98;
     --token-card-blur: 20px;
 
-    /* GREEN accent for Light Mode */
-    --token-accent: 76 175 80;
-    --token-accent-rgb: 76, 175, 80;
-    --token-glow-rgb: 76, 175, 80;
-    --token-accent-dark: 56 142 60;
-    --token-accent-light: 129 199 132;
+    /* Brand tokens */
+    --token-brand: 34 197 94;
+    --token-brand-hover: 22 163 74;
+    --token-brand-active: 21 128 61;
+    --token-brand-soft: 220 252 231;
+    --token-focus-ring: 34 197 94;
 
-    --token-gradient-accent: linear-gradient(135deg, #4CAF50 0%, #43A047 100%);
+    /* Backward compatible accent aliases */
+    --token-accent: 34 197 94;
+    --token-accent-rgb: 34, 197, 94;
+    --token-glow-rgb: 34, 197, 94;
+    --token-accent-dark: 22 163 74;
+    --token-accent-light: 110 231 183;
+
+    --token-gradient-accent: linear-gradient(135deg, rgb(var(--token-brand)) 0%, rgb(var(--token-brand-hover)) 100%);
     --token-gradient-bg: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+    --footer-gradient: radial-gradient(circle at top, rgba(16, 185, 129, 0.10), transparent 28%), linear-gradient(180deg, #f4f8f6 0%, #edf3f2 38%, #e8eef5 100%);
+    --footer-panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.82));
+    --footer-panel-shadow: 0 30px 120px rgba(148, 163, 184, 0.18);
+    --footer-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+    --footer-card-shadow: 0 24px 60px rgba(148, 163, 184, 0.14);
+    --footer-chip-bg: rgba(255, 255, 255, 0.9);
+
+    /* Semantic tokens (separate from brand) */
+    --token-semantic-success: 5 150 105;
+    --token-semantic-success-soft: 209 250 229;
+    --token-semantic-warning: 217 119 6;
+    --token-semantic-warning-soft: 254 243 199;
+    --token-semantic-danger: 220 38 38;
+    --token-semantic-danger-soft: 254 226 226;
+    --token-semantic-info: 14 116 144;
+    --token-semantic-info-soft: 207 250 254;
 
     /* Borders */
     --token-border-default: 226 232 240;
+    --token-border-strong: 148 163 184;
 }
 
 .dark {
@@ -62,27 +88,59 @@
     --token-text-secondary: 203 213 225;
     --token-text-muted: 148 163 184;
 
-    --token-card-bg: 30 41 59;
+    --token-surface-primary: 15 23 42;
+    --token-surface-elevated: 30 41 59;
+    --token-card-bg: var(--token-surface-primary);
     --token-card-opacity: 0.85;
     --token-card-blur: 16px;
 
-    /* BLUE accent for Dark Mode */
-    --token-accent: 59 130 246;
-    --token-accent-rgb: 59, 130, 246;
-    --token-glow-rgb: 59, 130, 246;
-    --token-accent-dark: 37 99 235;
-    --token-accent-light: 96 165 250;
+    /* Brand tokens remain green in dark mode */
+    --token-brand: 74 222 128;
+    --token-brand-hover: 34 197 94;
+    --token-brand-active: 22 163 74;
+    --token-brand-soft: 20 83 45;
+    --token-focus-ring: 74 222 128;
 
-    --token-gradient-accent: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    /* Backward compatible accent aliases */
+    --token-accent: 74 222 128;
+    --token-accent-rgb: 74, 222, 128;
+    --token-glow-rgb: 74, 222, 128;
+    --token-accent-dark: 34 197 94;
+    --token-accent-light: 110 231 183;
+
+    --token-gradient-accent: linear-gradient(135deg, rgb(var(--token-brand)) 0%, rgb(var(--token-brand-hover)) 100%);
     --token-gradient-bg: linear-gradient(135deg, #0a0f1a 0%, #0f172a 50%, #1e293b 100%);
+    --footer-gradient: radial-gradient(circle at top, rgba(74, 222, 128, 0.14), transparent 26%), linear-gradient(180deg, #07111f 0%, #0a1422 38%, #0d172a 100%);
+    --footer-panel-bg: linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.82));
+    --footer-panel-shadow: 0 32px 120px rgba(2, 8, 23, 0.44);
+    --footer-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+    --footer-card-shadow: 0 24px 60px rgba(2, 8, 23, 0.28);
+    --footer-chip-bg: rgba(15, 23, 42, 0.8);
+
+    /* Semantic tokens (separate from brand) */
+    --token-semantic-success: 16 185 129;
+    --token-semantic-success-soft: 6 78 59;
+    --token-semantic-warning: 245 158 11;
+    --token-semantic-warning-soft: 120 53 15;
+    --token-semantic-danger: 248 113 113;
+    --token-semantic-danger-soft: 127 29 29;
+    --token-semantic-info: 56 189 248;
+    --token-semantic-info-soft: 12 74 110;
 
     --token-border-default: 51 65 85;
+    --token-border-strong: 100 116 139;
 }
 
 @theme {
+  --color-brand: rgb(var(--token-brand));
+  --color-brand-hover: rgb(var(--token-brand-hover));
+  --color-brand-active: rgb(var(--token-brand-active));
+  --color-brand-soft: rgb(var(--token-brand-soft));
+  --color-focus-ring: rgb(var(--token-focus-ring));
+
   /* Colors - Non-recursive mapping */
   --color-accent: rgb(var(--token-accent));
-  --color-accent-hover: rgb(var(--token-accent-dark));
+  --color-accent-hover: rgb(var(--token-brand-hover));
   --color-accent-light: rgb(var(--token-accent-light));
   
   --color-theme-primary: rgb(var(--token-text-primary));
@@ -90,19 +148,19 @@
   --color-theme-muted: rgb(var(--token-text-muted));
   --color-theme-tertiary: rgb(var(--token-bg-tertiary));
   --color-theme-bg: rgb(var(--token-bg-primary));
-  --color-theme-surface: rgb(var(--token-card-bg));
+  --color-theme-surface: rgb(var(--token-surface-primary));
+  --color-theme-elevated: rgb(var(--token-surface-elevated));
   
   --color-card-bg: rgb(var(--token-card-bg));
   --color-default: rgb(var(--token-border-default));
+  --color-border-strong: rgb(var(--token-border-strong));
 
   /* Status Colors */
-  --color-success-50: #f0fdf4;
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-
-  --color-warning-500: #f59e0b;
-  --color-danger-500: #ef4444;
+  --color-success-50: rgb(var(--token-semantic-success-soft));
+  --color-success-500: rgb(var(--token-semantic-success));
+  --color-warning-500: rgb(var(--token-semantic-warning));
+  --color-danger-500: rgb(var(--token-semantic-danger));
+  --color-info-500: rgb(var(--token-semantic-info));
 
   /* Typography */
   --font-sans: "Inter", '"system-ui"', "sans-serif";
@@ -186,16 +244,179 @@ body {
    ============================================ */
 
 @layer utilities {
+    .interactive-focus {
+        outline: none;
+    }
+
+    .interactive-focus:focus-visible {
+        outline: 2px solid rgb(var(--token-focus-ring) / 0.9);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 3px rgb(var(--token-focus-ring) / 0.24);
+    }
+
+    .border-hover {
+        border-color: rgb(var(--token-border-strong) / 0.95);
+    }
+
+    .tone-brand-solid {
+        background-color: rgb(var(--token-brand));
+        border-color: rgb(var(--token-brand) / 0.35);
+        color: white;
+    }
+
+    .tone-brand-soft {
+        background-color: rgb(var(--token-brand-soft) / 0.55);
+        border-color: rgb(var(--token-brand) / 0.24);
+        color: rgb(var(--token-brand));
+    }
+
+    .dark .tone-brand-soft {
+        background-color: rgb(var(--token-brand-soft) / 0.36);
+        border-color: rgb(var(--token-brand) / 0.3);
+    }
+
+    .tone-brand-outline {
+        background-color: transparent;
+        border-color: rgb(var(--token-brand) / 0.34);
+        color: rgb(var(--token-brand));
+    }
+
+    .tone-brand-gradient {
+        background-image: var(--token-gradient-accent);
+        border-color: rgb(var(--token-brand) / 0.35);
+        color: white;
+    }
+
+    .tone-neutral-solid {
+        background-color: rgb(var(--token-text-primary));
+        border-color: rgb(var(--token-border-strong) / 0.4);
+        color: rgb(var(--token-bg-primary));
+    }
+
+    .tone-neutral-soft {
+        background-color: rgb(var(--token-bg-secondary) / 0.85);
+        border-color: rgb(var(--token-border-default) / 0.95);
+        color: rgb(var(--token-text-secondary));
+    }
+
+    .tone-neutral-outline {
+        background-color: transparent;
+        border-color: rgb(var(--token-border-strong) / 0.85);
+        color: rgb(var(--token-text-secondary));
+    }
+
+    .tone-neutral-gradient {
+        background-image: linear-gradient(135deg, rgb(var(--token-surface-elevated)) 0%, rgb(var(--token-bg-tertiary)) 100%);
+        border-color: rgb(var(--token-border-default) / 0.95);
+        color: rgb(var(--token-text-primary));
+    }
+
+    .tone-success-solid {
+        background-color: rgb(var(--token-semantic-success));
+        border-color: rgb(var(--token-semantic-success) / 0.35);
+        color: white;
+    }
+
+    .tone-success-soft {
+        background-color: rgb(var(--token-semantic-success-soft) / 0.4);
+        border-color: rgb(var(--token-semantic-success) / 0.24);
+        color: rgb(var(--token-semantic-success));
+    }
+
+    .tone-success-outline {
+        background-color: transparent;
+        border-color: rgb(var(--token-semantic-success) / 0.35);
+        color: rgb(var(--token-semantic-success));
+    }
+
+    .tone-success-gradient {
+        background-image: linear-gradient(135deg, rgb(var(--token-semantic-success)) 0%, rgb(var(--token-semantic-success) / 0.78) 100%);
+        border-color: rgb(var(--token-semantic-success) / 0.35);
+        color: white;
+    }
+
+    .tone-warning-solid {
+        background-color: rgb(var(--token-semantic-warning));
+        border-color: rgb(var(--token-semantic-warning) / 0.35);
+        color: white;
+    }
+
+    .tone-warning-soft {
+        background-color: rgb(var(--token-semantic-warning-soft) / 0.35);
+        border-color: rgb(var(--token-semantic-warning) / 0.26);
+        color: rgb(var(--token-semantic-warning));
+    }
+
+    .tone-warning-outline {
+        background-color: transparent;
+        border-color: rgb(var(--token-semantic-warning) / 0.35);
+        color: rgb(var(--token-semantic-warning));
+    }
+
+    .tone-warning-gradient {
+        background-image: linear-gradient(135deg, rgb(var(--token-semantic-warning)) 0%, rgb(var(--token-semantic-warning) / 0.78) 100%);
+        border-color: rgb(var(--token-semantic-warning) / 0.35);
+        color: white;
+    }
+
+    .tone-danger-solid {
+        background-color: rgb(var(--token-semantic-danger));
+        border-color: rgb(var(--token-semantic-danger) / 0.35);
+        color: white;
+    }
+
+    .tone-danger-soft {
+        background-color: rgb(var(--token-semantic-danger-soft) / 0.35);
+        border-color: rgb(var(--token-semantic-danger) / 0.24);
+        color: rgb(var(--token-semantic-danger));
+    }
+
+    .tone-danger-outline {
+        background-color: transparent;
+        border-color: rgb(var(--token-semantic-danger) / 0.35);
+        color: rgb(var(--token-semantic-danger));
+    }
+
+    .tone-danger-gradient {
+        background-image: linear-gradient(135deg, rgb(var(--token-semantic-danger)) 0%, rgb(var(--token-semantic-danger) / 0.78) 100%);
+        border-color: rgb(var(--token-semantic-danger) / 0.35);
+        color: white;
+    }
+
+    .tone-info-solid {
+        background-color: rgb(var(--token-semantic-info));
+        border-color: rgb(var(--token-semantic-info) / 0.35);
+        color: white;
+    }
+
+    .tone-info-soft {
+        background-color: rgb(var(--token-semantic-info-soft) / 0.35);
+        border-color: rgb(var(--token-semantic-info) / 0.24);
+        color: rgb(var(--token-semantic-info));
+    }
+
+    .tone-info-outline {
+        background-color: transparent;
+        border-color: rgb(var(--token-semantic-info) / 0.35);
+        color: rgb(var(--token-semantic-info));
+    }
+
+    .tone-info-gradient {
+        background-image: linear-gradient(135deg, rgb(var(--token-semantic-info)) 0%, rgb(var(--token-semantic-info) / 0.78) 100%);
+        border-color: rgb(var(--token-semantic-info) / 0.35);
+        color: white;
+    }
+
     .glass {
-        background: rgba(var(--token-card-bg), var(--token-card-opacity));
+        background: rgb(var(--token-card-bg) / var(--token-card-opacity));
         backdrop-filter: blur(var(--token-card-blur));
-        border: 1px solid rgba(var(--token-border-default), 0.1);
+        border: 1px solid rgb(var(--token-border-default) / 0.1);
     }
 
     .glass-strong {
-        background: rgba(var(--token-card-bg), 0.98);
+        background: rgb(var(--token-card-bg) / 0.98);
         backdrop-filter: blur(24px);
-        border: 1px solid rgba(var(--token-border-default), 0.2);
+        border: 1px solid rgb(var(--token-border-default) / 0.2);
     }
 
     .hover-lift {

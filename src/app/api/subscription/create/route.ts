@@ -14,10 +14,11 @@ import { logger }                    from '@/lib/logger';
 import { validateCsrfRequest }       from '@/lib/security/csrf';
 import { createRazorpaySubscription } from '@/services/subscription.service';
 import { ErrorFactory }              from '@/lib/api/error-response';
+import { SUBSCRIPTION_PLANS }        from '@/lib/domain/enums';
 import { z }                         from 'zod';
 
 const createSchema = z.object({
-    plan: z.enum(['PRO', 'ENTERPRISE']),
+    plan: z.enum(SUBSCRIPTION_PLANS),
 });
 
 export async function POST(request: NextRequest) {

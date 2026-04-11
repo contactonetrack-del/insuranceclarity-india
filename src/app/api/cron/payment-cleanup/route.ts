@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { sendUrgentWebhook } from '@/lib/observability/alerts';
+import { requireCronAuthorization } from '@/lib/security/cron-auth';
+import { failPaymentAndScan, findStaleCreatedPayments } from '@/services/ops.service';
 
 /**
  * GET /api/cron/payment-cleanup
@@ -11,42 +12,22 @@ import { sendUrgentWebhook } from '@/lib/observability/alerts';
  */
 export async function GET(request: Request) {
     try {
-        const authHeader = request.headers.get('Authorization');
-        if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        const authFailure = requireCronAuthorization(request, { action: 'cron.payment-cleanup' });
+        if (authFailure) return authFailure;
 
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         let failedCount = 0;
         let errorCount = 0;
 
         // Find all payment records that are still CREATED and older than 24h
-        const stalePayments = await prisma.payment.findMany({
-            where: {
-                status: 'CREATED',
-                createdAt: {
-                    lt: twentyFourHoursAgo
-                }
-            }
-        });
+        const stalePayments = await findStaleCreatedPayments(twentyFourHoursAgo);
 
         logger.info(`Found ${stalePayments.length} stale payments to auto-fail`);
 
         for (const payment of stalePayments) {
             try {
                 // Update payment status to FAILED
-                await prisma.payment.update({
-                    where: { id: payment.id },
-                    data: { status: 'FAILED' }
-                });
-
-                // If there's an associated scan, mark it as failed too
-                if (payment.scanId) {
-                    await prisma.scan.update({
-                        where: { id: payment.scanId },
-                        data: { status: 'FAILED' }
-                    });
-                }
+                await failPaymentAndScan(payment.id, payment.scanId);
 
                 failedCount++;
                 logger.info(`Auto-failed stale payment ${payment.id} and scan ${payment.scanId}`);

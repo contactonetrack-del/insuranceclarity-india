@@ -5,31 +5,34 @@
  * Revalidates every 2 hours since pricing rarely changes.
  */
 
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Check, X, Zap, Shield, Crown, ChevronRight } from 'lucide-react';
-import RazorpayCheckout from '@/components/payment/RazorpayCheckout';
-import { getTranslations } from 'next-intl/server';
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { Check, X, Zap, Shield, Crown, ChevronRight } from 'lucide-react'
+import RazorpayCheckout from '@/components/payment/RazorpayCheckout'
+import { getTranslations } from 'next-intl/server'
 
 // Phase 11 Week 2: ISR configuration for static pricing content
-export const revalidate = 7200; // 2 hours
+export const revalidate = 7200 // 2 hours
 
-export const metadata: Metadata = {
-    title: 'Pricing Plans — Insurance Clarity',
-    description: 'Choose a plan that fits your insurance needs. Start free, upgrade when you need unlimited AI policy scans, advisor access, and full risk reports.',
-    openGraph: {
-        title: 'Transparent Pricing — Insurance Clarity',
-        description: 'Free forever for 2 scans/month. Upgrade to Pro for ₹499/month for unlimited scans and expert AI advisor.',
-    },
-};
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getTranslations('pricing.metadata')
+
+    return {
+        title: t('title'),
+        description: t('description'),
+        openGraph: {
+            title: t('openGraphTitle'),
+            description: t('openGraphDescription'),
+        },
+    }
+}
 
 export default async function PricingPage() {
-    const t = await getTranslations('pricing');
+    const t = await getTranslations('pricing')
 
-    const trustKeys = ['noCreditCard', 'refundGuarantee', 'irdaiCompliant', 'policiesScanned'] as const;
+    const trustKeys = ['noCreditCard', 'refundGuarantee', 'irdaiCompliant', 'policiesScanned'] as const
 
-    // ─── Plan Config ──────────────────────────────────────────────────────────────
-    const PLANS = [
+    const plans = [
         {
             id: 'FREE',
             name: t('plans.free.name'),
@@ -105,32 +108,24 @@ export default async function PricingPage() {
                 { key: 'dedicatedSupport', included: true },
             ],
         },
-    ] as const;
+    ] as const
 
-    // ─── FAQ from translations ────────────────────────────────────────────────────
-    const faqCount = 5;
+    const faqCount = 5
 
     return (
         <main id="main-content" className="pricing-page">
-
-            {/* ── Hero ── */}
             <section className="pricing-hero">
                 <div className="pricing-hero__inner">
                     <div className="pricing-badge">
                         <span aria-hidden="true">💎</span> {t('badge')}
                     </div>
-                    <h1 className="pricing-title">
-                        {t('title')}
-                    </h1>
-                    <p className="pricing-subtitle">
-                        {t('subtitle')}
-                    </p>
+                    <h1 className="pricing-title">{t('title')}</h1>
+                    <p className="pricing-subtitle">{t('subtitle')}</p>
 
-                    {/* Trust row */}
                     <div className="pricing-trust-row" role="list">
                         {trustKeys.map((key) => (
                             <div key={key} className="pricing-trust-item" role="listitem">
-                                <Check className="w-4 h-4 text-emerald-500" aria-hidden="true" />
+                                <Check className="w-4 h-4 text-success-500" aria-hidden="true" />
                                 <span>{t(`trustItems.${key}`)}</span>
                             </div>
                         ))}
@@ -138,17 +133,16 @@ export default async function PricingPage() {
                 </div>
             </section>
 
-            {/* ── Plan Cards ── */}
-            <section className="pricing-plans" aria-label="Pricing plans">
+            <section className="pricing-plans" aria-label={t('aria.pricingPlans')}>
                 <div className="pricing-plans__grid">
-                    {PLANS.map((plan) => (
+                    {plans.map((plan) => (
                         <article
                             key={plan.id}
                             className={`pricing-card ${plan.id === 'PRO' ? 'pricing-card--featured' : ''}`}
-                            aria-label={`${plan.name} plan`}
+                            aria-label={t('aria.planLabel', { plan: plan.name })}
                         >
                             {plan.badge && (
-                                <div className="pricing-card__badge" aria-label={`${plan.badge} plan`}>
+                                <div className="pricing-card__badge" aria-label={t('aria.badgeLabel', { badge: plan.badge })}>
                                     {plan.badge}
                                 </div>
                             )}
@@ -183,20 +177,21 @@ export default async function PricingPage() {
                                 )}
                             </div>
 
-                            {/* Features list */}
                             <ul className="pricing-card__features" role="list">
-                                {plan.featureKeys.map((f) => (
-                                    <li key={f.key} className={`pricing-feature ${f.included ? 'pricing-feature--yes' : 'pricing-feature--no'}`}>
-                                        {f.included
-                                            ? <Check className="w-4 h-4 shrink-0" aria-label="Included" />
-                                            : <X className="w-4 h-4 shrink-0" aria-label="Not included" />
+                                {plan.featureKeys.map((feature) => (
+                                    <li
+                                        key={feature.key}
+                                        className={`pricing-feature ${feature.included ? 'pricing-feature--yes' : 'pricing-feature--no'}`}
+                                    >
+                                        {feature.included
+                                            ? <Check className="w-4 h-4 shrink-0" aria-label={t('aria.included')} />
+                                            : <X className="w-4 h-4 shrink-0" aria-label={t('aria.notIncluded')} />
                                         }
-                                        <span>{t(`features.${f.key}`, 'params' in f ? f.params : undefined)}</span>
+                                        <span>{t(`features.${feature.key}`, 'params' in feature ? feature.params : undefined)}</span>
                                     </li>
                                 ))}
                             </ul>
 
-                            {/* CTA */}
                             <div className="pricing-card__cta">
                                 {plan.razorpayAmount ? (
                                     <RazorpayCheckout
@@ -210,11 +205,7 @@ export default async function PricingPage() {
                                 ) : (
                                     <Link
                                         href={plan.ctaHref ?? '/scan'}
-                                        className={
-                                            plan.ctaHref === '/scan'
-                                                ? 'btn-primary w-full justify-center'
-                                                : 'btn-secondary w-full justify-center'
-                                        }
+                                        className={plan.ctaHref === '/scan' ? 'btn-primary w-full justify-center' : 'btn-secondary w-full justify-center'}
                                     >
                                         {plan.cta}
                                         <ChevronRight className="w-4 h-4" aria-hidden="true" />
@@ -226,8 +217,7 @@ export default async function PricingPage() {
                 </div>
             </section>
 
-            {/* ── FAQ ── */}
-            <section className="pricing-faq" aria-label="Frequently asked questions">
+            <section className="pricing-faq" aria-label={t('aria.faq')}>
                 <h2 className="pricing-faq__title">{t('faq.title')}</h2>
                 <div className="pricing-faq__grid">
                     {Array.from({ length: faqCount }).map((_, i) => (
@@ -239,21 +229,15 @@ export default async function PricingPage() {
                 </div>
             </section>
 
-            {/* ── Bottom CTA ── */}
-            <section className="pricing-bottom-cta" aria-label="Get started">
+            <section className="pricing-bottom-cta" aria-label={t('aria.getStarted')}>
                 <div className="pricing-bottom-cta__inner">
-                    <h2 className="pricing-bottom-cta__title">
-                        {t('cta.title')}
-                    </h2>
-                    <p className="pricing-bottom-cta__desc">
-                        {t('cta.subtitle')}
-                    </p>
+                    <h2 className="pricing-bottom-cta__title">{t('cta.title')}</h2>
+                    <p className="pricing-bottom-cta__desc">{t('cta.subtitle')}</p>
                     <Link href="/scan" className="btn-primary text-lg px-8 py-4">
                         {t('cta.button')} <ChevronRight className="w-5 h-5" aria-hidden="true" />
                     </Link>
                 </div>
             </section>
-
         </main>
-    );
+    )
 }

@@ -1,5 +1,7 @@
 # Runtime Error Monitoring & Debugging Guide
 
+> Historical note: this guide contains legacy examples from before the PostgreSQL search migration. Use the current runtime dependency health route and deploy verification scripts first.
+
 Guide for monitoring, diagnosing, and debugging runtime errors in the Insurance Clarity platform.
 
 ## Table of Contents
@@ -538,7 +540,7 @@ When investigating production errors:
 - [ ] Review error stacktrace and context
 - [ ] Check Sentry for similar grouped errors
 - [ ] Review database query performance
-- [ ] Check external API status (Razorpay, Meilisearch, etc.)
+- [ ] Check external API and dependency status (Razorpay, Gemini, Sanity, storage provider, queue)
 - [ ] Review infrastructure metrics (CPU, memory, disk)
 - [ ] Check rate limit status for all scopes
 - [ ] Review recent code changes

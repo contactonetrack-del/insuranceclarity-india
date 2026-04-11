@@ -6,7 +6,6 @@ const mockGenerateContent = vi.fn();
 
 vi.mock('@google/generative-ai', () => ({
     GoogleGenerativeAI: class MockGoogleGenerativeAI {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         constructor(_apiKey: string) {}
 
         getGenerativeModel() {
@@ -89,7 +88,7 @@ describe('AI Service (Gemini)', () => {
         expect(result.report.summary).toBeDefined();
     });
 
-    it('should throw an error when model returns non-JSON content', async () => {
+    it('should return heuristic fallback when model returns non-JSON content', async () => {
         mockGenerateContent.mockResolvedValue({
             response: {
                 text: () => 'Rate limit exceeded',
@@ -97,18 +96,21 @@ describe('AI Service (Gemini)', () => {
             },
         });
 
-        await expect(analyzePolicyWithGpt({ policyText: 'test' }))
-            .rejects.toThrow('AI analysis failed');
+        const result = await analyzePolicyWithGpt({ policyText: 'test with room rent and waiting period clauses' });
 
         expect(logger.error).toHaveBeenCalled();
+        expect(logger.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'ai.analyze.fallback' }));
+        expect(result.report.summary).toContain('fallback analysis');
+        expect(result.report.risks.length).toBeGreaterThan(0);
     });
 
-    it('should throw an error when Gemini API call fails', async () => {
+    it('should return heuristic fallback when Gemini API call fails', async () => {
         mockGenerateContent.mockRejectedValue(new Error('Network error'));
 
-        await expect(analyzePolicyWithGpt({ policyText: 'test' }))
-            .rejects.toThrow('AI analysis failed');
+        const result = await analyzePolicyWithGpt({ policyText: 'test with co-pay and network hospital coverage terms' });
 
         expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'ai.analyze.error' }));
+        expect(result.report.summary).toContain('fallback analysis');
+        expect(result.report.suggestions.length).toBeGreaterThan(0);
     });
 });

@@ -3,13 +3,13 @@ import { Inter, Outfit } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import DeferredGlobalUi from '@/components/DeferredGlobalUi'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { NextAuthProvider } from '@/components/providers/NextAuthProvider'
 import PageTransition from '@/components/PageTransition'
+import DeferredGlobalUi from '@/components/DeferredGlobalUi'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { NextIntlClientProvider } from 'next-intl'
-import { getLocale, getMessages } from 'next-intl/server'
+import { getLocale, getMessages, getTranslations } from 'next-intl/server'
 import { headers } from 'next/headers'
 import { ensurePlansValidated } from '@/lib/subscriptions/plan-validation'
 
@@ -22,25 +22,44 @@ const outfit = Outfit({
     variable: '--font-outfit',
 })
 
-export const metadata: Metadata = {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://insuranceclarity.in'),
-    title: 'InsuranceClarity India - Compare Insurance | Discover Hidden Facts',
-    description: 'India\'s most transparent insurance platform. Compare Life, Health, Motor, Home & Travel insurance. Discover hidden exclusions and understand claim settlements.',
-    keywords: 'insurance India, health insurance, life insurance, motor insurance, policy comparison, claim settlement ratio',
-    authors: [{ name: 'InsuranceClarity India' }],
-    openGraph: {
-        title: 'InsuranceClarity India - Compare Insurance | Discover Hidden Facts',
-        description: 'India\'s most transparent insurance platform. Compare policies, discover hidden exclusions.',
-        url: 'https://insuranceclarity.in',
-        siteName: 'InsuranceClarity India',
-        locale: 'en_IN',
-        type: 'website',
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'InsuranceClarity India',
-        description: 'India\'s most transparent insurance platform.',
-    },
+export async function generateMetadata(): Promise<Metadata> {
+    const [locale, t] = await Promise.all([
+        getLocale(),
+        getTranslations('layoutMeta'),
+    ])
+
+    return {
+        metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://insuranceclarity.in'),
+        alternates: {
+            canonical: '/',
+            languages: {
+                en: '/en',
+                hi: '/hi',
+            },
+        },
+        title: t('title'),
+        description: t('description'),
+        keywords: t('keywords'),
+        authors: [{ name: t('authorName') }],
+        openGraph: {
+            title: t('openGraph.title'),
+            description: t('openGraph.description'),
+            url: 'https://insuranceclarity.in',
+            siteName: t('openGraph.siteName'),
+            locale: locale === 'hi' ? 'hi_IN' : 'en_IN',
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: t('twitter.title'),
+            description: t('twitter.description'),
+        },
+        icons: {
+            icon: '/icon.png',
+            shortcut: '/icon.png',
+            apple: '/icon.png',
+        },
+    }
 }
 
 export default async function RootLayout({
@@ -51,17 +70,21 @@ export default async function RootLayout({
     // Validate subscription plan configuration at startup
     await ensurePlansValidated();
 
-    const locale = await getLocale()
-    const messages = await getMessages()
-    const nonce = (await headers()).get('x-nonce') || undefined;
+    const [locale, messages, tLayout, requestHeaders] = await Promise.all([
+        getLocale(),
+        getMessages(),
+        getTranslations('layoutMeta'),
+        headers(),
+    ])
+    const nonce = requestHeaders.get('x-nonce') || undefined;
 
     const jsonLd = [
         {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
-            name: 'InsuranceClarity India',
+            name: tLayout('jsonLd.website.name'),
             url: 'https://insuranceclarity.in',
-            description: "India's most transparent insurance platform.",
+            description: tLayout('jsonLd.website.description'),
             potentialAction: {
                 '@type': 'SearchAction',
                 target: 'https://insuranceclarity.in/?q={search_term_string}',
@@ -71,14 +94,14 @@ export default async function RootLayout({
         {
             '@context': 'https://schema.org',
             '@type': 'Organization',
-            name: 'InsuranceClarity India',
+            name: tLayout('jsonLd.organization.name'),
             url: 'https://insuranceclarity.in',
             logo: 'https://insuranceclarity.in/logo.png',
-            description: "India's most transparent insurance comparison and advisory platform.",
+            description: tLayout('jsonLd.organization.description'),
             contactPoint: {
                 '@type': 'ContactPoint',
-                contactType: 'customer support',
-                availableLanguage: ['English', 'Hindi']
+                contactType: tLayout('jsonLd.organization.contactType'),
+                availableLanguage: [tLayout('jsonLd.organization.languages.english'), tLayout('jsonLd.organization.languages.hindi')]
             },
             sameAs: [
                 'https://github.com/contactonetrack-del/insuranceclarity-india'
@@ -99,7 +122,7 @@ export default async function RootLayout({
                                focus:rounded-xl focus:shadow-lg focus:border focus:border-accent
                                focus:font-semibold focus:text-sm"
                 >
-                    Skip to main content
+                    {tLayout('skipToContent')}
                 </a>
                 <JsonLd
                     data={{
@@ -113,7 +136,9 @@ export default async function RootLayout({
                         <NextAuthProvider>
                             <Header />
                             <PageTransition>
-                                <main id="main-content" className="pt-24">{children}</main>
+                                <main id="main-content" tabIndex={-1} className="pt-24 focus:outline-none">
+                                    {children}
+                                </main>
                             </PageTransition>
                             <Footer />
                             <DeferredGlobalUi nonce={nonce} />

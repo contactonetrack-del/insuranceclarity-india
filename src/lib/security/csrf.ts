@@ -17,10 +17,14 @@ import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
 import { isPlaceholderValue } from '@/lib/security/env';
 
-const csrfBaseSecret = process.env.CSRF_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim() || '';
+const csrfBaseSecret =
+  process.env.CSRF_SECRET?.trim() ||
+  process.env.BETTER_AUTH_SECRET?.trim() ||
+  process.env.NEXTAUTH_SECRET?.trim() ||
+  '';
 
 if (!csrfBaseSecret) {
-  const message = 'CSRF_SECRET (or NEXTAUTH_SECRET fallback) is not configured.';
+  const message = 'CSRF_SECRET (or BETTER_AUTH_SECRET fallback) is not configured.';
   if (process.env.NODE_ENV === 'production') {
     throw new Error(message);
   }

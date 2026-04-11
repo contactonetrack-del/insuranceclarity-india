@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { getAuthSession } from '@/lib/auth/session';
 import { logger } from '@/lib/logger';
 import { ErrorFactory } from '@/lib/api/error-response';
+import {
+    createAdvisorHistory,
+    findAdvisorHistoryById,
+    findUserIdByEmail,
+    listAdvisorHistories,
+    updateAdvisorHistory,
+} from '@/services/advisor-history.service';
 
 /**
  * GET /api/advisor/history
@@ -15,10 +21,7 @@ export async function GET(req: NextRequest) {
             return ErrorFactory.unauthorized('Unauthorized');
         }
 
-        const user = await prisma.user.findUnique({ 
-            where: { email: session.user.email },
-            select: { id: true }
-        });
+        const user = await findUserIdByEmail(session.user.email);
         
         if (!user) {
             return ErrorFactory.notFound('User not found');
@@ -28,22 +31,11 @@ export async function GET(req: NextRequest) {
         const id = searchParams.get('id');
 
         if (id) {
-            const history = await prisma.chatHistory.findUnique({
-                where: { id, userId: user.id }
-            });
+            const history = await findAdvisorHistoryById(id, user.id);
             return NextResponse.json(history);
         }
 
-        const histories = await prisma.chatHistory.findMany({
-            where: { userId: user.id },
-            orderBy: { updatedAt: 'desc' },
-            select: {
-                id: true,
-                title: true,
-                createdAt: true,
-                updatedAt: true,
-            }
-        });
+        const histories = await listAdvisorHistories(user.id);
 
         return NextResponse.json(histories);
     } catch (error) {
@@ -63,10 +55,7 @@ export async function POST(req: NextRequest) {
             return ErrorFactory.unauthorized('Unauthorized');
         }
 
-        const user = await prisma.user.findUnique({ 
-            where: { email: session.user.email },
-            select: { id: true }
-        });
+        const user = await findUserIdByEmail(session.user.email);
         
         if (!user) {
             return ErrorFactory.notFound('User not found');
@@ -81,22 +70,19 @@ export async function POST(req: NextRequest) {
 
         if (id) {
             // Update existing session
-            const updated = await prisma.chatHistory.update({
-                where: { id, userId: user.id },
-                data: {
-                    title,
-                    messages: messages as unknown as any, // Json in Prisma is tricky without a schema, but this is better than raw any
-                }
+            const updated = await updateAdvisorHistory({
+                id,
+                userId: user.id,
+                title,
+                messages,
             });
             return NextResponse.json({ id: updated.id });
         } else {
             // Create new session
-            const created = await prisma.chatHistory.create({
-                data: {
-                    userId: user.id,
-                    title,
-                    messages: messages as unknown as any,
-                }
+            const created = await createAdvisorHistory({
+                userId: user.id,
+                title,
+                messages,
             });
             return NextResponse.json({ id: created.id });
         }

@@ -8,31 +8,19 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { requireCronAuthorization } from '@/lib/security/cron-auth';
+import { resetMonthlyScansForFreeAndPro } from '@/services/ops.service';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-    // Validate cron secret
-    const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
-
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-        logger.warn({ action: 'cron.reset-scans.unauthorized', ip: request.headers.get('x-forwarded-for') });
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authFailure = requireCronAuthorization(request, { action: 'cron.reset-scans' });
+    if (authFailure) return authFailure;
 
     try {
         // Reset scan counts for all non-ENTERPRISE users
-        const result = await prisma.user.updateMany({
-            where: {
-                plan: { in: ['FREE', 'PRO'] },
-            },
-            data: {
-                scansUsed: 0,
-            },
-        });
+        const result = await resetMonthlyScansForFreeAndPro();
 
         logger.info({
             action: 'cron.reset-scans.success',

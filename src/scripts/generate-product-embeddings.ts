@@ -10,7 +10,7 @@ dotenv.config({ path: '.env.local' });
 
 const PRODUCTS_PATH = path.join(process.cwd(), 'src/data/mega-database.json');
 const CACHE_PATH = path.join(process.cwd(), 'src/data/products-embeddings.json');
-const BATCH_SIZE = 1; // Processing one by one to strictly respect Gemini RPM
+const _BATCH_SIZE = 1; // Processing one by one to strictly respect Gemini RPM
 
 interface Product {
     id: number;

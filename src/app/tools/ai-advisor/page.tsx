@@ -1,39 +1,47 @@
-import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
-import { Bot } from 'lucide-react';
+import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+import { Bot } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 
-export const runtime = 'nodejs';
+export const runtime = 'nodejs'
 
-// Phase 11: Lazy load advisor client to reduce initial bundle size
-// This defers loading the semantic search and match logic until the page is viewed
 const AdvisorClient = dynamic(() => import('./advisor-client'), {
-    loading: () => (
-        <div className="min-h-screen pt-20 flex flex-col items-center justify-center">
-            <div className="animate-pulse flex flex-col items-center gap-4">
-                <div className="p-4 rounded-full bg-indigo-500/10">
-                    <Bot className="w-12 h-12 text-indigo-500 animate-bounce" />
+    ssr: true,
+})
+
+function AdvisorLoadingState({
+    title,
+    subtitle,
+}: {
+    title: string
+    subtitle: string
+}) {
+    return (
+        <div className="flex min-h-screen flex-col items-center justify-center pt-20">
+            <div className="flex animate-pulse flex-col items-center gap-4">
+                <div className="rounded-full bg-accent/10 p-4">
+                    <Bot className="h-12 w-12 animate-bounce text-accent" />
                 </div>
-                <h2 className="text-2xl font-bold text-theme-primary">Initializing AI Engine...</h2>
-                <p className="text-sm text-theme-secondary mt-2">Loading semantic matching models...</p>
+                <h2 className="text-2xl font-bold text-theme-primary">{title}</h2>
+                <p className="mt-2 text-sm text-theme-secondary">{subtitle}</p>
             </div>
         </div>
-    ),
-    ssr: true,
-});
+    )
+}
 
-export default function AiAdvisorPage() {
+export default async function AiAdvisorPage() {
+    const t = await getTranslations('tools.aiAdvisorPage')
+
     return (
-        <Suspense fallback={
-            <div className="min-h-screen pt-20 flex flex-col items-center justify-center">
-                <div className="animate-pulse flex flex-col items-center gap-4">
-                    <div className="p-4 rounded-full bg-indigo-500/10">
-                        <Bot className="w-12 h-12 text-indigo-500 animate-bounce" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-theme-primary">Initializing Edge AI Engine...</h2>
-                </div>
-            </div>
-        }>
+        <Suspense
+            fallback={
+                <AdvisorLoadingState
+                    title={t('loadingTitle')}
+                    subtitle={t('loadingSubtitle')}
+                />
+            }
+        >
             <AdvisorClient />
         </Suspense>
-    );
+    )
 }

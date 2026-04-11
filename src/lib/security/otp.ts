@@ -1,7 +1,11 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { logger } from '@/lib/logger';
 
-const otpSecret = process.env.OTP_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim() || '';
+const otpSecret =
+    process.env.OTP_SECRET?.trim() ||
+    process.env.BETTER_AUTH_SECRET?.trim() ||
+    process.env.NEXTAUTH_SECRET?.trim() ||
+    '';
 
 if (!otpSecret) {
     const message = 'OTP_SECRET (or NEXTAUTH_SECRET fallback) is not configured.';

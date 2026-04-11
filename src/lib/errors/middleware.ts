@@ -8,15 +8,28 @@ import { ApiError } from './api-error';
 import { errorLogger, getErrorContext } from './error-logger';
 import * as Sentry from '@sentry/nextjs';
 
+type RouteHandler = (req: NextRequest) => Promise<NextResponse>;
+type AuthenticatedSession = { token: string };
+type AuthenticatedRouteHandler = (
+  req: NextRequest,
+  session: AuthenticatedSession
+) => Promise<NextResponse>;
+
+const SENTRY_LEVELS = {
+  LOW: 'info',
+  MEDIUM: 'warning',
+  HIGH: 'error',
+  CRITICAL: 'fatal',
+} as const;
+
 /**
  * Wrap handler with error handling
  */
-export function withErrorHandler<T extends (...args: any[]) => Promise<any>>(handler: T): T {
-  return (async (...args: any[]) => {
+export function withErrorHandler<T extends RouteHandler>(handler: T): T {
+  return (async (req: NextRequest) => {
     try {
-      return await handler(...args);
+      return await handler(req);
     } catch (error) {
-      const req = args[0] as NextRequest;
       const apiError = error instanceof ApiError ? error : ApiError.handle(error);
 
       // Log error
@@ -24,7 +37,7 @@ export function withErrorHandler<T extends (...args: any[]) => Promise<any>>(han
 
       // Report to Sentry
       Sentry.captureException(apiError, {
-        level: apiError.severity.toLowerCase() as any,
+        level: SENTRY_LEVELS[apiError.severity],
         tags: {
           errorCode: apiError.code,
           route: req.nextUrl.pathname,
@@ -70,7 +83,7 @@ export function withRateLimit(
       errorLogger.log(apiError, getErrorContext(req));
 
       Sentry.captureException(apiError, {
-        level: apiError.severity.toLowerCase() as any,
+        level: SENTRY_LEVELS[apiError.severity],
         tags: {
           errorCode: apiError.code,
           scope: options.scope,
@@ -91,7 +104,7 @@ export function withRateLimit(
  * Wrap handler with authentication check
  */
 export function withAuth(
-  handler: (req: NextRequest, session: any) => Promise<NextResponse>
+  handler: AuthenticatedRouteHandler
 ): (req: NextRequest) => Promise<NextResponse> {
   return async (req: NextRequest): Promise<NextResponse> => {
     try {
@@ -121,28 +134,29 @@ export function withAuth(
 /**
  * Create comprehensive error handler combining all middleware
  */
-export function createApiHandler<T extends (req: NextRequest, ...args: any[]) => Promise<NextResponse>>(
-  handler: T,
+export function createApiHandler(
+  handler: RouteHandler,
   options?: {
     rateLimit?: string;
     requireAuth?: boolean;
   }
 ): (req: NextRequest) => Promise<NextResponse> {
-  let finalHandler = handler;
+  let finalHandler: RouteHandler = handler;
 
   if (options?.rateLimit) {
-    finalHandler = withRateLimit(finalHandler as any, {
+    finalHandler = withRateLimit(finalHandler, {
       scope: options.rateLimit,
       maxRequests: 60,
       timeWindowSeconds: 3600,
-    }) as T;
+    });
   }
 
   if (options?.requireAuth) {
-    finalHandler = withAuth(finalHandler as any) as T;
+    const protectedHandler = finalHandler;
+    finalHandler = withAuth(async (req) => protectedHandler(req));
   }
 
-  finalHandler = withErrorHandler(finalHandler) as T;
+  finalHandler = withErrorHandler(finalHandler);
 
-  return finalHandler as any;
+  return finalHandler;
 }

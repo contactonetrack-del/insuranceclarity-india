@@ -1,5 +1,7 @@
 # 🎯 Phase 3 - Immediate Recommendations: COMPLETE ✅
 
+> Historical archive: this document reflects an earlier milestone, not the current source of truth. Refer to [MASTER-PLAN-STATUS.md](../MASTER-PLAN-STATUS.md) for the live system state.
+
 ## Summary
 
 All immediate high-priority recommendations from Phase 2 have been successfully implemented and integrated. The platform is now more production-ready with standardized error handling, subscription validation, and enhanced internationalization.

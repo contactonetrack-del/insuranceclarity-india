@@ -3,6 +3,18 @@ import type { Prisma } from '@prisma/client';
 import { logDbQuery, logger } from '@/lib/logger';
 
 export class QuoteRepository {
+    async countAll() {
+        const start = Date.now();
+        try {
+            const result = await prisma.quote.count();
+            logDbQuery('Quote', 'countAll', Date.now() - start);
+            return result;
+        } catch (error) {
+            logger.error({ error, action: 'countAll', model: 'Quote' }, 'Repository Error: Quote.countAll');
+            throw error;
+        }
+    }
+
     /**
      * Retrieves all quotes from the database.
      * In a real application, you'd add pagination and filtering here.

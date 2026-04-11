@@ -1,228 +1,296 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { Cookie, Settings, BarChart3, Shield } from 'lucide-react'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 
-export const metadata: Metadata = {
-    title: 'Cookie Policy | InsuranceClarity India',
-    description: 'Cookie Policy for InsuranceClarity India - How we use cookies and how to manage your preferences.',
+export async function generateMetadata(): Promise<Metadata> {
+    const t = await getTranslations('cookiePolicyPage.metadata')
+
+    return {
+        title: t('title'),
+        description: t('description'),
+    }
 }
 
-export default function CookiePolicyPage() {
-    const lastUpdated = 'January 9, 2026'
+export default async function CookiePolicyPage() {
+    const t = await getTranslations('cookiePolicyPage')
+
+    const essentialRows = [
+        {
+            key: 'theme_preference',
+            purpose: t('sections.cookiesUse.essential.table.rows.themePreference.purpose'),
+            lifespan: t('sections.cookiesUse.essential.table.rows.themePreference.lifespan'),
+            consent: t('sections.cookiesUse.essential.table.rows.themePreference.consent'),
+        },
+        {
+            key: 'cookie_consent',
+            purpose: t('sections.cookiesUse.essential.table.rows.cookieConsent.purpose'),
+            lifespan: t('sections.cookiesUse.essential.table.rows.cookieConsent.lifespan'),
+            consent: t('sections.cookiesUse.essential.table.rows.cookieConsent.consent'),
+        },
+    ]
+
+    const analyticsRows = [
+        {
+            key: '_ga',
+            provider: t('sections.cookiesUse.analytics.table.rows.ga.provider'),
+            purpose: t('sections.cookiesUse.analytics.table.rows.ga.purpose'),
+            lifespan: t('sections.cookiesUse.analytics.table.rows.ga.lifespan'),
+        },
+        {
+            key: '_ga_*',
+            provider: t('sections.cookiesUse.analytics.table.rows.gaWildcard.provider'),
+            purpose: t('sections.cookiesUse.analytics.table.rows.gaWildcard.purpose'),
+            lifespan: t('sections.cookiesUse.analytics.table.rows.gaWildcard.lifespan'),
+        },
+        {
+            key: '_gat',
+            provider: t('sections.cookiesUse.analytics.table.rows.gat.provider'),
+            purpose: t('sections.cookiesUse.analytics.table.rows.gat.purpose'),
+            lifespan: t('sections.cookiesUse.analytics.table.rows.gat.lifespan'),
+        },
+    ]
+
+    const browserOptions = [
+        t('sections.managingPreferences.browserSettings.options.chrome'),
+        t('sections.managingPreferences.browserSettings.options.safari'),
+        t('sections.managingPreferences.browserSettings.options.firefox'),
+        t('sections.managingPreferences.browserSettings.options.edge'),
+    ]
+
+    const notEmbedded = [
+        t('sections.thirdPartyDisclosure.notEmbedded.socialPixels'),
+        t('sections.thirdPartyDisclosure.notEmbedded.adNetworks'),
+        t('sections.thirdPartyDisclosure.notEmbedded.crmTracking'),
+    ]
+
+    const onlyTrackers = [
+        t('sections.thirdPartyDisclosure.onlyTrackers.ga4'),
+        t('sections.thirdPartyDisclosure.onlyTrackers.posthog'),
+        t('sections.thirdPartyDisclosure.onlyTrackers.sentry'),
+    ]
+
+    const protections = [
+        t('sections.dataProtection.items.piiBlocking'),
+        t('sections.dataProtection.items.ipAnonymization'),
+        t('sections.dataProtection.items.dataMinimization'),
+        t('sections.dataProtection.items.secureTransmission'),
+    ]
 
     return (
-        <div className="min-h-screen pt-20 pb-16">
-            <div className="max-w-4xl mx-auto px-6">
+        <div className="min-h-screen pb-16 pt-20">
+            <div className="mx-auto max-w-4xl px-6">
                 <header className="mb-12 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-10 text-accent 
-                                   text-sm rounded-full mb-4 font-medium">
-                        <Cookie className="w-4 h-4" />
-                        LEGAL
+                    <div
+                        className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-4 py-2 text-sm
+                                   font-medium text-accent"
+                    >
+                        <Cookie className="h-4 w-4" aria-hidden="true" />
+                        {t('badge')}
                     </div>
-                    <h1 className="font-display font-bold text-3xl md:text-4xl text-theme-primary mb-4">
-                        Cookie Policy
+                    <h1 className="font-display mb-4 text-3xl font-bold text-theme-primary md:text-4xl">
+                        {t('title')}
                     </h1>
                     <p className="text-theme-secondary">
-                        Last updated: {lastUpdated}
+                        {t('lastUpdatedLabel')}: {t('lastUpdatedDate')}
                     </p>
                 </header>
 
-                <article className="prose prose-lg dark:prose-invert max-w-none space-y-8">
-                    {/* What Are Cookies */}
+                <article className="prose prose-lg max-w-none space-y-8 dark:prose-invert">
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">1. What Are Cookies?</h2>
-                        <p className="text-theme-secondary">
-                            Cookies are small text files stored on your device when you visit websites. They help
-                            websites remember your preferences and track usage patterns. Cookies cannot access
-                            other data on your device or harm your computer.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.whatAreCookies.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.whatAreCookies.description')}</p>
                     </section>
 
-                    {/* Cookies We Use */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">2. Cookies We Use</h2>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.cookiesUse.title')}</h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-6 flex items-center gap-2">
-                            <Shield className="w-5 h-5 text-green-500" />
-                            Essential Cookies (No Consent Required)
+                        <h3 className="mt-6 flex items-center gap-2 text-lg font-medium text-theme-primary">
+                            <Shield className="h-5 w-5 text-success-500" aria-hidden="true" />
+                            {t('sections.cookiesUse.essential.title')}
                         </h3>
-                        <p className="text-theme-secondary">These are necessary for the website to function:</p>
+                        <p className="text-theme-secondary">{t('sections.cookiesUse.essential.description')}</p>
                         <div className="overflow-x-auto">
-                            <table className="w-full text-sm border border-default rounded-lg">
+                            <table className="w-full rounded-lg border border-default text-sm">
                                 <thead className="bg-theme-surface">
                                     <tr>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Cookie Name</th>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Purpose</th>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Lifespan</th>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Consent</th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">
+                                            {t('sections.cookiesUse.essential.table.headers.cookieName')}
+                                        </th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">
+                                            {t('sections.cookiesUse.essential.table.headers.purpose')}
+                                        </th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">
+                                            {t('sections.cookiesUse.essential.table.headers.lifespan')}
+                                        </th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">
+                                            {t('sections.cookiesUse.essential.table.headers.consent')}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-theme-secondary">
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2 font-mono text-xs">theme_preference</td>
-                                        <td className="px-4 py-2">Remembers dark/light mode</td>
-                                        <td className="px-4 py-2">1 year</td>
-                                        <td className="px-4 py-2">No</td>
-                                    </tr>
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2 font-mono text-xs">cookie_consent</td>
-                                        <td className="px-4 py-2">Stores your cookie preferences</td>
-                                        <td className="px-4 py-2">1 year</td>
-                                        <td className="px-4 py-2">No (meta-cookie)</td>
-                                    </tr>
+                                    {essentialRows.map((row) => (
+                                        <tr key={row.key} className="border-t border-default">
+                                            <td className="px-4 py-2 font-mono text-xs">{row.key}</td>
+                                            <td className="px-4 py-2">{row.purpose}</td>
+                                            <td className="px-4 py-2">{row.lifespan}</td>
+                                            <td className="px-4 py-2">{row.consent}</td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-6 flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-blue-500" />
-                            Analytics Cookies (Requires Consent)
+                        <h3 className="mt-6 flex items-center gap-2 text-lg font-medium text-theme-primary">
+                            <BarChart3 className="h-5 w-5 text-info-500" aria-hidden="true" />
+                            {t('sections.cookiesUse.analytics.title')}
                         </h3>
-                        <p className="text-theme-secondary">These help us understand how you use the website:</p>
+                        <p className="text-theme-secondary">{t('sections.cookiesUse.analytics.description')}</p>
                         <div className="overflow-x-auto">
-                            <table className="w-full text-sm border border-default rounded-lg">
+                            <table className="w-full rounded-lg border border-default text-sm">
                                 <thead className="bg-theme-surface">
                                     <tr>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Cookie Name</th>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Provider</th>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Purpose</th>
-                                        <th className="px-4 py-2 text-left text-theme-primary">Lifespan</th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">
+                                            {t('sections.cookiesUse.analytics.table.headers.cookieName')}
+                                        </th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">
+                                            {t('sections.cookiesUse.analytics.table.headers.provider')}
+                                        </th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">
+                                            {t('sections.cookiesUse.analytics.table.headers.purpose')}
+                                        </th>
+                                        <th className="px-4 py-2 text-left text-theme-primary">
+                                            {t('sections.cookiesUse.analytics.table.headers.lifespan')}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-theme-secondary">
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2 font-mono text-xs">_ga</td>
-                                        <td className="px-4 py-2">Google Analytics 4</td>
-                                        <td className="px-4 py-2">Tracks unique visitors</td>
-                                        <td className="px-4 py-2">2 years</td>
-                                    </tr>
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2 font-mono text-xs">_ga_*</td>
-                                        <td className="px-4 py-2">Google Analytics 4</td>
-                                        <td className="px-4 py-2">Tracks sessions and events</td>
-                                        <td className="px-4 py-2">1 year</td>
-                                    </tr>
-                                    <tr className="border-t border-default">
-                                        <td className="px-4 py-2 font-mono text-xs">_gat</td>
-                                        <td className="px-4 py-2">Google Analytics 4</td>
-                                        <td className="px-4 py-2">Throttles request rate</td>
-                                        <td className="px-4 py-2">10 minutes</td>
-                                    </tr>
+                                    {analyticsRows.map((row) => (
+                                        <tr key={row.key} className="border-t border-default">
+                                            <td className="px-4 py-2 font-mono text-xs">{row.key}</td>
+                                            <td className="px-4 py-2">{row.provider}</td>
+                                            <td className="px-4 py-2">{row.purpose}</td>
+                                            <td className="px-4 py-2">{row.lifespan}</td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-6">Advertising Cookies</h3>
+                        <h3 className="mt-6 text-lg font-medium text-theme-primary">
+                            {t('sections.cookiesUse.advertising.title')}
+                        </h3>
                         <p className="text-theme-secondary">
-                            <strong>We do NOT use advertising cookies.</strong> We do not display targeted ads or
-                            use any advertising networks (Meta Pixel, Google Ads, etc.).
+                            <strong>{t('sections.cookiesUse.advertising.boldLead')}</strong>{' '}
+                            {t('sections.cookiesUse.advertising.description')}
                         </p>
                     </section>
 
-                    {/* Managing Preferences */}
                     <section className="glass rounded-xl p-6">
-                        <h2 className="text-xl font-semibold text-theme-primary mb-4 flex items-center gap-2">
-                            <Settings className="w-5 h-5 text-accent" />
-                            3. Managing Your Cookie Preferences
+                        <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-theme-primary">
+                            <Settings className="h-5 w-5 text-accent" aria-hidden="true" />
+                            {t('sections.managingPreferences.title')}
                         </h2>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">Option 1: Cookie Banner (First Visit)</h3>
-                        <p className="text-theme-secondary">
-                            When you first visit, a cookie banner appears with options to:
-                        </p>
-                        <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>&ldquo;Accept All&rdquo;</strong> — Accept all non-essential cookies</li>
-                            <li><strong>&ldquo;Reject Non-Essential&rdquo;</strong> — Use essential cookies only</li>
-                            <li><strong>&ldquo;Manage Preferences&rdquo;</strong> — Choose what cookies to accept</li>
+                        <h3 className="mt-4 text-lg font-medium text-theme-primary">
+                            {t('sections.managingPreferences.bannerOption.title')}
+                        </h3>
+                        <p className="text-theme-secondary">{t('sections.managingPreferences.bannerOption.description')}</p>
+                        <ul className="list-disc space-y-1 pl-6 text-theme-secondary">
+                            <li>
+                                <strong>{t('sections.managingPreferences.bannerOption.items.acceptAllLabel')}</strong>{' '}
+                                {t('sections.managingPreferences.bannerOption.items.acceptAllDescription')}
+                            </li>
+                            <li>
+                                <strong>{t('sections.managingPreferences.bannerOption.items.rejectLabel')}</strong>{' '}
+                                {t('sections.managingPreferences.bannerOption.items.rejectDescription')}
+                            </li>
+                            <li>
+                                <strong>{t('sections.managingPreferences.bannerOption.items.manageLabel')}</strong>{' '}
+                                {t('sections.managingPreferences.bannerOption.items.manageDescription')}
+                            </li>
                         </ul>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">Option 2: Browser Settings</h3>
-                        <p className="text-theme-secondary">You can control cookies in your browser:</p>
-                        <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>Chrome:</strong> Settings → Privacy & Security → Cookies</li>
-                            <li><strong>Safari:</strong> Preferences → Privacy → Cookies</li>
-                            <li><strong>Firefox:</strong> Settings → Privacy & Security → Cookies</li>
-                            <li><strong>Edge:</strong> Settings → Privacy & Security → Cookies</li>
+                        <h3 className="mt-4 text-lg font-medium text-theme-primary">
+                            {t('sections.managingPreferences.browserSettings.title')}
+                        </h3>
+                        <p className="text-theme-secondary">{t('sections.managingPreferences.browserSettings.description')}</p>
+                        <ul className="list-disc space-y-1 pl-6 text-theme-secondary">
+                            {browserOptions.map((item) => (
+                                <li key={item}>{item}</li>
+                            ))}
                         </ul>
-                        <p className="text-theme-muted text-sm mt-2">
-                            Note: Disabling essential cookies may break website functionality.
+                        <p className="mt-2 text-sm text-theme-muted">
+                            {t('sections.managingPreferences.browserSettings.note')}
                         </p>
 
-                        <h3 className="text-lg font-medium text-theme-primary mt-4">Option 3: Opt-Out of Analytics</h3>
+                        <h3 className="mt-4 text-lg font-medium text-theme-primary">
+                            {t('sections.managingPreferences.optOut.title')}
+                        </h3>
                         <p className="text-theme-secondary">
-                            You can exclude yourself from GA4 tracking by installing the{' '}
+                            {t('sections.managingPreferences.optOut.descriptionPrefix')}{' '}
                             <a
                                 href="https://tools.google.com/dlpage/gaoptout"
                                 target="_blank"
+                                rel="noopener noreferrer"
                                 className="text-accent hover:underline"
                             >
-                                Google Analytics Opt-out Browser Extension
-                            </a>.
+                                {t('sections.managingPreferences.optOut.linkLabel')}
+                            </a>
+                            .
                         </p>
                     </section>
 
-                    {/* Third-Party Disclosure */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">4. Third-Party Cookie Disclosure</h2>
-                        <p className="text-theme-secondary">Our website does NOT embed:</p>
-                        <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Social media tracking pixels (Meta Pixel, Twitter Pixel, etc.)</li>
-                            <li>Advertising networks (Google Ads, Facebook Ads, etc.)</li>
-                            <li>CRM tracking (HubSpot, Marketo, etc.)</li>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.thirdPartyDisclosure.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.thirdPartyDisclosure.notEmbeddedLead')}</p>
+                        <ul className="list-disc space-y-1 pl-6 text-theme-secondary">
+                            {notEmbedded.map((item) => (
+                                <li key={item}>{item}</li>
+                            ))}
                         </ul>
-                        <p className="text-theme-secondary mt-4">
-                            <strong>Only trackers present:</strong>
+                        <p className="mt-4 text-theme-secondary">
+                            <strong>{t('sections.thirdPartyDisclosure.onlyTrackersLead')}</strong>
                         </p>
-                        <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li>Google Analytics 4 (marketing analytics, with PII blocking enabled)</li>
-                            <li>PostHog (product analytics, enabled only when configured and consented)</li>
-                            <li>Sentry (error monitoring, with PII redaction)</li>
+                        <ul className="list-disc space-y-1 pl-6 text-theme-secondary">
+                            {onlyTrackers.map((item) => (
+                                <li key={item}>{item}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Data Protection */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">5. How We Protect Cookie Data</h2>
-                        <ul className="list-disc pl-6 text-theme-secondary space-y-1">
-                            <li><strong>PII Blocking:</strong> We block age, email, phone, and other sensitive fields from analytics cookies</li>
-                            <li><strong>IP Anonymization:</strong> Last octet of IP address is removed before analytics processing</li>
-                            <li><strong>Data Minimization:</strong> We only track non-identifying, aggregated usage patterns</li>
-                            <li><strong>Secure Transmission:</strong> All cookies are transmitted over HTTPS only</li>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.dataProtection.title')}</h2>
+                        <ul className="list-disc space-y-1 pl-6 text-theme-secondary">
+                            {protections.map((item) => (
+                                <li key={item}>{item}</li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Changes */}
                     <section>
-                        <h2 className="text-xl font-semibold text-theme-primary">6. Changes to This Cookie Policy</h2>
-                        <p className="text-theme-secondary">
-                            We may update this policy to reflect new cookies or service providers. Changes will be
-                            posted here with an updated &ldquo;Last modified&rdquo; date. If we add new analytics or tracking
-                            cookies, we will request your consent again.
-                        </p>
+                        <h2 className="text-xl font-semibold text-theme-primary">{t('sections.changes.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.changes.description')}</p>
                     </section>
 
-                    {/* Contact */}
                     <section className="glass rounded-xl p-6">
-                        <h2 className="text-xl font-semibold text-theme-primary mb-4">7. Contact</h2>
-                        <p className="text-theme-secondary">
-                            For questions about our cookie use:
-                        </p>
-                        <p className="text-theme-secondary mt-2">
-                            Email:{' '}
+                        <h2 className="mb-4 text-xl font-semibold text-theme-primary">{t('sections.contact.title')}</h2>
+                        <p className="text-theme-secondary">{t('sections.contact.description')}</p>
+                        <p className="mt-2 text-theme-secondary">
+                            {t('sections.contact.emailLabel')}{' '}
                             <a href="mailto:privacy@insuranceclarity.in" className="text-accent hover:underline">
                                 privacy@insuranceclarity.in
                             </a>
                         </p>
-                        <p className="text-theme-muted text-sm mt-2">Response time: 30 days</p>
+                        <p className="mt-2 text-sm text-theme-muted">{t('sections.contact.responseTime')}</p>
                     </section>
 
-                    {/* Related Links */}
-                    <section className="flex gap-4 text-sm pt-4">
+                    <section className="flex gap-4 pt-4 text-sm">
                         <Link href="/privacy" className="text-accent hover:underline">
-                            Privacy Policy →
+                            {t('relatedLinks.privacy')}
                         </Link>
                         <Link href="/terms" className="text-accent hover:underline">
-                            Terms of Service →
+                            {t('relatedLinks.terms')}
                         </Link>
                     </section>
                 </article>

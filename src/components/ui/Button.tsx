@@ -64,23 +64,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variantClasses: Record<ButtonVariant, string> = {
       primary: cn(
         'bg-gradient-accent text-white',
-        'focus-visible:ring-[rgb(var(--color-accent))]',
+        'focus-visible:ring-focus-ring',
         glow && 'shadow-glow hover:shadow-glow-lg hero-glow'
       ),
       secondary: cn(
         'glass text-theme-primary',
         'hover:border-hover hover:bg-theme-secondary/50',
-        'focus-visible:ring-[rgb(var(--color-accent))]'
+        'focus-visible:ring-focus-ring'
       ),
       outline: cn(
         'bg-transparent border border-default text-theme-primary',
-        'hover:bg-accent-5 hover:border-[rgb(var(--color-accent))]',
-        'focus-visible:ring-[rgb(var(--color-accent))]'
+        'hover:bg-accent/5 hover:border-accent/30',
+        'focus-visible:ring-focus-ring'
       ),
       ghost: cn(
         'bg-transparent text-theme-primary',
-        'hover:bg-accent-10',
-        'focus-visible:ring-[rgb(var(--color-accent))]'
+        'hover:bg-accent/10',
+        'focus-visible:ring-focus-ring'
       ),
       danger: cn(
         'bg-red-500 text-white shadow-md',

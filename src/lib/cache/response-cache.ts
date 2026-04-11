@@ -262,7 +262,7 @@ export async function getCacheStats(): Promise<{
             configured: true,
             totalKeys: keys.length,
         };
-    } catch (err) {
+    } catch (_err) {
         return {
             configured: true,
             // hitRate calculation would require additional tracking

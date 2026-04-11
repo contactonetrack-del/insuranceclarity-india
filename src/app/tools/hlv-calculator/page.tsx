@@ -247,7 +247,7 @@ export default function HLVCalculatorPage() {
                                             onClick={handleSave}
                                             disabled={isSaving}
                                             className={`w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98] ${saveSuccess
-                                                ? "bg-emerald-500 text-white"
+                                                ? "bg-success-500 text-white"
                                                 : "bg-theme-primary text-theme-reverse hover:bg-theme-primary/90 shadow-xl"
                                                 }`}
                                         >

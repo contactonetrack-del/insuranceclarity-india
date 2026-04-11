@@ -10,8 +10,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { requireCronAuthorization } from '@/lib/security/cron-auth';
+import { markStaleScansAndPayments } from '@/services/ops.service';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,37 +20,14 @@ const STALE_SCAN_MS = 5 * 60 * 1000;
 const STALE_PAYMENT_MS = 2 * 60 * 60 * 1000;
 
 export async function GET(request: NextRequest) {
-    const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
-
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-        logger.warn({
-            action: 'cron.cleanup-stale-scans.unauthorized',
-            ip: request.headers.get('x-forwarded-for'),
-        });
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authFailure = requireCronAuthorization(request, { action: 'cron.cleanup-stale-scans' });
+    if (authFailure) return authFailure;
 
     try {
         const staleScanBefore = new Date(Date.now() - STALE_SCAN_MS);
         const stalePaymentBefore = new Date(Date.now() - STALE_PAYMENT_MS);
 
-        const [staleScans, stalePayments] = await prisma.$transaction([
-            prisma.scan.updateMany({
-                where: {
-                    status: { in: ['PENDING', 'PROCESSING'] },
-                    updatedAt: { lt: staleScanBefore },
-                },
-                data: { status: 'FAILED' },
-            }),
-            prisma.payment.updateMany({
-                where: {
-                    status: 'CREATED',
-                    createdAt: { lt: stalePaymentBefore },
-                },
-                data: { status: 'FAILED' },
-            }),
-        ]);
+        const [staleScans, stalePayments] = await markStaleScansAndPayments(staleScanBefore, stalePaymentBefore);
 
         logger.info({
             action: 'cron.cleanup-stale-scans.success',

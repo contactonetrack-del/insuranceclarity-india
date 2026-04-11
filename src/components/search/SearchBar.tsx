@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Search, X, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -14,22 +15,14 @@ interface SearchResult {
     category?: string
 }
 
-// Quick navigation shortcuts — always shown when the search box is empty
-const QUICK_LINKS: SearchResult[] = [
-    { id: 'q1', type: 'tool', title: 'Hidden Facts Revealer', href: '/tools/hidden-facts', description: 'Uncover policy exclusions' },
-    { id: 'q2', type: 'tool', title: 'Premium Calculator', href: '/tools/calculator', description: 'Estimate your premium instantly' },
-    { id: 'q3', type: 'insurance', title: 'Health Insurance', href: '/insurance/health', description: 'Individual & Family Floater plans' },
-    { id: 'q4', type: 'insurance', title: 'Term Life Insurance', href: '/insurance/term-life', description: 'Pure protection, lowest premiums' },
-    { id: 'q5', type: 'tool', title: 'Policy Comparison', href: '/tools/compare', description: 'Compare side by side' },
-    { id: 'q6', type: 'insurance', title: 'Motor Insurance', href: '/insurance/motor', description: 'Car, Bike & Commercial' },
-]
-
-const TYPE_LABELS: Record<SearchResult['type'], string> = {
-    insurance: 'Insurance',
-    tool: 'Tool',
-    fact: 'Hidden Fact',
-    claim: 'Claim Case',
-}
+const QUICK_LINK_SEEDS = [
+    { id: 'q1', type: 'tool', key: 'hiddenFacts', href: '/tools/hidden-facts' },
+    { id: 'q2', type: 'tool', key: 'premiumCalculator', href: '/tools/calculator' },
+    { id: 'q3', type: 'insurance', key: 'healthInsurance', href: '/insurance/health' },
+    { id: 'q4', type: 'insurance', key: 'termLifeInsurance', href: '/insurance/term-life' },
+    { id: 'q5', type: 'tool', key: 'policyComparison', href: '/tools/compare' },
+    { id: 'q6', type: 'insurance', key: 'motorInsurance', href: '/insurance/motor' },
+] as const
 
 interface SearchBarProps {
     className?: string
@@ -37,7 +30,25 @@ interface SearchBarProps {
     compact?: boolean
 }
 
-export function SearchBar({ className = '', placeholder = 'Search insurance types, tools, facts…', compact = false }: SearchBarProps) {
+export function SearchBar({ className = '', placeholder, compact = false }: SearchBarProps) {
+    const t = useTranslations('searchBar')
+    const resolvedPlaceholder = placeholder ?? t('placeholder')
+
+    const quickLinks: SearchResult[] = QUICK_LINK_SEEDS.map((item) => ({
+        id: item.id,
+        type: item.type,
+        href: item.href,
+        title: t(`quickLinks.${item.key}.title`),
+        description: t(`quickLinks.${item.key}.description`),
+    }))
+
+    const typeLabels: Record<SearchResult['type'], string> = {
+        insurance: t('typeLabels.insurance'),
+        tool: t('typeLabels.tool'),
+        fact: t('typeLabels.fact'),
+        claim: t('typeLabels.claim'),
+    }
+
     const [query, setQuery] = useState('')
     const [results, setResults] = useState<SearchResult[]>([])
     const [isLoading, setIsLoading] = useState(false)
@@ -48,7 +59,6 @@ export function SearchBar({ className = '', placeholder = 'Search insurance type
     const router = useRouter()
     const debounceRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
-    // Search via secure backend /api/search (keeps Meilisearch key server-side)
     const search = useCallback(async (q: string) => {
         if (!q.trim()) {
             setResults([])
@@ -78,61 +88,65 @@ export function SearchBar({ className = '', placeholder = 'Search insurance type
                 }
                 const hits = data.hits ?? []
                 const mapped: SearchResult[] = hits.map((h) => ({
-                    id:          String(h.id ?? h._id ?? Math.random()),
-                    type:        (h.type as SearchResult['type']) ?? 'insurance',
-                    title:       h.title ?? h.name ?? '',
+                    id: String(h.id ?? h._id ?? Math.random()),
+                    type: (h.type as SearchResult['type']) ?? 'insurance',
+                    title: h.title ?? h.name ?? '',
                     description: h.description ?? h.category ?? '',
-                    href:        h.href ?? `/insurance/${encodeURIComponent(h.title ?? h.name ?? '')}`,
-                    category:    h.category,
+                    href: h.href ?? `/insurance/${encodeURIComponent(h.title ?? h.name ?? '')}`,
+                    category: h.category,
                 }))
                 setResults(mapped)
                 return
             }
 
-            // Fallback: client-side filter over quick links
-            const q_lower = q.toLowerCase()
-            setResults(QUICK_LINKS.filter(l =>
-                l.title.toLowerCase().includes(q_lower) ||
-                l.description.toLowerCase().includes(q_lower)
+            const qLower = q.toLowerCase()
+            setResults(quickLinks.filter((link) =>
+                link.title.toLowerCase().includes(qLower) ||
+                link.description.toLowerCase().includes(qLower),
             ))
         } catch {
-            // Silently fall back — search is a progressive enhancement
-            const q_lower = q.toLowerCase()
-            setResults(QUICK_LINKS.filter(l =>
-                l.title.toLowerCase().includes(q_lower) ||
-                l.description.toLowerCase().includes(q_lower)
+            const qLower = q.toLowerCase()
+            setResults(quickLinks.filter((link) =>
+                link.title.toLowerCase().includes(qLower) ||
+                link.description.toLowerCase().includes(qLower),
             ))
         } finally {
             setIsLoading(false)
         }
-    }, [])
+    }, [quickLinks])
 
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value
-        setQuery(val)
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value
+        setQuery(value)
         setActiveIndex(-1)
         clearTimeout(debounceRef.current)
-        debounceRef.current = setTimeout(() => search(val), 300)
+        debounceRef.current = setTimeout(() => search(value), 300)
     }
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        const items = query ? results : QUICK_LINKS
-        if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIndex(i => Math.min(i + 1, items.length - 1)) }
-        if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIndex(i => Math.max(i - 1, -1)) }
-        if (e.key === 'Enter' && activeIndex >= 0) {
-            e.preventDefault()
+    const handleKeyDown = (event: React.KeyboardEvent) => {
+        const items = query ? results : quickLinks
+        if (event.key === 'ArrowDown') {
+            event.preventDefault()
+            setActiveIndex((index) => Math.min(index + 1, items.length - 1))
+        }
+        if (event.key === 'ArrowUp') {
+            event.preventDefault()
+            setActiveIndex((index) => Math.max(index - 1, -1))
+        }
+        if (event.key === 'Enter' && activeIndex >= 0) {
+            event.preventDefault()
             router.push(items[activeIndex].href)
             setIsOpen(false)
             setQuery('')
         }
-        if (e.key === 'Escape') { setIsOpen(false) }
+        if (event.key === 'Escape') {
+            setIsOpen(false)
+        }
     }
 
-    // Click outside to close
     useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        const handler = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
                 setIsOpen(false)
             }
         }
@@ -140,11 +154,10 @@ export function SearchBar({ className = '', placeholder = 'Search insurance type
         return () => document.removeEventListener('mousedown', handler)
     }, [])
 
-    const displayItems = query ? results : QUICK_LINKS
+    const displayItems = query ? results : quickLinks
 
     return (
         <div ref={containerRef} className={`relative ${className}`}>
-            {/* Input */}
             <div className={`flex items-center gap-2 glass border border-default 
                              focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20
                              transition-all duration-200 rounded-xl ${compact ? 'px-3 py-2' : 'px-4 py-3'}`}>
@@ -161,8 +174,8 @@ export function SearchBar({ className = '', placeholder = 'Search insurance type
                     onChange={handleChange}
                     onFocus={() => setIsOpen(true)}
                     onKeyDown={handleKeyDown}
-                    placeholder={placeholder}
-                    aria-label="Search"
+                    placeholder={resolvedPlaceholder}
+                    aria-label={t('aria.searchInput')}
                     aria-autocomplete="list"
                     aria-expanded={isOpen}
                     aria-controls="search-results"
@@ -176,14 +189,13 @@ export function SearchBar({ className = '', placeholder = 'Search insurance type
                     <button
                         onClick={() => { setQuery(''); setResults([]); inputRef.current?.focus() }}
                         className="text-theme-muted hover:text-theme-primary transition-colors"
-                        aria-label="Clear search"
+                        aria-label={t('aria.clearSearch')}
                     >
                         <X className="w-4 h-4" />
                     </button>
                 )}
             </div>
 
-            {/* Dropdown results */}
             {isOpen && (
                 <div
                     className="absolute top-full left-0 right-0 mt-2 glass-strong rounded-xl border border-default
@@ -191,19 +203,19 @@ export function SearchBar({ className = '', placeholder = 'Search insurance type
                 >
                     {!query && (
                         <p className="text-xs text-theme-muted px-3 pt-3 pb-1 font-medium uppercase tracking-wider">
-                            Popular pages
+                            {t('popularPages')}
                         </p>
                     )}
                     {displayItems.length === 0 && query && !isLoading && (
                         <p className="px-4 py-6 text-center text-theme-muted text-sm">
-                            No results for &ldquo;{query}&rdquo;
+                            {t('noResults', { query })}
                         </p>
                     )}
                     {displayItems.length > 0 && (
                         <div
                             id="search-results"
                             role="listbox"
-                            aria-label="Search suggestions"
+                            aria-label={t('aria.searchSuggestions')}
                         >
                             {displayItems.map((item, index) => (
                                 <Link
@@ -213,8 +225,8 @@ export function SearchBar({ className = '', placeholder = 'Search insurance type
                                     role="option"
                                     aria-selected={index === activeIndex}
                                     className={`flex items-center gap-3 px-3 py-3 transition-colors
-                                                text-theme-secondary hover:text-theme-primary hover:bg-accent-5
-                                                ${index === activeIndex ? 'bg-accent-5 text-theme-primary' : ''}`}
+                                                text-theme-secondary hover:text-theme-primary hover:bg-accent/5
+                                                ${index === activeIndex ? 'bg-accent/5 text-theme-primary' : ''}`}
                                     onClick={() => { setIsOpen(false); setQuery('') }}
                                 >
                                     <div className="flex-1 min-w-0">
@@ -222,7 +234,7 @@ export function SearchBar({ className = '', placeholder = 'Search insurance type
                                         <p className="text-xs text-theme-muted truncate">{item.description}</p>
                                     </div>
                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium shrink-0">
-                                        {TYPE_LABELS[item.type]}
+                                        {typeLabels[item.type]}
                                     </span>
                                     <ArrowRight className="w-3.5 h-3.5 text-theme-muted shrink-0" aria-hidden="true" />
                                 </Link>

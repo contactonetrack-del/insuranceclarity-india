@@ -2,21 +2,34 @@ import { fetchFromSanity } from '@/sanity/client';
 import { ALL_SEO_CLUSTERS_QUERY } from '@/sanity/queries';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { ShieldCheck } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 export const revalidate = 3600;
 
+type SeoCluster = {
+    _id: string;
+    title: string;
+    slug: { current: string };
+    description?: string | null;
+    heroImage?: {
+        asset?: {
+            url?: string | null;
+        } | null;
+    } | null;
+};
+
 export default async function HubsPage() {
-    const clusters = await fetchFromSanity<any[]>(ALL_SEO_CLUSTERS_QUERY, {}, []);
+    const t = await getTranslations('hubsPage');
+    const clusters = await fetchFromSanity<SeoCluster[]>(ALL_SEO_CLUSTERS_QUERY, {}, []);
 
     if (!clusters || clusters.length === 0) {
         return (
             <div className="min-h-screen pt-24 pb-20 px-6 flex items-center justify-center">
                 <div className="text-center max-w-md">
                     <ShieldCheck className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-theme-primary mb-2">No knowledge hubs available</h2>
-                    <p className="text-theme-secondary">Our editorial team is working on fresh topic clusters. Please check back later.</p>
+                    <h2 className="text-2xl font-bold text-theme-primary mb-2">{t('emptyTitle')}</h2>
+                    <p className="text-theme-secondary">{t('emptyDescription')}</p>
                 </div>
             </div>
         );
@@ -26,9 +39,9 @@ export default async function HubsPage() {
         <main className="min-h-screen pt-24 pb-20 px-6">
             <div className="max-w-7xl mx-auto space-y-12">
                 <header className="text-center">
-                    <h1 className="font-display font-bold text-4xl text-theme-primary mb-4">Knowledge Hubs</h1>
+                    <h1 className="font-display font-bold text-4xl text-theme-primary mb-4">{t('title')}</h1>
                     <p className="text-theme-secondary max-w-2xl mx-auto">
-                        Deep topic clusters curated for SEO and user intent. Dive into a hub to explore related guides, comparisons, and news.
+                        {t('subtitle')}
                     </p>
                 </header>
 
@@ -40,7 +53,7 @@ export default async function HubsPage() {
                             className="group block h-full glass rounded-2xl border border-default hover:border-accent/40 transition-all hover:shadow-xl hover:shadow-accent/5 overflow-hidden"
                         >
                             <div className="relative w-full h-48 bg-slate-100 dark:bg-slate-800">
-                                {cluster.heroImage ? (
+                                {cluster.heroImage?.asset?.url ? (
                                     <Image
                                         src={cluster.heroImage.asset.url}
                                         alt={cluster.title}
@@ -58,7 +71,7 @@ export default async function HubsPage() {
                                     {cluster.title}
                                 </h2>
                                 <p className="text-theme-secondary text-sm">
-                                    {cluster.description || 'Explore this knowledge hub.'}
+                                    {cluster.description || t('fallbackDescription')}
                                 </p>
                             </div>
                         </Link>

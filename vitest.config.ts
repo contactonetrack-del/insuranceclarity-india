@@ -6,7 +6,11 @@ export default defineConfig({
     test: {
         environment: 'jsdom',
         globals: true,
-        setupFiles: ['./src/tests/setup.ts'],
+        testTimeout: 15000,
+        env: {
+            NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS: 'true'
+        },
+        setupFiles: ['./src/tests/setup.tsx'],
         include: ['src/**/*.{test,spec}.{ts,tsx}'],
         exclude: ['node_modules', '.next'],
         coverage: {
@@ -18,6 +22,12 @@ export default defineConfig({
                 'src/**/*.test.{ts,tsx}',
                 'src/**/index.ts',
             ],
+            thresholds: {
+                statements: 24,
+                branches: 18,
+                functions: 23,
+                lines: 24,
+            },
         },
     },
     resolve: {

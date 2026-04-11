@@ -6,41 +6,52 @@ import {
     trackToolUsed,
     trackFormEvent,
 } from '../analytics.service';
-import { logger } from '@/lib/logger';
+
 describe('Analytics', () => {
-    let loggerDebugSpy: any;
-    let loggerWarnSpy: any;
+    let consoleDebugSpy: ReturnType<typeof vi.spyOn>;
+    let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
     const originalEnv = process.env.NODE_ENV;
+    const originalAnalyticsFlag = process.env.NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS;
 
     beforeEach(() => {
-        loggerDebugSpy = vi.spyOn(logger, 'debug').mockImplementation(() => { });
-        loggerWarnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => { });
+        consoleDebugSpy = vi.spyOn(console, 'debug').mockImplementation(() => { });
+        consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
         // Reset to development for testing
         vi.stubEnv('NODE_ENV', 'development');
+        vi.stubEnv('NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS', 'false');
     });
 
     afterEach(() => {
-        loggerDebugSpy.mockRestore();
-        loggerWarnSpy.mockRestore();
+        consoleDebugSpy.mockRestore();
+        consoleWarnSpy.mockRestore();
         vi.stubEnv('NODE_ENV', originalEnv);
+        if (originalAnalyticsFlag === undefined) {
+            delete process.env.NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS;
+        } else {
+            vi.stubEnv('NEXT_PUBLIC_DISABLE_RUNTIME_ANALYTICS', originalAnalyticsFlag);
+        }
     });
 
     describe('trackEvent', () => {
         it('should log events in development mode', () => {
             trackEvent('test_event', { key: 'value' });
 
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                { args: ['[Analytics Dev]', 'test_event', { key: 'value' }] },
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalledWith(
+                '[Analytics Dev]',
+                '[Analytics Dev]',
+                'test_event',
+                { key: 'value' },
             );
         });
 
         it('should handle events without params', () => {
             trackEvent('simple_event');
 
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                { args: ['[Analytics Dev]', 'simple_event', {}] },
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalledWith(
+                '[Analytics Dev]',
+                '[Analytics Dev]',
+                'simple_event',
+                {},
             );
         });
 
@@ -55,15 +66,17 @@ describe('Analytics', () => {
             });
 
             // Should only contain safe_param
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                { args: ['[Analytics Dev]', 'test_with_pii', { safe_param: 'allowed' }] },
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalledWith(
+                '[Analytics Dev]',
+                '[Analytics Dev]',
+                'test_with_pii',
+                { safe_param: 'allowed' },
             );
 
             // Should warn about blocked params
-            expect(loggerWarnSpy).toHaveBeenCalledWith(
-                { args: [['age', 'user_age', 'sum_insured', 'phone', 'email']] },
-                '[Analytics] Blocked PII params:'
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                '[Analytics] Blocked PII params:',
+                ['age', 'user_age', 'sum_insured', 'phone', 'email'],
             );
         });
 
@@ -78,9 +91,11 @@ describe('Analytics', () => {
             });
 
             // Should only contain calculator_type
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                { args: ['[Analytics Dev]', 'test_more_pii', { calculator_type: 'health' }] },
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalledWith(
+                '[Analytics Dev]',
+                '[Analytics Dev]',
+                'test_more_pii',
+                { calculator_type: 'health' },
             );
         });
     });
@@ -93,11 +108,9 @@ describe('Analytics', () => {
                 duration_seconds: 45,
             });
 
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    args: expect.arrayContaining(['policy_comparison_viewed'])
-                }),
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalled();
+            expect(consoleDebugSpy.mock.calls[0]).toEqual(
+                expect.arrayContaining(['policy_comparison_viewed']),
             );
         });
     });
@@ -111,11 +124,9 @@ describe('Analytics', () => {
                 completed: true,
             });
 
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    args: expect.arrayContaining(['calculator_used'])
-                }),
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalled();
+            expect(consoleDebugSpy.mock.calls[0]).toEqual(
+                expect.arrayContaining(['calculator_used']),
             );
         });
     });
@@ -124,11 +135,9 @@ describe('Analytics', () => {
         it('should track tool usage', () => {
             trackToolUsed('hidden_facts', { factsViewed: 5 });
 
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    args: expect.arrayContaining(['tool_used'])
-                }),
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalled();
+            expect(consoleDebugSpy.mock.calls[0]).toEqual(
+                expect.arrayContaining(['tool_used']),
             );
         });
     });
@@ -137,11 +146,9 @@ describe('Analytics', () => {
         it('should track form start', () => {
             trackFormEvent('start', { form_name: 'quote_request' });
 
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    args: expect.arrayContaining(['form_start'])
-                }),
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalled();
+            expect(consoleDebugSpy.mock.calls[0]).toEqual(
+                expect.arrayContaining(['form_start']),
             );
         });
 
@@ -152,11 +159,9 @@ describe('Analytics', () => {
                 field: 'dob'
             });
 
-            expect(loggerDebugSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    args: expect.arrayContaining(['form_abandon'])
-                }),
-                '[Analytics Dev]'
+            expect(consoleDebugSpy).toHaveBeenCalled();
+            expect(consoleDebugSpy.mock.calls[0]).toEqual(
+                expect.arrayContaining(['form_abandon']),
             );
         });
     });

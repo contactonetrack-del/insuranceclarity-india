@@ -14,6 +14,19 @@ function trimValue(value: string | undefined | null): string {
     return value?.trim() ?? '';
 }
 
+function normalizeUrl(value: string): string {
+    return value.replace(/\/+$/, '');
+}
+
+function isVercelHostedUrl(value: string): boolean {
+    try {
+        const hostname = new URL(value).hostname.toLowerCase();
+        return hostname.endsWith('.vercel.app');
+    } catch {
+        return false;
+    }
+}
+
 function normalizeProvider(value: string): QueueProvider {
     return value.toLowerCase() === 'qstash' ? 'qstash' : 'http';
 }
@@ -43,14 +56,15 @@ export function getQueueSecret(): string {
 
 export function getPublicAppUrl(): string {
     const candidates = [
-        trimValue(process.env.APP_BASE_URL),
         trimValue(process.env.NEXT_PUBLIC_APP_URL),
+        trimValue(process.env.BETTER_AUTH_URL),
         trimValue(process.env.NEXTAUTH_URL),
+        trimValue(process.env.APP_BASE_URL),
+        process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${trimValue(process.env.VERCEL_PROJECT_PRODUCTION_URL)}` : '',
         process.env.VERCEL_URL ? `https://${trimValue(process.env.VERCEL_URL)}` : '',
     ].filter(Boolean);
 
-    const selected = candidates[0];
-    if (!selected) {
+    if (candidates.length === 0) {
         if (process.env.NODE_ENV !== 'production') {
             return 'http://localhost:3000';
         }
@@ -60,7 +74,8 @@ export function getPublicAppUrl(): string {
         );
     }
 
-    return selected.replace(/\/+$/, '');
+    const canonical = candidates.find((value) => !isVercelHostedUrl(value)) ?? candidates[0];
+    return normalizeUrl(canonical);
 }
 
 export function getWorkerEndpointUrl(pathname: string): string {

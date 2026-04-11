@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import Razorpay from 'razorpay';
-import { getRazorpayCredentials } from '@/lib/security/env';
+import { getPaymentProvider } from '@/lib/payments/provider';
 import { sendUrgentWebhook } from '@/lib/observability/alerts';
+import { requireCronAuthorization } from '@/lib/security/cron-auth';
+import { findPendingPaymentsForReconciliation, reconcileCapturedPaymentById } from '@/services/ops.service';
+import { markPaymentFailedById } from '@/services/payment.service';
 
 /**
  * GET /api/cron/payment-reconciliation
@@ -13,11 +14,8 @@ import { sendUrgentWebhook } from '@/lib/observability/alerts';
  */
 export async function GET(request: Request) {
     try {
-        const authHeader = request.headers.get('Authorization');
-        // Simple security: Since cron comes from Vercel, it uses the CRON_SECRET if configured.
-        if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        const authFailure = requireCronAuthorization(request, { action: 'cron.payment-reconciliation' });
+        if (authFailure) return authFailure;
 
         const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
@@ -27,53 +25,31 @@ export async function GET(request: Request) {
         const MAX_BATCH_SIZE = 50;
         const MAX_TOTAL_SWEPT = 250; // Safety limit to avoid Vercel timeouts (10s limit on Hobby/Pro)
 
-        const { keyId, keySecret } = getRazorpayCredentials();
-        const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+        const paymentProvider = getPaymentProvider();
 
         while (totalSwept < MAX_TOTAL_SWEPT) {
-            const pendingPayments = await prisma.payment.findMany({
-                where: {
-                    status: 'CREATED',
-                    createdAt: { lte: thirtyMinutesAgo }
-                },
-                take: MAX_BATCH_SIZE
-            });
+            const pendingPayments = await findPendingPaymentsForReconciliation(thirtyMinutesAgo, MAX_BATCH_SIZE);
 
             if (pendingPayments.length === 0) break;
 
             for (const payment of pendingPayments) {
                 try {
-                    const orderData = await razorpay.orders.fetch(payment.razorpayOrderId);
+                    const orderData = await paymentProvider.fetchOrder(payment.razorpayOrderId);
                     const orderStatus = orderData.status; // 'created', 'attempted', 'paid'
 
                     if (orderStatus === 'paid') {
                         // Fetch actual payment intent to mark complete
-                        const paymentsForOrder = await razorpay.orders.fetchPayments(payment.razorpayOrderId);
+                        const paymentsForOrder = await paymentProvider.fetchOrderPayments(payment.razorpayOrderId);
                         const successfulPayment = paymentsForOrder.items.find(p => p.status === 'captured');
 
                         if (successfulPayment) {
-                            await prisma.$transaction([
-                                prisma.payment.update({
-                                    where: { id: payment.id },
-                                    data: {
-                                        status: 'CAPTURED',
-                                        razorpayPaymentId: successfulPayment.id,
-                                    }
-                                }),
-                                prisma.scan.update({
-                                    where: { id: payment.scanId },
-                                    data: { isPaid: true }
-                                })
-                            ]);
+                            await reconcileCapturedPaymentById(payment.id, payment.scanId, successfulPayment.id);
                             reconciledCount++;
                             logger.info({ action: 'cron.reconcile.success', paymentId: payment.id, scanId: payment.scanId });
                         }
-                    } else if (orderData.created_at < Math.floor(Date.now() / 1000) - (24 * 60 * 60)) {
+                    } else if ((orderData.createdAtUnix ?? 0) < Math.floor(Date.now() / 1000) - (24 * 60 * 60)) {
                         // Fail out orders older than 24 hours that were never captured
-                        await prisma.payment.update({
-                            where: { id: payment.id },
-                            data: { status: 'FAILED' }
-                        });
+                        await markPaymentFailedById(payment.id);
                     }
                 } catch (err) {
                     logger.error({ action: 'cron.reconcile.sweep_error', paymentId: payment.id, error: String(err) });
